@@ -828,7 +828,7 @@ fs.readFile = (path, options, callback) => {
 
 	const wasFileDescriptor = (typeof path === 'number');
 
-	let fileDescriptor = path; // may be overriden later
+	let fileDescriptor = path; // may be overridden later
 	/**
 	 * @param {Error} err possible Error
 	 * @param {Ti.Buffer} buffer Ti.Buffer instance
@@ -1240,7 +1240,7 @@ fs.writeFile = (file, data, options, callback) => {
 	// Turn into file descriptor
 	const wasFileDescriptor = typeof file === 'number';
 
-	let fileDescriptor = file; // may be overriden later
+	let fileDescriptor = file; // may be overridden later
 	const finish = (err) => {
 		if (err) {
 			callback(err);
@@ -1387,7 +1387,7 @@ function pipe(srcStream, destStream, callback) {
 	// it also doesn't play as expected when doing Ti.Stream.pump and Ti.Stream.write async each
 	// it ends up doing all reads first and then all writes
 	// so we have to hack here and do Ti.Stream.pump async, but each time the read callback happens we do a *sync* write inside it
-	// See https://jira.appcelerator.org/browse/TIMOB-27321
+	// See https://jira-archive.titaniumsdk.com/TIMOB-27321
 	pipeViaPump(srcStream, destStream, callback);
 }
 
@@ -1403,7 +1403,7 @@ function pipeViaWriteStream(srcStream, destStream, callback) {
 		}
 
 		// Android will only call this at the end or error, so we can safely assume we're done here.
-		// iOS will call per loop iteration, see https://jira.appcelerator.org/browse/TIMOB-27320
+		// iOS will call per loop iteration, see https://jira-archive.titaniumsdk.com/TIMOB-27320
 		callback();
 	});
 }
@@ -1570,10 +1570,10 @@ function encodeBuffer(encoding, tiBuffer) {
  */
 function getTiFileFromPathLikeValue(path) {
 	// This is a hack that is likely to work in most cases?
-	// Basically assumes Buffer is holding a utf-8 string filename/path
+	// Basically assumes Buffer is holding a UTF-8 string filename/path
 	// Node just copies the bytes from the buffer as-is on the native side and adds a null terminator
 	if (Buffer.isBuffer(path)) {
-		path = path.toString(); // assumes utf-8 string
+		path = path.toString(); // assumes UTF-8 string
 	}
 	// FIXME: Handle URLs! We don't have an URL shim yet, so no way to handle those yet
 	assertArgumentType(path, 'path', 'string');

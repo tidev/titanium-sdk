@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -237,7 +237,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.topLevel
 	public void alert(Object message)
 	{
-		String msg = (message == null ? null : message.toString());
+		String msg = TiConvert.toString(message);
 
 		if (TiApplication.isUIThread()) {
 			TiUIHelper.doOkDialog("", msg, null);
@@ -263,7 +263,7 @@ public class TitaniumModule extends KrollModule
 			}
 
 		} catch (Exception ex) {
-			Log.e(TAG, "Error occured while formatting string", ex);
+			Log.e(TAG, "Error occurred while formatting string", ex);
 			return null;
 		}
 	}

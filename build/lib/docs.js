@@ -1,11 +1,12 @@
-'use strict';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const spawn = require('child_process').spawn; // eslint-disable-line security/detect-child-process
-const path = require('path');
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '../..');
 const DOC_DIR = path.join(ROOT_DIR, 'apidoc');
 
-class Documentation {
+export class Documentation {
 	/**
 	 * @param       {string} outputDir output directory for generated documentation
 	 * @constructor
@@ -23,7 +24,10 @@ class Documentation {
 		const outputFile = path.join(this.outputDir, filename);
 
 		return new Promise((resolve, reject) => {
-			const prc = spawn(cmdPath, args, { cwd: DOC_DIR });
+			const prc = spawn(cmdPath, args, {
+				cwd: DOC_DIR,
+				shell: process.platform === 'win32'
+			});
 			prc.stdout.on('data', data => console.log(data.toString().trim()));
 			prc.stderr.on('data', data => console.error(data.toString().trim()));
 			prc.on('close', code => {
@@ -55,4 +59,3 @@ class Documentation {
 		]);
 	}
 }
-module.exports = Documentation;

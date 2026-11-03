@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -71,7 +71,7 @@
 
   [self becomeFirstResponder];
 
-  [[[[[TiApp app] controller] topPresentedController] view] addSubview:self];
+  [[[[[self.proxy owningInstance] controller] topPresentedController] view] addSubview:self];
 
   UIMenuController *controller = [UIMenuController sharedMenuController];
   UIView *view = [sourceView view];

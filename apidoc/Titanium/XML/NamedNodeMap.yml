@@ -36,7 +36,7 @@ methods:
   - name: removeNamedItem
     summary: >
         Removes a node from the map specified by name. When this map
-        contains attributes attached to an element, if the removed attribtue is
+        contains attributes attached to an element, if the removed attribute is
         known to have a default, it is replaced with that value.
     returns:
         type: Titanium.XML.Node
@@ -87,7 +87,7 @@ methods:
     summary: >
         Removes a node from the map specified by local name and namespace URI.
         When this map contains attributes attached to an element, if the removed
-        attribtue is known to have a default, it is replaced with that value.
+        attribute is known to have a default, it is replaced with that value.
         Returns the node removed from the map, or `null` if there is no
         corresponding node.
     returns:

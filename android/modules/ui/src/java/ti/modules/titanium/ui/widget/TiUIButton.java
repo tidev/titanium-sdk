@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -20,16 +20,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.R;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.R;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.HashMap;
@@ -166,9 +167,10 @@ public class TiUIButton extends TiUIView
 			btn.setText(d.getString(TiC.PROPERTY_TITLE));
 		}
 		if (d.containsKey(TiC.PROPERTY_ATTRIBUTED_STRING)) {
-			Object attributedString = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
-			if (attributedString instanceof AttributedStringProxy) {
-				setAttributedStringText((AttributedStringProxy) attributedString);
+			Object attr = d.get(TiC.PROPERTY_ATTRIBUTED_STRING);
+			AttributedStringProxy proxy = AttributedStringProxy.createFromProperties(attr);
+			if (proxy != null) {
+				setAttributedStringText(proxy);
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_COLOR) || d.containsKey(TiC.PROPERTY_TINT_COLOR)) {
@@ -191,9 +193,8 @@ public class TiUIButton extends TiUIView
 		}
 		if (d.containsKey(TiC.PROPERTY_SHADOW_OFFSET)) {
 			Object value = d.get(TiC.PROPERTY_SHADOW_OFFSET);
-			if (value instanceof HashMap) {
+			if (value instanceof HashMap dict) {
 				needShadow = true;
-				HashMap dict = (HashMap) value;
 				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
 				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
 			}
@@ -224,8 +225,11 @@ public class TiUIButton extends TiUIView
 		AppCompatButton btn = (AppCompatButton) getNativeView();
 		if (key.equals(TiC.PROPERTY_TITLE)) {
 			btn.setText((String) newValue);
-		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING) && newValue instanceof AttributedStringProxy) {
-			setAttributedStringText((AttributedStringProxy) newValue);
+		} else if (key.equals(TiC.PROPERTY_ATTRIBUTED_STRING)) {
+			AttributedStringProxy asProxy = AttributedStringProxy.createFromProperties(newValue);
+			if (asProxy != null) {
+				setAttributedStringText(asProxy);
+			}
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			String colorString = TiConvert.toString(newValue);
 			btn.setTextColor((colorString != null) ? TiConvert.toColor(colorString, activity) : this.defaultColor);
@@ -262,8 +266,7 @@ public class TiUIButton extends TiUIView
 				((MaterialButton) btn).setRippleColor(colorStateList);
 			}
 		} else if (key.equals(TiC.PROPERTY_SHADOW_OFFSET)) {
-			if (newValue instanceof HashMap) {
-				HashMap dict = (HashMap) newValue;
+			if (newValue instanceof HashMap dict) {
 				shadowX = TiConvert.toFloat(dict.get(TiC.PROPERTY_X), 0);
 				shadowY = TiConvert.toFloat(dict.get(TiC.PROPERTY_Y), 0);
 				btn.setShadowLayer(shadowRadius, shadowX, shadowY, shadowColor);
@@ -322,19 +325,17 @@ public class TiUIButton extends TiUIView
 		Drawable drawable = null;
 		Object imageObject = this.proxy.getProperty(TiC.PROPERTY_IMAGE);
 		if (imageObject != null) {
-			drawable = TiUIHelper.getResourceDrawable(imageObject);
+			drawable = TiDrawableReference.fromObject(this.proxy, imageObject).getDrawable();
 		}
 
 		// Update button's image/icon.
 		if (drawable != null) {
 			boolean imageIsMask = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_IMAGE_IS_MASK), true);
-			String colorString = TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_TINT_COLOR));
 			int colorValue = this.defaultColor;
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				colorValue = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), proxy.getActivity());
 			}
-			if (button instanceof MaterialButton) {
-				MaterialButton materialButton = (MaterialButton) button;
+			if (button instanceof MaterialButton materialButton) {
 				materialButton.setIcon(drawable);
 				materialButton.setIconTintMode(imageIsMask ? Mode.SRC_IN : Mode.DST);
 				materialButton.setIconTint(ColorStateList.valueOf(colorValue));

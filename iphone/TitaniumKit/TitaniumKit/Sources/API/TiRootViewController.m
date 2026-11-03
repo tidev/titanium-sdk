@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -12,6 +12,23 @@
 #import "TiSharedConfig.h"
 #import "TiUtils.h"
 #import "TiViewController.h"
+
+// Maps a single interface orientation to its UIInterfaceOrientationMask counterpart.
+static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation orientation)
+{
+  switch (orientation) {
+  case UIInterfaceOrientationPortrait:
+    return UIInterfaceOrientationMaskPortrait;
+  case UIInterfaceOrientationPortraitUpsideDown:
+    return UIInterfaceOrientationMaskPortraitUpsideDown;
+  case UIInterfaceOrientationLandscapeLeft:
+    return UIInterfaceOrientationMaskLandscapeLeft;
+  case UIInterfaceOrientationLandscapeRight:
+    return UIInterfaceOrientationMaskLandscapeRight;
+  default:
+    return UIInterfaceOrientationMaskPortrait;
+  }
+}
 
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {
@@ -91,8 +108,9 @@
   RELEASE_TO_NIL(containedWindows);
   RELEASE_TO_NIL(modalWindows);
   RELEASE_TO_NIL(hostView);
+  RELEASE_TO_NIL(hingeInteraction);
 
-  WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
   [nc removeObserver:self];
   [super dealloc];
@@ -159,16 +177,16 @@
 
 - (void)processInfoPlist
 {
-  //read the default orientations
+  // read the default orientations
   [self getDefaultOrientations];
 
-  //read the default value of UIStatusBarHidden
+  // read the default value of UIStatusBarHidden
   id statHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarHidden"];
   statusBarInitiallyHidden = [TiUtils boolValue:statHidden];
-  //read the value of UIViewControllerBasedStatusBarAppearance
+  // read the value of UIViewControllerBasedStatusBarAppearance
   id vcbasedStatHidden = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIViewControllerBasedStatusBarAppearance"];
   viewControllerControlsStatusBar = [TiUtils boolValue:vcbasedStatHidden def:YES];
-  //read the value of statusBarStyle
+  // read the value of statusBarStyle
   id statusStyle = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarStyle"];
   defaultStatusBarStyle = [self styleFromString:statusStyle];
 }
@@ -190,7 +208,7 @@
   theHost = hostView;
 
   if (defaultImageView != nil) {
-    [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    [self rotateDefaultImageViewToOrientation:[TiUtils interfaceOrientationForScene:self.view.window.windowScene]];
     [theHost addSubview:defaultImageView];
   }
   [rootView becomeFirstResponder];
@@ -206,7 +224,7 @@
 }
 
 #pragma mark - TiRootControllerProtocol
-//Background Control
+// Background Control
 - (void)updateBackground
 {
   UIView *ourView = [self view];
@@ -221,7 +239,13 @@
 
   [ourView setBackgroundColor:chosenColor];
   [[ourView superview] setBackgroundColor:chosenColor];
-  [[UIApplication sharedApplication] keyWindow].backgroundColor = chosenColor;
+  UIWindow *sceneWindow = nil;
+  if ([self isViewLoaded]) {
+    sceneWindow = [self view].window;
+  }
+  if (sceneWindow != nil) {
+    sceneWindow.backgroundColor = chosenColor;
+  }
   if (bgImage != nil) {
     [[ourView layer] setContents:(id)bgImage.CGImage];
   } else {
@@ -394,11 +418,11 @@
   UIUserInterfaceIdiom imageIdiom;
   UIUserInterfaceIdiom deviceIdiom = [[UIDevice currentDevice] userInterfaceIdiom];
   /*
-     *	This code could stand for some refinement, but it is rarely called during
-     *	an application's lifetime and is meant to recreate the quirks and edge cases
-     *	that iOS uses during application startup, including Apple's own
-     *	inconsistencies between iPad and iPhone.
-     */
+   *	This code could stand for some refinement, but it is rarely called during
+   *	an application's lifetime and is meant to recreate the quirks and edge cases
+   *	that iOS uses during application startup, including Apple's own
+   *	inconsistencies between iPad and iPhone.
+   */
 
   UIImage *defaultImage = [self defaultImageForOrientation:
                                     (UIDeviceOrientation)newOrientation
@@ -510,7 +534,10 @@
 
 - (UIView *)viewForKeyboardAccessory;
 {
-  return [[[[TiApp app] window] subviews] lastObject];
+  if (![self isViewLoaded]) {
+    return nil;
+  }
+  return [[[self view].window subviews] lastObject];
 }
 
 - (void)extractKeyboardInfo:(NSDictionary *)userInfo
@@ -531,14 +558,14 @@
 
 - (UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView
 {
-  //If the toolbar actually contains the view, then we have to give that precidence.
+  // If the toolbar actually contains the view, then we have to give that precidence.
   if ([visibleProxy viewInitialized]) {
     UIView *ourView = [visibleProxy view];
     *proxyView = ourView;
 
     while (ourView != nil) {
       if ((ourView == enteringAccessoryView) || (ourView == accessoryView) || (ourView == leavingAccessoryView)) {
-        //We found a match!
+        // We found a match!
         *proxyView = nil;
         return ourView;
       }
@@ -556,13 +583,13 @@
   UIView *ourView = [self viewForKeyboardAccessory];
   CGRect endingFrame = [ourView convertRect:endFrame fromView:nil];
 
-  //Sanity check. Look at our focused proxy, and see if we mismarked it as leaving.
-  TiUIView *scrolledView; //We check at the update anyways.
+  // Sanity check. Look at our focused proxy, and see if we mismarked it as leaving.
+  TiUIView *scrolledView; // We check at the update anyways.
 
   UIView *focusedToolbar = [self keyboardAccessoryViewForProxy:keyboardFocusedProxy withView:&scrolledView];
 
   CGRect focusedToolbarBounds;
-  //special case for undocked split keyboard
+  // special case for undocked split keyboard
   if (CGRectEqualToRect(CGRectZero, endingFrame)) {
     focusedToolbarBounds = CGRectMake(0, 0, targetedFrame.size.width, [keyboardFocusedProxy keyboardAccessoryHeight]);
   } else {
@@ -570,9 +597,10 @@
   }
   [focusedToolbar setBounds:focusedToolbarBounds];
 
-  CGFloat keyboardHeight = endingFrame.origin.y;
+  UIWindow *keyboardWindow = self.view.window;
+  CGFloat keyboardHeight = [keyboardWindow convertRect:endFrame fromCoordinateSpace:keyboardWindow.screen.coordinateSpace].origin.y;
 
-  if ((scrolledView != nil) && (keyboardHeight > 0)) //If this isn't IN the toolbar, then we update the scrollviews to compensate.
+  if ((scrolledView != nil) && (keyboardHeight > 0)) // If this isn't IN the toolbar, then we update the scrollviews to compensate.
   {
     UIView *possibleScrollView = [scrolledView superview];
     UIView<TiScrolling> *confirmedScrollView = nil;
@@ -605,13 +633,13 @@
 
   keyboardFocusedProxy = [visibleProxy retain];
 
-  TiUIView *unused; //We check at the update anyways.
+  TiUIView *unused; // We check at the update anyways.
   UIView *newView = [self keyboardAccessoryViewForProxy:visibleProxy withView:&unused];
 
   if ((newView == enteringAccessoryView) || (newView == accessoryView)) {
-    //We're already up or soon will be.
-    //Note that this is valid where newView can be accessoryView despite a new visibleProxy.
-    //Specifically, if one proxy's view is a subview of another's toolbar.
+    // We're already up or soon will be.
+    // Note that this is valid where newView can be accessoryView despite a new visibleProxy.
+    // Specifically, if one proxy's view is a subview of another's toolbar.
   } else {
     if (enteringAccessoryView != nil) {
       DebugLog(@"[WARN] Moving in view %@, despite %@ already in line to move in.", newView, enteringAccessoryView);
@@ -619,7 +647,7 @@
     }
 
     if (newView == leavingAccessoryView) {
-      //Hold on, you're not leaving YET! We don't need to release you since we're going to retain right afterwards.
+      // Hold on, you're not leaving YET! We don't need to release you since we're going to retain right afterwards.
       enteringAccessoryView = newView;
       leavingAccessoryView = nil;
     } else {
@@ -641,7 +669,7 @@
     return;
   }
 
-  TiUIView *scrolledView; //We check at the update anyways.
+  TiUIView *scrolledView; // We check at the update anyways.
   UIView *doomedView = [self keyboardAccessoryViewForProxy:blurredProxy withView:&scrolledView];
 
   if (doomedView != accessoryView) {
@@ -650,7 +678,7 @@
   }
 
   if ((doomedView == nil) || (leavingAccessoryView == doomedView)) {
-    //Nothing to worry about. No toolbar or it's on its way out.
+    // Nothing to worry about. No toolbar or it's on its way out.
     return;
   }
 
@@ -680,6 +708,11 @@
   }
 }
 
+- (TiWindowProxy *)rootWindowProxy
+{
+  return [containedWindows firstObject];
+}
+
 - (UIView *)topWindowProxyView
 {
   if ([modalWindows count] > 0) {
@@ -696,7 +729,7 @@
   if (![TiSharedConfig defaultConfig].debugEnabled) {
     return;
   }
-  //FIRST DISMISS ALL MODAL WINDOWS
+  // FIRST DISMISS ALL MODAL WINDOWS
   UIViewController *topVC = [self topPresentedController];
   if (topVC != self) {
     UIViewController *presenter = [topVC presentingViewController];
@@ -706,7 +739,7 @@
                                   }];
     return;
   }
-  //At this point all modal stuff is done. Go ahead and clean up proxies.
+  // At this point all modal stuff is done. Go ahead and clean up proxies.
   NSArray *modalCopy = [modalWindows copy];
   NSArray *windowCopy = [containedWindows copy];
 
@@ -860,7 +893,7 @@
                                         [(id<TiWindowProtocol>)theProxy gainFocus];
                                       }
                                     } else {
-                                      //This code block will only execute when errorController is presented on top of an alert
+                                      // This code block will only execute when errorController is presented on top of an alert
                                       if ([presenter isKindOfClass:[UIAlertController class]] && (((UIAlertController *)presenter).preferredStyle == UIAlertControllerStyleAlert)) {
                                         UIViewController *alertPresenter = [presenter presentingViewController];
                                         [alertPresenter dismissViewControllerAnimated:NO
@@ -974,8 +1007,8 @@
 
 - (void)repositionSubviews
 {
-  //Since the window relayout is now driven from viewDidLayoutSubviews
-  //this is not required. Leaving it in place in case someone is using it now.
+  // Since the window relayout is now driven from viewDidLayoutSubviews
+  // this is not required. Leaving it in place in case someone is using it now.
   /*
     for (id<TiWindowProtocol> thisWindow in [containedWindows reverseObjectEnumerator]) {
         [TiLayoutQueue layoutProxy:(TiViewProxy*)thisWindow];
@@ -994,7 +1027,7 @@
     }
   }
 
-  //This line should never happen, but just in case...
+  // This line should never happen, but just in case...
   return UIInterfaceOrientationPortrait;
 }
 
@@ -1005,8 +1038,8 @@
 
 - (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
 {
-  if ((![TiUtils isIPad]) && ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+  if ((![TiUtils isIPad]) && ([TiUtils interfaceOrientationForScene:self.view.window.windowScene] == UIInterfaceOrientationPortraitUpsideDown)) {
+    CGRect statusBarFrame = self.view.window.windowScene.statusBarManager.statusBarFrame;
     if (statusBarFrame.size.height == 0) {
       return;
     }
@@ -1014,7 +1047,7 @@
     CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
     CGRect viewBounds = [[self view] bounds];
 
-    //Need to do this to force navigation bar to draw correctly on iOS7
+    // Need to do this to force navigation bar to draw correctly on iOS 7
     [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
     if (statusBarFrame.size.height > 20) {
       if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
@@ -1066,7 +1099,6 @@
   [self adjustFrameForUpSideDownOrientation:nil];
 }
 
-//IOS5 support. Begin Section. Drop in 3.2
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
 {
   return YES;
@@ -1076,9 +1108,6 @@
 {
   return [self shouldRotateToInterfaceOrientation:toInterfaceOrientation checkModal:YES];
 }
-//IOS5 support. End Section
-
-//IOS6 new stuff.
 
 - (BOOL)shouldAutomaticallyForwardRotationMethods
 {
@@ -1105,6 +1134,20 @@
   if (activeAlertControllerCount == 0) {
     UIViewController *topVC = [self topPresentedController];
     if (topVC == self) {
+      // Only trigger orientation change if this controller's window is in the foreground.
+      // In multi-scene mode, a background scene closing an alert should not
+      // force orientation changes on the foreground scene.
+      if (@available(iOS 13.0, *)) {
+        UIWindow *sceneWindow = nil;
+        if ([self isViewLoaded]) {
+          sceneWindow = [self view].window;
+        }
+        if (sceneWindow != nil && ![sceneWindow isKeyWindow]) {
+          // This scene is not in the foreground — skip orientation change
+          [self dismissKeyboard];
+          return;
+        }
+      }
       [self didCloseWindow:nil];
     } else {
       [self dismissKeyboard];
@@ -1129,18 +1172,18 @@
     return [self supportedInterfaceOrientations];
   }
 
-  //Since this is used just for intersection, ok to return UIInterfaceOrientationMaskAll
-  return 30; //UIInterfaceOrientationMaskAll
+  // Since this is used just for intersection, ok to return UIInterfaceOrientationMaskAll
+  return 30; // UIInterfaceOrientationMaskAll
 }
 
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
-  //IOS6. If forcing status bar orientation, this must return 0.
+  // If forcing status bar orientation, this must return 0.
   if (forcingStatusBarOrientation) {
     return 0;
   }
-  //IOS6. If we are presenting a modal view controller, get the supported
-  //orientations from the modal view controller
+  // If we are presenting a modal view controller, get the supported
+  // orientations from the modal view controller
   UIViewController *topmostController = [self topPresentedControllerCheckingPopover:YES];
   if (topmostController != self) {
     NSUInteger retVal = [topmostController supportedInterfaceOrientations];
@@ -1179,7 +1222,7 @@
 
 - (void)refreshOrientationWithDuration:(id)unused
 {
-  if (![[TiApp app] windowIsKeyWindow]) {
+  if (![self isViewLoaded] || ![[self view].window isKeyWindow]) {
     VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
     return;
   }
@@ -1189,39 +1232,69 @@
   }
 
   UIInterfaceOrientation target = [self lastValidOrientation:[self getFlags:NO]];
-  //Device Orientation takes precedence.
+  // Device Orientation takes precedence.
   if (target != deviceOrientation) {
     if ([self shouldRotateToInterfaceOrientation:deviceOrientation checkModal:NO]) {
       target = deviceOrientation;
     }
   }
 
-  if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
+  UIInterfaceOrientation current = [TiUtils interfaceOrientationForScene:self.view.window.windowScene];
+
+#if !TARGET_OS_MACCATALYST
+  // Let UIKit re-evaluate -supportedInterfaceOrientations. If the current orientation is still
+  // allowed there is nothing to force: UIKit rotates on its own once the device is turned.
+  [self setNeedsUpdateOfSupportedInterfaceOrientations];
+
+  if (current == UIInterfaceOrientationUnknown || [self shouldRotateToInterfaceOrientation:current checkModal:NO]) {
+    [self resetTransformAndForceLayout:NO];
+    return;
+  }
+
+  if ([TiSharedConfig defaultConfig].debugEnabled) {
+    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
+  }
+
+  UIWindowScene *scene = self.view.window.windowScene;
+  if (scene == nil) {
+    return;
+  }
+  UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:TiMaskForOrientation(target)];
+  [scene requestGeometryUpdateWithPreferences:preferences
+                                 errorHandler:^(NSError *error) {
+                                   DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
+                                 }];
+  [preferences release];
+  return;
+#else
+  // Mac Catalyst has no scene geometry API, so rotate the hosting view manually.
+  if (current != target) {
     forcingRotation = YES;
     if ([TiSharedConfig defaultConfig].debugEnabled) {
-      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
     }
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
     [self rotateHostingViewToOrientation:target
-                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                         fromOrientation:current];
     forcingRotation = NO;
 #endif
   } else {
     [self resetTransformAndForceLayout:NO];
   }
+#endif
 }
 
 - (void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
 {
   /*
-	 *	And now, to push the orientation onto the history stack. This could be
-	 *	expressed as a for loop, but the loop is so small that it might as well
-	 *	be unrolled. The end result of this push is that only other orientations
-	 *	are copied back, ensuring the newOrientation will be unique when it's
-	 *	placed at the top of the stack.
-	 */
+   *	And now, to push the orientation onto the history stack. This could be
+   *	expressed as a for loop, but the loop is so small that it might as well
+   *	be unrolled. The end result of this push is that only other orientations
+   *	are copied back, ensuring the newOrientation will be unique when it's
+   *	placed at the top of the stack.
+   */
   int i = 0;
   for (int j = 0; j < 4; j++) {
     if (orientationHistory[j] == newOrientation) {
@@ -1325,10 +1398,10 @@
     }
     break;
   }
-  //Blur out keyboard
+  // Blur out keyboard
   [keyboardFocusedProxy blur:nil];
 
-  //Rotate statusbar
+  // Rotate statusbar
   /*
      We will not rotae the status bar here but will temporarily force hide it. That way we will get
      correct size in viewWillTransitionToSize and re-enable visibility there. If we force the status
@@ -1373,16 +1446,22 @@
   if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
+
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    [self setNeedsUpdateOfVerticalBarConfiguration];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
 {
-  //Blank method since we never have a parent.
+  // Blank method since we never have a parent.
 }
 
 - (id)parentOrientationController
 {
-  //Blank method since we never have a parent.
+  // Blank method since we never have a parent.
   return nil;
 }
 
@@ -1426,7 +1505,7 @@
   [super traitCollectionDidChange:previousTraitCollection];
 }
 
-//Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
+// Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 - (void)viewWillAppear:(BOOL)animated
 {
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
@@ -1451,7 +1530,9 @@
       [thisWindow viewDidAppear:animated];
     }
     forcingRotation = NO;
-    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    // 0.3s is the duration of the rotation animation, formerly reported by the deprecated
+    // -[UIApplication statusBarOrientationAnimationDuration].
+    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:0.3];
 
     [[containedWindows lastObject] gainFocus];
   }
@@ -1471,9 +1552,21 @@
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
-  UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
-  [self updateOrientationHistory:interfaceOrientation];
-  [self rotateDefaultImageViewToOrientation:interfaceOrientation];
+  UIDeviceOrientation currentDeviceOrientation = [[UIDevice currentDevice] orientation];
+  if (UIDeviceOrientationIsValidInterfaceOrientation(currentDeviceOrientation)) {
+    UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)currentDeviceOrientation;
+    [self updateOrientationHistory:interfaceOrientation];
+    [self rotateDefaultImageViewToOrientation:interfaceOrientation];
+  }
+  // The device orientation is not necessarily the orientation we end up in (e.g. a forced rotation
+  // while the device lies flat), so record the resulting interface orientation once the transition is done.
+  [coordinator animateAlongsideTransition:nil
+                               completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+                                 UIInterfaceOrientation resultingOrientation = [TiUtils interfaceOrientationForScene:self.view.window.windowScene];
+                                 if (resultingOrientation != UIInterfaceOrientationUnknown) {
+                                   [self updateOrientationHistory:resultingOrientation];
+                                 }
+                               }];
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
@@ -1501,6 +1594,43 @@
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
+#pragma mark - Hinge (iPhone Duo)
+
+- (void)setHingeObservationEnabled:(BOOL)enabled
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    TiThreadPerformOnMainThread(
+        ^{
+          if (!enabled) {
+            if (hingeInteraction != nil) {
+              [[self view] removeInteraction:hingeInteraction];
+              RELEASE_TO_NIL(hingeInteraction);
+            }
+            return;
+          }
+
+          if (hingeInteraction != nil) {
+            return;
+          }
+
+          __block TiRootViewController *blockSelf = self;
+          hingeInteraction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
+            // A nil hinge means the interaction left a hierarchy that provides hinge updates
+            UIHinge *hinge = update.hinge;
+            NSDictionary *info = @{
+              @"status" : @(hinge != nil ? hinge.status : UIHingeStatusUnknown),
+              @"angle" : @(hinge != nil ? hinge.angle * 180.0 / M_PI : 0.0)
+            };
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHingeChanged object:blockSelf userInfo:info];
+          }];
+          [[self view] addInteraction:hingeInteraction];
+        },
+        NO);
+  }
+#endif
+}
+
 #pragma mark - HomeIndicatorAutoHidden
 
 - (BOOL)prefersHomeIndicatorAutoHidden
@@ -1510,6 +1640,20 @@
   }
   return NO;
 }
+
+#pragma mark - Vertical Bar Behavior (iPhone Duo)
+
+#if IS_SDK_IOS_27_1
+- (UIVerticalBarBehavior)preferredVerticalBarBehavior
+{
+  id<TiWindowProtocol> topWindow = [containedWindows lastObject];
+  if (topWindow != nil && [topWindow respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+    return [topWindow preferredVerticalBarBehavior] == UIVerticalBarBehaviorDisabled ? UIVerticalBarBehaviorDisabled : UIVerticalBarBehaviorAutomatic;
+  }
+
+  return UIVerticalBarBehaviorAutomatic;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 

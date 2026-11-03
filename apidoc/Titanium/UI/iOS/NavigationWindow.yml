@@ -21,7 +21,7 @@ deprecated:
     notes: Use [Titanium.UI.NavigationWindow](Titanium.UI.NavigationWindow) instead.
     removed: "10.0.0"
 excludes:
-    methods: [removeAllChildren, setToolbar, hideTabBar]
+    methods: [removeAllChildren, setToolbar]
     properties: [navBarHidden, tabBarHidden, navTintColor, translucent, toolbar,
                 barColor, barImage, leftNavButton, rightNavButton, title, titleControl,
                 titlePrompt, titleImage, titleid, titlepromptid, url, backButtonTitle,

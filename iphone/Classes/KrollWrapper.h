@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -47,7 +47,7 @@
 // Unprotects a JSObject from being GC'd
 - (void)unprotectJsobject;
 
-// Replaces a value for a given key in it's underlaying JSContext
+// Replaces a value for a given key in it's underlying JSContext
 - (void)replaceValue:(id)value forKey:(NSString *)key notification:(BOOL)notify;
 
 // Executes an async JavaScript function and returns the resulting JSCore value if any

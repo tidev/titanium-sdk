@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -80,6 +80,11 @@ public final class TiActivityWindows
 	public static boolean hasWindow(int windowId)
 	{
 		return (windowMap.get(windowId) != null);
+	}
+
+	public static boolean hasWindow(TiActivityWindow window)
+	{
+		return (window != null) && windowMap.containsValue(window);
 	}
 
 	public static int getWindowCount()

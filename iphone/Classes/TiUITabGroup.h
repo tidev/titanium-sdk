@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -8,7 +8,7 @@
 
 #import <TitaniumKit/TiUIView.h>
 
-//To handle the more tab, we're a delegate of it.
+// To handle the more tab, we're a delegate of it.
 @class TiUITabProxy;
 @interface TiUITabGroup : TiUIView <UITabBarControllerDelegate, UINavigationControllerDelegate> {
   @private
@@ -20,12 +20,16 @@
   TiColor *barColor;
   TiColor *navTintColor;
   NSMutableDictionary *theAttributes;
+
+  BOOL isTabBarHidden;
+  TiUIView *bottomAccessoryView;
 }
 
 - (UITabBarController *)tabController;
 
 - (void)open:(id)args;
 - (void)close:(id)args;
+- (void)hideTabBar:(BOOL)hidden animated:(BOOL)animated;
 
 - (NSDictionary *)focusEvent;
 

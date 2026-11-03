@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -18,12 +18,21 @@ describe('Titanium.UI.TabGroup', function () {
 	this.timeout(5000);
 
 	let tabGroup;
+	let ownerWindow;
 	afterEach(done => { // fires after every test in sub-suites too...
-		if (tabGroup && !tabGroup.closed) {
-			tabGroup.close().then(() => done()).catch(_e => done());
-		} else {
+		const closeOwner = () => {
 			tabGroup = null;
-			done();
+			if (ownerWindow && !ownerWindow.closed) {
+				ownerWindow.close().then(done).catch(done);
+			} else {
+				done();
+			}
+			ownerWindow = null;
+		};
+		if (tabGroup && !tabGroup.closed) {
+			tabGroup.close().then(closeOwner).catch(closeOwner);
+		} else {
+			closeOwner();
 		}
 	});
 
@@ -483,6 +492,67 @@ describe('Titanium.UI.TabGroup', function () {
 					return second.then(() => finish(new Error('Expected second #open() to be rejected'))).catch(() => finish());
 				}).catch(e => finish(e));
 			});
+
+			it.android('rejects when its owner activity is finishing', function (finish) {
+				this.timeout(10000);
+				let settled = false;
+				const complete = err => {
+					if (!settled) {
+						settled = true;
+						finish(err);
+					}
+				};
+				ownerWindow = Ti.UI.createWindow();
+				ownerWindow.open().then(() => {
+					const tab = Ti.UI.createTab({
+						title: 'Tab',
+						window: Ti.UI.createWindow()
+					});
+					tabGroup = Ti.UI.createTabGroup();
+					tabGroup.addTab(tab);
+					ownerWindow.activity.finish();
+
+					const timeout = setTimeout(() => complete(new Error('Expected #open() to settle')), 7000);
+					tabGroup.open().then(() => {
+						clearTimeout(timeout);
+						complete(new Error('Expected #open() to reject for a finishing owner activity'));
+					}).catch(err => {
+						clearTimeout(timeout);
+						try {
+							should(err.message).containEql('finishing');
+							should(tabGroup.closed).be.true();
+							complete();
+						} catch (err) {
+							complete(err);
+						}
+					});
+				}).catch(complete);
+			});
+
+			it.android('settles both promises and can reopen when close immediately follows open', function (finish) {
+				this.timeout(10000);
+				ownerWindow = Ti.UI.createWindow();
+				ownerWindow.open().then(() => {
+					const tab = Ti.UI.createTab({ title: 'Tab', window: Ti.UI.createWindow() });
+					tabGroup = Ti.UI.createTabGroup();
+					tabGroup.addTab(tab);
+					const openPromise = tabGroup.open();
+					const closePromise = tabGroup.close();
+					Promise.allSettled([ openPromise, closePromise ]).then(results => {
+						should(results[0].status).eql('rejected');
+						should(results[1].status).eql('fulfilled');
+						should(tabGroup.closed).be.true();
+						return tabGroup.open();
+					}).then(() => {
+						try {
+							should(tabGroup.closed).be.false();
+							finish();
+						} catch (err) {
+							finish(err);
+						}
+					}).catch(finish);
+				}).catch(finish);
+			});
 		});
 	});
 
@@ -652,6 +722,26 @@ describe('Titanium.UI.TabGroup', function () {
 		tabGroup.open();
 	});
 
+	it.android('icon-only tabs - android bottom style (experimental layout)', finish => {
+		this.timeout(5000);
+		tabGroup = Ti.UI.createTabGroup({
+			style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+			experimental: true,
+			tabs: [
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 1' })
+				}),
+				Ti.UI.createTab({
+					icon: '/SmallLogo.png',
+					window: Ti.UI.createWindow({ title: 'Tab 2' })
+				}),
+			]
+		});
+		tabGroup.addEventListener('open', () => finish());
+		tabGroup.open();
+	});
+
 	// Android only feature where setting the "padding*" properties on the bottom tab bar style
 	// makes it look like a floating toolbar with rounded corners.
 	describe('floating tab bar', () => {
@@ -686,6 +776,57 @@ describe('Titanium.UI.TabGroup', function () {
 				paddingLeft: 15,
 				paddingRight: 15,
 				paddingBottom: 15,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+	});
+
+	describe('floating tab bar (experimental layout)', () => {
+		it.android('extendSafeArea - false (experimental layout)', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: false,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				experimental: true,
+				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
+				tabs: [
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 1' })
+					}),
+					Ti.UI.createTab({
+						icon: '/SmallLogo.png',
+						window: Ti.UI.createWindow({ title: 'Tab 2' })
+					}),
+				]
+			});
+			tabGroup.addEventListener('open', () => finish());
+			tabGroup.open();
+		});
+
+		it.android('extendSafeArea - true (experimental layout)', finish => {
+			this.timeout(5000);
+			tabGroup = Ti.UI.createTabGroup({
+				extendSafeArea: true,
+				windowFlags: Ti.UI.Android.FLAG_TRANSLUCENT_STATUS | Ti.UI.Android.FLAG_TRANSLUCENT_NAVIGATION,
+				paddingLeft: 15,
+				paddingRight: 15,
+				paddingBottom: 15,
+				experimental: true,
 				style: Ti.UI.Android.TABS_STYLE_BOTTOM_NAVIGATION,
 				tabs: [
 					Ti.UI.createTab({

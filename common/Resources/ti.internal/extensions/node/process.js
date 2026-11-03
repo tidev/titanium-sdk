@@ -53,7 +53,7 @@ function standardizeArch(original) {
 const process = new EventEmitter();
 process.abort = () => {}; // TODO: Do we have equivalent of forcibly killing the process? We have restart, but I think we just want a no-op stub here
 process.arch = standardizeArch(Ti.Platform.architecture);
-process.argv = []; // TODO: What makes sense here? path to titanium cli for first arg? path to ti.main/app.js for second?
+process.argv = []; // TODO: What makes sense here? path to Titanium CLI for first arg? path to ti.main/app.js for second?
 Object.defineProperty(process, 'argv0', {
 	value: '', // TODO: Path to .app on iOS?
 	writable: false,
@@ -91,7 +91,7 @@ Object.defineProperty(process, 'debugPort', {
 					}
 				}
 			} else if (Ti.Platform.osname === 'iphone' || Ti.Platform.osname === 'ipad') {
-				// iOS is 27753 as of ios < 11.3 for simulators
+				// iOS is 27753 as of iOS < 11.3 for simulators
 				// for 11.3+ it uses a unix socket
 				// for devices, it uses usbmuxd
 				value = 27753; // TODO: Can we only return this for simulator < 11.3?
@@ -167,7 +167,7 @@ Object.defineProperty(process, 'env', {
 	configurable: true
 });
 process.execArgv = [];
-process.execPath = ''; // FIXME: What makes sense here? Path to titanium CLI here?
+process.execPath = ''; // FIXME: What makes sense here? Path to Titanium CLI here?
 process.exit = () => {
 	throw new Error('process.exit is not supported');
 };
@@ -212,10 +212,10 @@ process.uptime = () => {
 };
 process.version = Ti.version;
 process.versions = {
-	modules: '', // TODO: Report module api version (for current platform!)
-	v8: '', // TODO: report android's v8 version (if on Android!)
-	jsc: '' // TODO: report javascriptcore version for iOS/WIndows?
-	// TODO: Report ios/Android/Windows platform versions?
+	modules: '', // TODO: Report module API version (for current platform!)
+	v8: '', // TODO: report Android's v8 version (if on Android!)
+	jsc: '' // TODO: report JavaScriptCore version for iOS/Windows?
+	// TODO: Report iOS/Android/Windows platform versions?
 };
 process[Symbol.toStringTag] = 'process';
 

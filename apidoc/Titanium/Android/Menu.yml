@@ -30,7 +30,7 @@ description: |
     Menus must be added to tab groups using the tab group's
     activity. These changes were required to support the Android 3.0 action bar.
 
-    The TabGroup activity is available using [TabGroup.getActivity](Titanium.UI.TabGroup.getActivity).
+    The TabGroup activity is available using [TabGroup.activity](Titanium.UI.TabGroup.activity).
     However, unlike a window's activity it is not currently possible to set properties on
     the tab group's activity before the tab group is opened. To add a menu to a tab group,
     set the `onCreateOptionsMenu` property to the tab group's `open` event listener, and

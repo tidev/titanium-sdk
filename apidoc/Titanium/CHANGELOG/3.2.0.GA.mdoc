@@ -131,8 +131,8 @@ later.**
   * Upgrade from Eclipse 3.7 (Indigo) to 4.3 (Kepler) to support Mac OS X 10.9 (Mavericks)
   * Support for creating Github forks
 
-For more details, see [Studio 3.2.0 Changes](https://docs.appcelerator.com/titanium/latest/#!/guide/Studio_3.2.0_Changes)
-and [Titanium Studio Release Notes](https://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Studio_Release_Notes).
+For more details, see [Studio 3.2.0 Changes](https://titaniumsdk.com/api/)
+and [Titanium Studio Release Notes](https://titaniumsdk.com/api/).
 
 <a name="tizen2_2"></a>
 ### Tizen 2.2.1 Support
@@ -244,7 +244,7 @@ application to use the GCM protocol.
 #### Fastdev Support
 
 As of this Release, Fastdev support is deprecated and is disabled by default.  To re-enable Fastdev,
-follow the directions in the [Fastdev Reference guide](https://docs.appcelerator.com/titanium/latest/#!/guide/Fastdev_Reference_for_Android).
+follow the directions in the [Fastdev Reference guide](https://titaniumsdk.com/api/).
 
 <a name="lightweight_windows"></a>
 #### Lightweight Windows
@@ -308,7 +308,7 @@ As of this Release, the Titanium SDK no longer supports iOS 5.x and the
 #### Native Map Support
 
 The `Titanium.Map` namespace no longer supports native maps on the iOS platform.  This functionality
-is now available on the [ti.map add-on module](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map)
+is now available on the [ti.map add-on module](https://titaniumsdk.com/api/)
 with additional features only available for iOS 7.
 
 The API calls are similar except the `addRoute` method no longer accepts a dictionary as a
@@ -384,11 +384,11 @@ No additions or changes were made to the existing APIs.
 
 As of this Release, the application can create broadcast intents to pass to broadcast receivers.  To
 create a BroadcastIntent, use the
-[Titanium.Android.createBroadcastIntent](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android-method-createBroadcastIntent)
+[Titanium.Android.createBroadcastIntent](https://titaniumsdk.com/api/)
 method, then use either the
-[Titanium.Android.sendBroadcast](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-method-sendBroadcast)
+[Titanium.Android.sendBroadcast](https://titaniumsdk.com/api/)
 or
-[Titanium.Android.sendBroadcastWithPermission](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-method-sendBroadcastWithPermission)
+[Titanium.Android.sendBroadcastWithPermission](https://titaniumsdk.com/api/)
 method to pass the intent to a BroadcastReceiver.
 
 If you are using the `sendBroadcastWithPermssion` method, modify the `tiapp.xml` file to declare a
@@ -452,13 +452,13 @@ The ti.cloudpush module version number changed to 3.2.0 to match the SDK version
 #### Cookie Management
 
 This Release introduces the
-[Titanium.Network.Cookie](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.Cookie)
+[Titanium.Network.Cookie](https://titaniumsdk.com/api/)
 object and a number of new Titanium.Network methods to help the application manage cookies between
 the Android system cookie store, utilized by WebViews, and the HTTPClient's cookie store.
 
 For more information, see the "Android Platform Implementation Notes" in either
-[Titanium.Network.HTTPClient](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.HTTPClient)
-or [Titanium.UI.WebView](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView).
+[Titanium.Network.HTTPClient](https://titaniumsdk.com/api/)
+or [Titanium.UI.WebView](https://titaniumsdk.com/api/).
 
 <a name="xxhdpi"></a>
 #### Extra, Extra High Density Support
@@ -478,19 +478,19 @@ The following ListView features were completed in this Release:
   * Dynamic item loading
   * Search support
 
-For more information, see the [ListViews guide](https://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
-and [Titanium.UI.ListView API reference](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView). 
+For more information, see the [ListViews guide](https://titaniumsdk.com/api/)
+and [Titanium.UI.ListView API reference](https://titaniumsdk.com/api/). 
 
 <a name="android_map_module"></a>
 #### Map Module
 
 The ti.map module supports the following new APIs:
 
-  * [Map.Annotation.showInfoWindow](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.Annotation-property-showInfoWindow)
+  * [Map.Annotation.showInfoWindow](https://titaniumsdk.com/api/)
     property. Shows or hides the view that is displayed on the annotation when clicked.
-  * [Map.View.longclick](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-event-longclick)
+  * [Map.View.longclick](https://titaniumsdk.com/api/)
     event. Fired when the user makes a long gesture on the map view.
-  * [Map.View.zOrderOnTop](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.Map.View-property-zOrderOnTop)
+  * [Map.View.zOrderOnTop](https://titaniumsdk.com/api/)
     property.  Controls whether the map view's surface is placed on top of its window. Note that
     this will cover all other views that could appear on the map (e.g., the zoom controls, the my
     location button).
@@ -501,9 +501,9 @@ The ti.map module supports the following new APIs:
 
 The `Titanium.UI.WebView` class exposes two Android WebSettings APIs as two new properties: 
 
-  * [cacheMode](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView-property-cacheMode):
+  * [cacheMode](https://titaniumsdk.com/api/):
     assign a `Titanium.Android.WEBVIEW_*` constant to this property to override how the cache is used.
-  * [lightTouchEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView-property-lightTouchEnabled):
+  * [lightTouchEnabled](https://titaniumsdk.com/api/):
     controls using light touches to make a selection and activate mouseovers, for example,
     highlighting links in response to user interaction. Enabled by default (set to `true`).  To
     workaround [Android Issue 33651](https://code.google.com/p/android/issues/detail?id=33651), set
@@ -536,13 +536,13 @@ and apply specific attributes, such as font and kerning, to characters or range 
 string.
 
 Create a
-[Titanium.UI.iOS.AttributedString](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.AttributedString)
+[Titanium.UI.iOS.AttributedString](https://titaniumsdk.com/api/)
 object and assign it to one of the following properties:
 
-  * [Titanium.UI.Label.attributedString](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Label-property-attributedString)
-  * [Titanium.UI.TextArea.attributedString](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextArea-property-attributedString)
-  * [Titanium.UI.TextField.attributedString](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextField-property-attributedString)
-  * [Titanium.UI.TextField.attributedHintText](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextField-property-attributedHintText)
+  * [Titanium.UI.Label.attributedString](https://titaniumsdk.com/api/)
+  * [Titanium.UI.TextArea.attributedString](https://titaniumsdk.com/api/)
+  * [Titanium.UI.TextField.attributedString](https://titaniumsdk.com/api/)
+  * [Titanium.UI.TextField.attributedHintText](https://titaniumsdk.com/api/)
 
 
 <a name="build_to_device"></a>
@@ -580,13 +580,13 @@ The `Titanium.UI.iOS.Animator` object provides support for the built-in iOS dyna
 which are supported on iOS 7 and later. The animator provides physics-related capabilities and
 animations using the iOS physics engine.
 
-For more information, see the [Titanium.UI.iOS.Animator API reference](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.Animator).
+For more information, see the [Titanium.UI.iOS.Animator API reference](https://titaniumsdk.com/api/).
 
 <a name="font_text_styles"></a>
 #### Font Text Styles
 
 The `Font` object supports a new property,
-[textStyle](https://docs.appcelerator.com/titanium/latest/#!/api/Font-property-textStyle), available
+[textStyle](https://titaniumsdk.com/api/), available
 for iOS 7 and later.  Assign this property a `Titanium.UI.TEXT_STYLE_*` constant to use a predefined
 text style.  If this property is assigned a valid value, all other font properties are ignored.
 
@@ -595,10 +595,10 @@ text style.  If this property is assigned a valid value, all other font properti
 
 iOS 7 introduced new animation capabilities for transitioning Windows in a NavigationWindow or Tab.
 Create a transition animation object with the
-[Titanium.UI.iOS.createTransitionAnimation](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS-method-createTransitionAnimation)
+[Titanium.UI.iOS.createTransitionAnimation](https://titaniumsdk.com/api/)
 method to specify animation objects to hide the current window and show the new window, then assign
 the transition animation object to the Window's
-[transitionAnimation](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-transitionAnimation)
+[transitionAnimation](https://titaniumsdk.com/api/)
 property. 
 
 <a name="background_services"></a>
@@ -607,16 +607,16 @@ property.
 iOS 7 introduced new background execution modes allowing the application to download large content
 while its in the background. These background modes are exposed as the following Titanium APIs:
 
-  * [URL session module](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.URLSession): a
+  * [URL session module](https://titaniumsdk.com/api/): a
     wrapper for the NSURLSession class that allows the application to download large content in the
     background.  This module provides the main functionality for the background execution modes,
     such as creating the background download task and monitoring the download once it starts. 
-  * [backgroundfetch](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.iOS-event-backgroundfetch)
+  * [backgroundfetch](https://titaniumsdk.com/api/)
     event: use to monitor signals from iOS to update the application while in the background.
-  * [silentpush](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.iOS-event-silentpush)
+  * [silentpush](https://titaniumsdk.com/api/)
     event: use to monitor a push notification to tell the application there is content to download.
 
-For more information, see the [iOS Background Services guide](https://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Background_Services).
+For more information, see the [iOS Background Services guide](https://titaniumsdk.com/api/).
 
 <a name="ios_listview"></a>
 #### ListView Phase 2
@@ -629,8 +629,8 @@ The following ListView features were completed in this Release:
   * Pull-to-refresh support
   * Search support
 
-For more information, see the [ListViews guide](https://docs.appcelerator.com/titanium/latest/#!/guide/ListViews)
-and [Titanium.UI.ListView API reference](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView). 
+For more information, see the [ListViews guide](https://titaniumsdk.com/api/)
+and [Titanium.UI.ListView API reference](https://titaniumsdk.com/api/). 
 
 <a name="ios_map_module"></a>
 #### Map Module
@@ -639,13 +639,13 @@ As of this Release, the ti.map module provides native map support on the iOS pla
 new iOS 7 feature that allows the map to be viewed in a 3D perspective.
 
 For more information, see
-[iOS Map Kit](https://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Map_Kit).
+[iOS Map Kit](https://titaniumsdk.com/api/).
 
 <a name="popover_content"></a>
 #### Popover Content
 
 The `Titanium.UI.iPad.Popover` class supports a new property,
-[contentView](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iPad.Popover-property-contentView),
+[contentView](https://titaniumsdk.com/api/),
 used to assign a view object as the content area of the popover before showing the popover.  This is
 now the preferred way to set the content area of a popover instead of using the `add` method.
 
@@ -659,7 +659,7 @@ controller.
 
 iOS 6 introduced a new refresh control that can be used to implement the pull-to-refresh mechanism
 for `ListView` and `TableView`.  The Titanium SDK exposes this control as the
-[Titanium.UI.RefreshControl](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.RefreshControl)
+[Titanium.UI.RefreshControl](https://titaniumsdk.com/api/)
 object.
 
 #### StoreKit Module
@@ -674,7 +674,7 @@ Note that the ti.storekit module cannot be tested on the iOS simulator.
 #### Window Title Attributes
 
 The `Titanium.UI.Window` class supports a new property,
-[titleAttributes](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-titleAttributes),
+[titleAttributes](https://titaniumsdk.com/api/),
 used to specify the color, font, and shadow of the window's title.
 
 Previously, the only way to specify these attributes was to create a custom Label object and assign

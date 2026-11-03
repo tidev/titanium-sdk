@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -13,7 +13,6 @@ FOUNDATION_EXPORT double TitaniumKitVersionNumber;
 //! Project version string for TitaniumKit.
 FOUNDATION_EXPORT const unsigned char TitaniumKitVersionString[];
 
-#import <TitaniumKit/Libraries/APSAnalytics/APSAnalytics.h>
 #import <TitaniumKit/Libraries/APSHTTPClient/APSHTTPClient.h>
 #import <TitaniumKit/Sources/API/APIModule.h>
 #import <TitaniumKit/Sources/API/ImageLoader.h>

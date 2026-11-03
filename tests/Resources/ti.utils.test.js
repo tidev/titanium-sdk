@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -151,7 +151,7 @@ describe('Titanium.Utils', () => {
 			should(Ti.Utils.base64decode('Zm9vYmFy').text).eql('foobar');
 		});
 
-		// FIXME Windows gives: 'base64decode: attempt to decode a value not in base64 char set'
+		// FIXME Windows gives: 'base64decode: attempt to decode a value not in Base64 char set'
 		it.windowsBroken('Ti.Blob with text data', function () {
 			const f = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'txtFiles/encodedFile.txt');
 			const blob = Ti.Utils.base64decode(f.read());
@@ -168,7 +168,7 @@ describe('Titanium.Utils', () => {
 			should(blob.text).eql('Decoding successful!');
 		});
 
-		// FIXME: How can I make this valid? The input needs to be valid base64...
+		// FIXME: How can I make this valid? The input needs to be valid Base64...
 		// An image can't be right. Maybe we can validate in UtilsModule that a given blob is non-binary?
 		// it.windowsBroken('Ti.Filesystem.File with binary data', function () {
 		// 	var binaryFile = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, 'Logo.png'),

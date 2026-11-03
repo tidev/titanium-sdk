@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -305,8 +305,7 @@ public abstract class KrollRuntime implements Handler.Callback
 
 	public int getThreadStackSize(Context context)
 	{
-		if (context instanceof KrollApplication) {
-			KrollApplication app = (KrollApplication) context;
+		if (context instanceof KrollApplication app) {
 			return app.getThreadStackSize();
 		}
 		return DEFAULT_THREAD_STACK_SIZE;
@@ -416,6 +415,20 @@ public abstract class KrollRuntime implements Handler.Callback
 	public static int getServiceReceiverRefCount()
 	{
 		return serviceReceiverRefCount;
+	}
+
+	/**
+	 * Starts up the JavaScript runtime if it was disposed after the last Titanium activity was destroyed.
+	 * <p>
+	 * Services and broadcast receivers must call this before they run JavaScript, because Android can
+	 * start them while no activity exists and the runtime is only restarted by the first activity.
+	 * Does nothing if the runtime is already initialized.
+	 */
+	public static void initIfDisposed()
+	{
+		if ((instance != null) && !isInitialized()) {
+			instance.doInit();
+		}
 	}
 
 	private void internalDispose()
@@ -538,7 +551,9 @@ public abstract class KrollRuntime implements Handler.Callback
 			}
 
 			// Handle exception with defaultExceptionHandler
-			instance.primaryExceptionHandler.handleException(exceptionMessage);
+			if (instance.primaryExceptionHandler != null) {
+				instance.primaryExceptionHandler.handleException(exceptionMessage);
+			}
 		}
 	}
 

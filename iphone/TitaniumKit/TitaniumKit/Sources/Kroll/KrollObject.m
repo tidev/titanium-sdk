@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -22,7 +22,7 @@ JSClassRef JSObjectClassRef = NULL;
 
 /*
  *	Since JSStringRefs are not tied to any particular context, and are
- *	immutable, they are threadsafe and more importantly, ones that are in
+ *	immutable, they are thread-safe and more importantly, ones that are in
  *	constant use never need to garbage collected, but can be reused.
  */
 
@@ -179,7 +179,7 @@ bool KrollHasProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef pr
 // callback for handling retrieving an objects property (in JS land)
 //
 
-//TODO: We should fetch from the props object and shortcut some of this. Especially now that callbacks are CURRENTLY write-only.
+// TODO: We should fetch from the props object and shortcut some of this. Especially now that callbacks are CURRENTLY write-only.
 JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSStringRef prop, JSValueRef *exception)
 {
   // Debugger may actually try to get properties off global Kroll property (which is a special case KrollContext singleton)
@@ -208,14 +208,14 @@ JSValueRef KrollGetProperty(JSContextRef jsContext, JSObjectRef object, JSString
 
     if ([result isKindOfClass:[KrollWrapper class]]) {
       if (![KrollBridge krollBridgeExists:[(KrollWrapper *)result bridge]]) {
-        //This remote object no longer exists.
+        // This remote object no longer exists.
         [o deleteKey:name];
         result = nil;
       } else {
         JSObjectRef cachedObject = [o objectForTiString:prop context:jsContext];
         JSObjectRef remoteFunction = [(KrollWrapper *)result jsobject];
         if ((cachedObject != NULL) && (cachedObject != remoteFunction)) {
-          [o forgetObjectForTiString:prop context:jsContext]; //Clean up the old property.
+          [o forgetObjectForTiString:prop context:jsContext]; // Clean up the old property.
         }
         if (remoteFunction != NULL) {
           [o noteObject:remoteFunction forTiString:prop context:jsContext];
@@ -409,7 +409,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
 {
   if (self = [self init]) {
 #if DEBUG
-    //TODO: See if this actually happens, and if not, remove this extra check.
+    // TODO: See if this actually happens, and if not, remove this extra check.
     if ([(KrollBridge *)[context_ delegate] usesProxy:target_] && [self isMemberOfClass:[KrollObject class]]) {
       DeveloperLog(@"[WARN] Bridge %@ already has target %@!", [context_ delegate], target_);
     }
@@ -866,7 +866,7 @@ bool KrollHasInstance(JSContextRef ctx, JSObjectRef constructor, JSValueRef poss
       return;
     }
     selector = NSSelectorFromString([NSString stringWithFormat:@"set%@:", name]);
-    if ([target respondsToSelector:selector] && ![name isEqualToString:@"ZIndex"]) //TODO: Quick hack is quick.
+    if ([target respondsToSelector:selector] && ![name isEqualToString:@"ZIndex"]) // TODO: Quick hack is quick.
     {
       [target performSelector:selector withObject:value];
     } else {
@@ -937,7 +937,7 @@ static const char KrollObjectBase64Table[] = {
 
 TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
 {
-  // Generate a unique property name for given native pointer by doing a base64 on its memory address.
+  // Generate a unique property name for given native pointer by doing a Base64 on its memory address.
   // Note: This function is called extremely often. So, encode it manually for best performance.
   // TODO: Use a JS Symbol instead to guarantee property uniqueness, but this requires iOS 13.
 #ifdef __LP64__
@@ -1200,7 +1200,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
     JSObjectSetPropertyAtIndex(jsContext, jsCallbackArray, arrayLength, callbackFunction, &exception);
   }
 
-  //TODO: Call back to the proxy?
+  // TODO: Call back to the proxy?
   JSStringRelease(jsEventTypeString);
 }
 
@@ -1211,7 +1211,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
   }
 
   JSObjectRef jsEventHash = (JSObjectRef)JSObjectGetProperty(jsContext, self.propsObject, kTiStringEventKey, NULL);
-  if ((jsEventHash == NULL) || (JSValueGetType(jsContext, jsEventHash) != kJSTypeObject)) { //We did not have any event listeners on this proxy. Perfectly normal.
+  if ((jsEventHash == NULL) || (JSValueGetType(jsContext, jsEventHash) != kJSTypeObject)) { // We did not have any event listeners on this proxy. Perfectly normal.
     return NULL;
   }
 
@@ -1291,11 +1291,11 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
 
 /**
  Protects the underlying JSObjectRef from being accidentally GC'ed.
- 
+
  The KrollObject's JSObjectRef is stored on the heap and therefore not automatically
  protected against GC unless it is referenced via a variable on the stack or inside
  the JS object graph!
- 
+
  If JSC's garbage collection runs while the JSObjectRef is not protected it is lost and
  eventually leads to crashes inside the JSC runtime.
  */
@@ -1315,7 +1315,7 @@ TI_INLINE JSStringRef TiStringCreateWithPointerValue(void *value)
 
 /**
  Removes the garbage collection safeguard by unprotecting the JSObjectRef again.
- 
+
  This may only be called when the JSObjectRef is referenced on the stack or in the
  JS object graph.
  */

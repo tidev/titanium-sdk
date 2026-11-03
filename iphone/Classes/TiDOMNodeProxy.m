@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -121,7 +121,7 @@ CFHashCode simpleHash(const void *value)
   NSString *localName = [GDataXMLNode localNameForName:tagName];
 
   if (![[tagName lowercaseString] isEqualToString:@"xmlns"]) {
-    //Check name validity
+    // Check name validity
     if (![TiDOMValidator checkAttributeName:localName]) {
       *error = @"Invalid attribute name";
       *suberror = [NSString stringWithFormat:@"Offending localName %@", localName];
@@ -146,13 +146,13 @@ CFHashCode simpleHash(const void *value)
         return;
       }
     } else {
-      //Check prefix validity
+      // Check prefix validity
       if (![TiDOMValidator checkNamespacePrefix:prefix]) {
         *error = @"Invalid prefix";
         *suberror = [NSString stringWithFormat:@"Offending prefix %@", prefix];
         return;
       }
-      //Check URI validity
+      // Check URI validity
       if (![TiDOMValidator checkNamespaceURI:theURI]) {
         *error = @"Invalid URI";
         *suberror = [NSString stringWithFormat:@"Offending URI %@", theURI];
@@ -173,7 +173,7 @@ CFHashCode simpleHash(const void *value)
   NSString *prefix = [GDataXMLNode prefixForName:tagName];
   NSString *localName = [GDataXMLNode localNameForName:tagName];
 
-  //Check name validity
+  // Check name validity
   if (![TiDOMValidator checkElementName:localName]) {
     *error = @"Invalid element name";
     *suberror = [NSString stringWithFormat:@"Offending localName %@", localName];
@@ -192,13 +192,13 @@ CFHashCode simpleHash(const void *value)
       return;
     }
   } else {
-    //Check prefix validity
+    // Check prefix validity
     if (![TiDOMValidator checkNamespacePrefix:prefix]) {
       *error = @"Invalid prefix";
       *suberror = [NSString stringWithFormat:@"Offending prefix %@", prefix];
       return;
     }
-    //Check URI validity
+    // Check URI validity
     if (![TiDOMValidator checkNamespaceURI:theURI]) {
       *error = @"Invalid URI";
       *suberror = [NSString stringWithFormat:@"Offending URI %@", theURI];
@@ -474,7 +474,7 @@ CFHashCode simpleHash(const void *value)
 
 - (void)normalize:(id)args
 {
-  //TODO
+  // TODO
 }
 
 - (id)isSupported:(id)args

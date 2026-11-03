@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -22,7 +22,7 @@
 - (UISearchBar *)searchBar;
 
 //	showsCancelButton is related to the JS property ShowCancel,
-//	but is internal ONLY, and should NOT be used by javascript.
+//	but is internal ONLY, and should NOT be used by JavaScript.
 @property (nonatomic, readwrite, assign) BOOL showsCancelButton;
 
 #pragma mark - Titanium Internal Use

@@ -1,7 +1,7 @@
 /**
  * @param  {*} arg passed in argument value
  * @param  {string} name name of the argument
- * @param  {string} typename i.e. 'string', 'Function' (value is compared to typeof after lowercasing)
+ * @param  {string} typename e.g. 'string', 'Function' (value is compared to typeof after lowercasing)
  * @return {void}
  * @throws {TypeError}
  */

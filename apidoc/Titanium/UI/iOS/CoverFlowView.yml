@@ -2,7 +2,7 @@
 name: Titanium.UI.iOS.CoverFlowView
 summary: |
     The cover flow view is a container showing animated three-dimensional images in a style 
-    consistent with the cover flow presentation style used for iPod, iTunes, and file browsing.
+    consistent with the former cover flow presentation style used for iPod, iTunes, and Finder.
 description: |
     The cover flow view is created by the <Titanium.UI.iOS.createCoverFlowView> method or 
     **`<CoverFlowView>`** element in an Alloy application.

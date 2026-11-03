@@ -172,7 +172,7 @@ properties:
     default: null
 
   - name: accessibilityLabel
-    summary: A succint label identifying the view for the device's accessibility service.
+    summary: A succinct label identifying the view for the device's accessibility service.
     description: |
         Value of this property is concatenated together with
         <Titanium.Android.MenuItem.accessibilityValue> and <Titanium.Android.MenuItem.accessibilityHint> in the order: `accessibilityLabel`,
@@ -337,7 +337,7 @@ properties:
         the text is displayed depends on the device's orientation _when the application
         launches_. (This is true of both Titanium applications and native Android
         applications.) For this reason, using `SHOW_AS_ACTION_WITH_TEXT` is not recommended
-        for applications that support both orientions.
+        for applications that support both orientations.
 
         If you want to guarantee that text and icon are always visible, you can create a
         button with the text and image, and specify it as the item's `actionView`.

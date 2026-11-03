@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,7 +23,7 @@ class ProxyFactory;
 // used to store "user data" in the JavaScript object for use
 // inside method and property callbacks.
 
-// https://github.com/nodejs/node/blob/master/src/node_object_wrap.h
+// https://github.com/nodejs/node/blob/main/src/node_object_wrap.h
 class NativeObject
 {
  public:

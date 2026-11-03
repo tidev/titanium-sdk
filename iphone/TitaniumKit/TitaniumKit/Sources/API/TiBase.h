@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -18,6 +18,26 @@ extern "C" {
 
 #define MEMORY_DEBUG 0
 #define VIEW_DEBUG 0
+
+// Whether the SDK used to compile is new enough to expose the iOS 26 APIs (e.g. Liquid Glass).
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+#define IS_SDK_IOS_26 true
+#else
+#define IS_SDK_IOS_26 false
+#endif
+
+// Whether the SDK used to compile is new enough to expose the iOS 27 / 27.1 APIs (e.g. iPhone Duo).
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270000
+#define IS_SDK_IOS_27 true
+#else
+#define IS_SDK_IOS_27 false
+#endif
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 270100
+#define IS_SDK_IOS_27_1 true
+#else
+#define IS_SDK_IOS_27_1 false
+#endif
 
 #ifndef __IPHONE_4_1
 #define __IPHONE_4_1 40100
@@ -147,10 +167,10 @@ NSString *JavascriptNameForClass(Class c);
 
 #define ENSURE_TYPE(x, t) ENSURE_CLASS(x, [t class])
 
-//NOTE: these checks can be pulled out of production build type
+// NOTE: these checks can be pulled out of production build type
 
-//Question: Given that some of these silently massage the data during development but not production,
-//Should the data massage either be kept in production or removed in development? --Blain.
+// Question: Given that some of these silently massage the data during development but not production,
+// Should the data massage either be kept in production or removed in development? --Blain.
 
 #define ENSURE_STRING_OR_NIL(x)                        \
   if ([x respondsToSelector:@selector(stringValue)]) { \
@@ -248,7 +268,7 @@ NSString *JavascriptNameForClass(Class c);
     }                                                       \
   }
 
-//Because both NSString and NSNumber respond to intValue, etc, this is a wider net
+// Because both NSString and NSNumber respond to intValue, etc, this is a wider net
 #define ENSURE_METHOD(x, t)                                                                                                                                            \
   if (![x respondsToSelector:@selector(t)]) {                                                                                                                          \
     [self throwException:TiExceptionInvalidType subreason:[NSString stringWithFormat:@"%@ doesn't respond to method: %@", OBJTYPE2JS(x), @ #t] location:CODELOCATION]; \
@@ -421,7 +441,7 @@ void TiExceptionThrowWithNameAndReason(NSString *exceptionName, NSString *reason
 #define NUMUINTEGER(x) \
   [NSNumber numberWithUnsignedInteger:x]
 
-//MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
+// MUST BE NEGATIVE, as it inhabits the same space as UIBarButtonSystemItem
 enum {
   UITitaniumNativeItemNone = -1,
   UITitaniumNativeItemSpinner = -2,
@@ -501,7 +521,7 @@ enum {
 
 #define TI_VERSION_STR STRING(TI_VERSION)
 
-//#define VERBOSE
+// #define VERBOSE
 
 #ifdef VERBOSE
 #define VerboseLog(...) \
@@ -535,6 +555,10 @@ enum {
 #endif
 
 #define VAL_OR_NSNULL(foo) (((foo) != nil) ? ((id)foo) : [NSNull null])
+
+#if (defined(__arm64__) || defined(__ARM_ARCH_8_32__))
+#define IS_APPLE_SILICON_DEVICE
+#endif
 
 NSString *hexString(NSData *thedata);
 
@@ -604,9 +628,16 @@ extern NSString *const kTiURLDowloadProgress;
 extern NSString *const kTiURLUploadProgress;
 extern NSString *const kTiWatchKitExtensionRequest;
 extern NSString *const kTiContinueActivity;
+extern NSString *const kTiSceneDismissNotification;
+extern NSString *const kTiSceneWillConnectNotification;
+extern NSString *const kTiSceneDidBecomeActiveNotification;
+extern NSString *const kTiSceneWillResignActiveNotification;
+extern NSString *const kTiSceneDidEnterBackgroundNotification;
+extern NSString *const kTiSceneWillEnterForegroundNotification;
 extern NSString *const kTiApplicationShortcut;
 extern NSString *const kTiApplicationLaunchedFromURL;
 extern NSString *const kTiTraitCollectionChanged;
+extern NSString *const kTiHingeChanged;
 
 #ifndef TI_USE_AUTOLAYOUT
 extern NSString *const kTiBehaviorSize;

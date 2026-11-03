@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -14,7 +14,6 @@ import android.text.InputType;
 import android.text.method.ArrowKeyMovementMethod;
 import android.util.AttributeSet;
 import android.view.ActionMode;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,10 +21,8 @@ import android.view.inputmethod.EditorInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.ViewCompat;
@@ -94,6 +91,9 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 	/** Set true to allow text to be copied via context menu, Ctrl+C, etc. */
 	private boolean isCopyEnabled = true;
+
+	/** Set true to allow the content to be scrolled. Set false to disable scrolling. */
+	private boolean isScrollable = true;
 
 	/** Creates a new EditText view. */
 	public TiUIEditText(Context context)
@@ -221,6 +221,32 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/**
+	 * Determines if the content can be scrolled. Can be changed via setScrollable() method.
+	 * @return Returns true if scrolling is enabled, which is the default. Returns false if disabled.
+	 */
+	public boolean isScrollable()
+	{
+		return this.isScrollable;
+	}
+
+	/**
+	 * Enables or disables the ability to scroll the content within this EditText.
+	 * When disabled, the content cannot be scrolled by the user via touch gestures.
+	 * @param value Set true to enable scrolling. Set false to disable scrolling.
+	 */
+	public void setScrollable(boolean value)
+	{
+		this.isScrollable = value;
+
+		// Stop any active nested scroll if scrolling is being disabled.
+		if (!value && this.scrollAxisDirection != ViewCompat.SCROLL_AXIS_NONE) {
+			stopNestedScroll();
+			this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
+			this.isDragging = false;
+		}
+	}
+
+	/**
 	 * Called when key input has been received, but before it has been processed by the IME.
 	 * @param keyCode Unique integer ID of the key that was pressed/released.
 	 * @param event Provides additional key event details.
@@ -232,14 +258,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	@Override
 	public boolean onKeyPreIme(int keyCode, KeyEvent event)
 	{
-		// Work-around Android bug where center-aligned and right-aligned EditText won't
-		// always pan above the virtual keyboard when given the focus. (See TIMOB-23757)
-		boolean isLeftAligned = (getGravity() & Gravity.LEFT) != 0;
-		if ((Build.VERSION.SDK_INT < 24) && !isLeftAligned && (keyCode == KeyEvent.KEYCODE_BACK)) {
-			ViewGroup view = (ViewGroup) getParent();
-			view.setFocusableInTouchMode(true);
-			view.requestFocus();
-		}
 		return super.onKeyPreIme(keyCode, event);
 	}
 
@@ -306,7 +324,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	 * @return Returns the new context menu handling action mode. Returns null to not show a menu.
 	 */
 	@Override
-	@RequiresApi(23)
 	public ActionMode startActionMode(ActionMode.Callback callback, int type)
 	{
 		return super.startActionMode(onWrap(callback), type);
@@ -342,7 +359,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 			}
 
 			// Wrap the given callback used to override context menu handling.
-			if ((Build.VERSION.SDK_INT >= 23) && (callback instanceof ActionMode.Callback2)) {
+			if (callback instanceof ActionMode.Callback2) {
 				callback = new ActionModeCallback2Wrapper((ActionMode.Callback2) callback, excludeMenuIdSet);
 			} else {
 				callback = new ActionModeCallbackWrapper(callback, excludeMenuIdSet);
@@ -377,25 +394,28 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 				// Note: There is a bug in EditText where canScrollHorizontally() will return
 				//       true when it's not scrollable for "center" or "right" aligned text.
 				boolean isVertical = ((getInputType() & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) != 0);
-				boolean isScrollable;
+				boolean canScroll;
 				if (isVertical) {
-					isScrollable = canScrollVertically(1) || canScrollVertically(-1);
+					canScroll = canScrollVertically(1) || canScrollVertically(-1);
 				} else {
-					isScrollable = canScrollHorizontally(1) || canScrollHorizontally(-1);
+					canScroll = canScrollHorizontally(1) || canScrollHorizontally(-1);
 				}
 
-				// Start nested scrolling if the EditText is scrollable.
+				// Remember where the gesture started in screen coordinates.
+				// Used for nested scroll distances and for the drag threshold when scrolling is disabled.
+				this.startRawTouchX = (int) event.getRawX();
+				this.startRawTouchY = (int) event.getRawY();
+				this.lastRawTouchX = this.startRawTouchX;
+				this.lastRawTouchY = this.startRawTouchY;
+
+				// Start nested scrolling if the property is enabled and the EditText content overflows.
 				this.isDragging = false;
-				if (isScrollable) {
+				if (this.isScrollable && canScroll) {
 					if (isVertical) {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_VERTICAL;
 					} else {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_HORIZONTAL;
 					}
-					this.startRawTouchX = (int) event.getRawX();
-					this.startRawTouchY = (int) event.getRawY();
-					this.lastRawTouchX = this.startRawTouchX;
-					this.lastRawTouchY = this.startRawTouchY;
 					boolean wasStarted = startNestedScroll(this.scrollAxisDirection);
 					if (!wasStarted) {
 						this.scrollAxisDirection = ViewCompat.SCROLL_AXIS_NONE;
@@ -443,7 +463,7 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 
 						// Request the parent to scroll if one of the following is true:
 						// - EditText is not scrollable. (ie: All text fits within the box.)
-						// - EditText is scrollabe, but cannot scroll any further in given direction.
+						// - EditText is scrollable, but cannot scroll any further in given direction.
 						if (!isScrollEnabled || !canScrollFurther) {
 							wasHandled = dispatchNestedPreScroll(deltaX, deltaY, null, null);
 							wasHandled |= dispatchNestedScroll(0, 0, deltaX, deltaY, null);
@@ -461,6 +481,17 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 					// This is needed to calculate nested scroll distances.
 					this.lastRawTouchX = (int) event.getRawX();
 					this.lastRawTouchY = (int) event.getRawY();
+				}
+
+				// If scrolling is disabled, block the EditText's internal scroll on drag gestures.
+				if (!this.isScrollable && !wasHandled) {
+					int deltaX = (int) event.getRawX() - this.startRawTouchX;
+					int deltaY = (int) event.getRawY() - this.startRawTouchY;
+					if ((Math.abs(deltaX) > this.minDragStartDistance)
+						|| (Math.abs(deltaY) > this.minDragStartDistance)) {
+						// Consume the move event to prevent EditText's internal scrolling.
+						return true;
+					}
 				}
 
 				// Let the EditText handle the event if the parent wasn't scrolled via the above.
@@ -654,7 +685,6 @@ public class TiUIEditText extends TextInputEditText implements NestedScrollingCh
 	}
 
 	/** Wraps Google's "ActionMode.Callback2" so that we can remove particular context menu items from it. */
-	@RequiresApi(23)
 	private static class ActionModeCallback2Wrapper extends ActionMode.Callback2
 	{
 		private final ActionModeCallbackWrapper callback;

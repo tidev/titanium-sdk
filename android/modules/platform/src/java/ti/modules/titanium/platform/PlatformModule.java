@@ -1,10 +1,12 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium.platform;
+
+import static android.content.Context.BATTERY_SERVICE;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -40,8 +42,8 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 
-import com.appcelerator.aps.APSAnalytics;
-import com.appcelerator.aps.APSAnalyticsMeta;
+import org.appcelerator.titanium.util.TiSession;
+import org.appcelerator.titanium.util.TiSessionMeta;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -75,7 +77,6 @@ public class PlatformModule extends KrollModule
 	private int versionMinor;
 	private int versionPatch;
 	protected int batteryState;
-	protected double batteryLevel;
 	protected boolean batteryStateReady;
 
 	protected BroadcastReceiver batteryStateReceiver;
@@ -85,7 +86,6 @@ public class PlatformModule extends KrollModule
 		super();
 
 		batteryState = BATTERY_STATE_UNKNOWN;
-		batteryLevel = -1;
 
 		// Extract "<major>.<minor>" integers from OS version string.
 		String[] versionComponents = Build.VERSION.RELEASE.split("\\.");
@@ -105,13 +105,13 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getName()
 	{
-		return APSAnalyticsMeta.getPlatform();
+		return TiSessionMeta.getPlatform();
 	}
 
 	@Kroll.getProperty
 	public String getOsname()
 	{
-		return APSAnalyticsMeta.getPlatform();
+		return TiSessionMeta.getPlatform();
 	}
 
 	@Kroll.getProperty
@@ -145,7 +145,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getVersion()
 	{
-		return APSAnalyticsMeta.getOsVersion();
+		return TiSessionMeta.getOsVersion();
 	}
 
 	@Kroll.getProperty
@@ -193,13 +193,13 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getOstype()
 	{
-		return APSAnalyticsMeta.getOsType();
+		return TiSessionMeta.getOsType();
 	}
 
 	@Kroll.getProperty
 	public String getArchitecture()
 	{
-		return APSAnalyticsMeta.getArchitecture();
+		return TiSessionMeta.getArchitecture();
 	}
 
 	@Kroll.getProperty
@@ -259,7 +259,7 @@ public class PlatformModule extends KrollModule
 						   @Kroll.argument(optional = true) Object arg2, @Kroll.argument(optional = true) Object arg3)
 	{
 		// If given an optional callback, then call this method recursively without the callback.
-		// Note: We might also receieve an optional KrollDict argument. This is iOS only and should be ignored.
+		// Note: We might also receive an optional KrollDict argument. This is iOS only and should be ignored.
 		KrollFunction callback = null;
 		if (arg2 instanceof KrollFunction) {
 			callback = (KrollFunction) arg2;
@@ -376,7 +376,7 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public String getId()
 	{
-		return APSAnalytics.getInstance().getMachineId();
+		return TiSession.getInstance().getMachineId();
 	}
 
 	@Kroll.setProperty
@@ -399,13 +399,23 @@ public class PlatformModule extends KrollModule
 	@Kroll.getProperty
 	public int getBatteryState()
 	{
-		return batteryState;
+		if (Build.VERSION.SDK_INT >= 26) {
+			Context context = TiApplication.getInstance().getApplicationContext();
+			BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+			int batStatus = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_STATUS);
+			return convertBatteryStatus(batStatus);
+		} else {
+			return batteryState;
+		}
 	}
 
 	@Kroll.getProperty
 	public double getBatteryLevel()
 	{
-		return batteryLevel;
+		Context context = TiApplication.getInstance().getApplicationContext();
+		BatteryManager bm = (BatteryManager) context.getSystemService(BATTERY_SERVICE);
+		int batLevel = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+		return batLevel;
 	}
 
 	@Kroll.getProperty
@@ -471,7 +481,7 @@ public class PlatformModule extends KrollModule
 			// TODO Sort processors by index, fill in model name by preceding if unknown
 
 		} catch (IOException ex) {
-			// somethign went wrong, create "default" set of processors?
+			// something went wrong, create "default" set of processors?
 			this.processors = new ArrayList<>(processorCount);
 			for (int i = 0; i < processorCount; i++) {
 				this.processors.add(Processor.unknown(i));
@@ -495,7 +505,7 @@ public class PlatformModule extends KrollModule
 			public void onReceive(Context context, Intent intent)
 			{
 				int scale = intent.getIntExtra(TiC.PROPERTY_SCALE, -1);
-				batteryLevel = convertBatteryLevel(intent.getIntExtra(TiC.PROPERTY_LEVEL, -1), scale);
+				double batteryLevel = convertBatteryLevel(intent.getIntExtra(TiC.PROPERTY_LEVEL, -1), scale);
 				batteryState = convertBatteryStatus(intent.getIntExtra(TiC.PROPERTY_STATUS, -1));
 
 				KrollDict event = new KrollDict();
@@ -606,7 +616,7 @@ public class PlatformModule extends KrollModule
 	}
 
 	/**
-	 * Creates an ACTION_VIEW (or similar) intent for the give url to be used to start an activity.
+	 * Creates an ACTION_VIEW (or similar) intent for the give URL to be used to start an activity.
 	 * This method is intended to be used by this class' canOpenURL() and openURL() methods.
 	 * @param url
 	 * The URL to create an intent for such as "http:", "mailto:", "geo:", "file:", etc.

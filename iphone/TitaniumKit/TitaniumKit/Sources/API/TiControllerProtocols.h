@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -39,6 +39,7 @@
 
 // Containing controller will call these callbacks(appearance/rotation) on contained windows when it receives them.
 - (void)viewWillAppear:(BOOL)animated;
+- (void)viewSafeAreaInsetsDidChange;
 - (void)viewWillDisappear:(BOOL)animated;
 - (void)viewDidAppear:(BOOL)animated;
 - (void)viewDidDisappear:(BOOL)animated;
@@ -60,6 +61,10 @@
 
 @property (nonatomic, readwrite, assign) BOOL isManaged;
 
+@optional
+// The vertical bar behavior (UIVerticalBarBehavior) this window prefers. Only evaluated on iOS 27.1+.
+- (NSInteger)preferredVerticalBarBehavior;
+
 @end
 
 /**
@@ -69,7 +74,7 @@
 @required
 - (BOOL)canHostWindows;
 - (UIView *)hostingView;
-//Called by light weight windows from their windowWillOpen, windowWillClose, windowDidOpen, windowDidClose methods
+// Called by light weight windows from their windowWillOpen, windowWillClose, windowDidOpen, windowDidClose methods
 - (void)willOpenWindow:(id<TiWindowProtocol>)theWindow;
 - (void)willCloseWindow:(id<TiWindowProtocol>)theWindow;
 - (void)didOpenWindow:(id<TiWindowProtocol>)theWindow;
@@ -87,18 +92,18 @@
 
 @required
 
-//Background Control
+// Background Control
 - (void)setBackgroundImage:(UIImage *)arg;
 - (void)setBackgroundColor:(UIColor *)arg;
 - (void)dismissDefaultImage;
 
-//Keyboard stuff
+// Keyboard stuff
 - (BOOL)keyboardVisible;
 - (void)dismissKeyboard;
 - (void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 - (void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 
-//ViewController stuff
+// ViewController stuff
 - (TiOrientationFlags)getDefaultOrientations;
 - (UIViewController *)topPresentedController;
 - (UIViewController<TiControllerContainment> *)topContainerController;

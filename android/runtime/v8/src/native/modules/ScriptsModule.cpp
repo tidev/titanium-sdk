@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -196,7 +196,7 @@ template<WrappedScript::EvalInputFlags input_flag, WrappedScript::EvalContextFla
 	WrappedScript::EvalOutputFlags output_flag>
 void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 {
-	// TODO: This needs a major overhaul/update. We're way behind node's impl here: https://github.com/nodejs/node/blob/master/src/node_contextify.cc
+	// TODO: This needs a major overhaul/update. We're way behind node's impl here: https://github.com/nodejs/node/blob/main/src/node_contextify.cc
 	// Additionally, we don't actually use anything other than "this" context, as far as I know.
 	Isolate* isolate = args.GetIsolate();
 	Local<Context> currentContext = isolate->GetCurrentContext();
@@ -253,7 +253,7 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 		// Use the passed in context
 		MaybeLocal<Object> contextArg = args[sandbox_index]->ToObject(currentContext);
 		if (contextArg.IsEmpty()) {
-			// FIXME Will this ever happen? This is not likley and probably the wrong way to handle this. We should at least log it...
+			// FIXME Will this ever happen? This is not likely and probably the wrong way to handle this. We should at least log it...
 			context.Reset(isolate, Context::New(isolate));
 		} else {
 			nContext = WrappedContext::Unwrap(isolate, contextArg.ToLocalChecked());
@@ -261,8 +261,8 @@ void WrappedScript::EvalMachine(const FunctionCallbackInfo<Value>& args)
 		}
 	}
 
-	// Explicitly set up var to track context we shoudl use for compile/run of script.
-	// When "thisContext", use teh current context from the isolate. Otherwise use the context we set in the Persistent above
+	// Explicitly set up var to track context we should use for compile/run of script.
+	// When "thisContext", use the current context from the isolate. Otherwise use the context we set in the `Persistent` above
 	Local<Context> contextToUse = (context_flag == thisContext) ? currentContext : context.Get(isolate);
 
 	// New and user context share code. DRY it up.

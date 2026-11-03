@@ -6,17 +6,30 @@ summary: |
     blur view above other views and all visible views layered under the blur view are blurred as well.
 
     For more information on BlurView, please refer to the official [Apple documentation](https://developer.apple.com/documentation/uikit/uivisualeffectview).
-    Note: Apple introduced two new constants <Titanium.UI.iOS.BLUR_EFFECT_STYLE_REGULAR> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_PROMINENT> in
-    iOS 10. These are internally mapped to <Titanium.UI.iOS.BLUR_EFFECT_STYLE_LIGHT> and <Titanium.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT>.
+    
+    Note: In iOS 26, Apple introduced the `UIGlassEffectView`, an alternative to classic blur views. See the <Titanium.UI.iOS.BlurView.glassEffect> property for more details.
 extends: Titanium.UI.View
 platforms: [iphone, ipad, macos]
 since: {iphone: "5.4.0", ipad: "5.4.0", macos: "9.2.0"}
 properties:
   - name: effect
-    summary: The effect you provide for the view.
+    summary: The blur effect to apply to the effect view.
     type: Number
     constants: Titanium.UI.iOS.BLUR_EFFECT_STYLE_*
     default: undefined (no effect is applied)
+    
+  - name: glassEffect
+    summary: The glass effect configuration to apply to the effect view.
+    description: |
+        Glass effects are an alternative to classic blur views introduced in iOS 26, providing
+        a more modern and visually appealing blur effect with additional customization options.
+        
+        When the glass effect is enabled, it will override any value set to the `effect` property.
+        See <GlassEffectConfiguration> for the available configuration options.
+    type: GlassEffectConfiguration
+    platforms: [iphone, ipad]
+    since: {iphone: "13.0.0", ipad: "13.0.0"}
+    osver: {ios: {min: "26.0"}}
 
 examples:
   - title: Basic Blur View
@@ -24,12 +37,12 @@ examples:
         The following example shows how to create a simple blur view:
         
         ``` js
-        var win = Ti.UI.createWindow({
+        const win = Ti.UI.createWindow({
             backgroundColor: "#fff"
         });
         
         // Reference image (or view)
-        var img = Ti.UI.createImageView({
+        const img = Ti.UI.createImageView({
             image: "/default_app_logo.png",
             top: 100,
             width: 300,
@@ -37,7 +50,7 @@ examples:
         });
         
         // Blur view
-        var blur = Ti.UI.iOS.createBlurView({
+        const blur = Ti.UI.iOS.createBlurView({
             width: Ti.UI.FILL,
             height: Ti.UI.FILL
         });
@@ -45,13 +58,13 @@ examples:
         img.add(blur);
         
         // Effect controls
-        var tabs = Ti.UI.iOS.createTabbedBar({
+        const tabs = Ti.UI.iOS.createTabbedBar({
             labels: ["Extra light", "Light", "Dark"],
             bottom: 100
         });
 
         // Available blur effects
-        var effects = [
+        const effects = [
             Ti.UI.iOS.BLUR_EFFECT_STYLE_EXTRA_LIGHT,
             Ti.UI.iOS.BLUR_EFFECT_STYLE_LIGHT,
             Ti.UI.iOS.BLUR_EFFECT_STYLE_DARK,
@@ -65,3 +78,95 @@ examples:
         win.add(img);
         win.open();
         ```
+        
+  - title: Glass Effect View (iOS 26+)
+    example: |
+        The following example shows how to create a blur view with the new glass effect:
+        
+        ``` js
+        const win = Ti.UI.createWindow({
+            backgroundColor: "#fff"
+        });
+
+        const backgroundView = Ti.UI.createImageView({
+            image: 'https://s1.directupload.eu/images/250817/ufgix5hy.jpg',
+            width: Ti.UI.FILL,
+            height: Ti.UI.FILL,
+            scalingMode: Ti.Media.IMAGE_SCALING_ASPECT_FILL
+        });
+
+        const effectView = Ti.UI.iOS.createBlurView({
+            width: 250,
+            height: 250,
+            glassEffect: {
+                style: Ti.UI.iOS.GLASS_EFFECT_STYLE_CLEAR,
+                interactive: true
+            }
+        });
+
+        backgroundView.add(effectView);
+
+        const toggleButton = Ti.UI.createButton({
+            title: "Toggle Glass Effect",
+            bottom: 50
+        });
+
+        let isEnabled = true;
+        toggleButton.addEventListener("click", () => {
+            isEnabled = !isEnabled;
+            if (isEnabled) {
+                backgroundView.add(effectView)
+            } else {
+                backgroundView.remove(effectView)
+            }
+        });
+
+        win.add(backgroundView);
+        win.add(toggleButton);
+        win.open();
+        ```
+
+---
+name: GlassEffectConfiguration
+summary: Object of options for configuring the glass effect on a <Titanium.UI.iOS.BlurView>.
+platforms: [iphone, ipad]
+since: {iphone: "13.0.0", ipad: "13.0.0"}
+osver: {ios: {min: "26.0"}}
+description: |
+    The parameters used when configuring a glass effect for a blur view. Glass effects are
+    an alternative to classic blur views introduced in iOS 26, providing a more modern and
+    visually appealing blur effect with additional customization options.
+    
+    The glass effect requires at least the `style` property to be set. On iOS versions prior
+    to 26, setting this property will have no effect.
+properties:
+  - name: style
+    summary: The style of the glass effect.
+    description: |
+        Specifies the visual style of the glass effect. Different styles provide
+        different levels of translucency and blur intensity.
+    type: Number
+    constants: Titanium.UI.iOS.GLASS_EFFECT_STYLE_*
+    default: <Titanium.UI.iOS.GLASS_EFFECT_STYLE_REGULAR>
+    optional: false
+
+  - name: interactive
+    summary: Whether the glass effect responds to user interaction.
+    description: |
+        When set to `true`, the glass effect will respond to touch and other user
+        interactions, providing visual feedback. This can create a more dynamic
+        and engaging user experience.
+    type: Boolean
+    default: false
+    optional: true
+
+  - name: tintColor
+    summary: The tint color to apply to the glass effect.
+    description: |
+        The tint color modifies the appearance of the glass effect. You can specify
+        the color as a color name (e.g., "red"), a hex string (e.g., "#FF0000"),
+        or an RGBA string (e.g., "rgba(255, 0, 0, 0.5)").
+        
+        If not specified, the glass effect will use the default system appearance.
+    type: String
+    optional: true

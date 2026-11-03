@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -39,7 +39,7 @@ DEFINE_EXCEPTIONS
 - (void)dealloc
 {
 #if NAVBAR_MEMORY_DEBUG == 1
-  NSLog(@"[DEBUG] Deallocing %X (%d)", self, [self retainCount]);
+  NSLog(@"[DEBUG] Deallocating %X (%d)", self, [self retainCount]);
 #endif
   RELEASE_TO_NIL(activityDelegate);
   [super dealloc];
@@ -101,7 +101,7 @@ DEFINE_EXCEPTIONS
       if ([[proxy_ view] isKindOfClass:[UIControl class]]) {
         [(UIControl *)[proxy_ view] addTarget:self action:@selector(clicked:) forControlEvents:UIControlEventTouchUpInside];
       }
-      //Sanity check. If the view bounds are zero set the bounds to auto dimensions
+      // Sanity check. If the view bounds are zero set the bounds to auto dimensions
       CGRect bounds = [[proxy_ view] bounds];
       if (bounds.size.width == 0) {
         CGFloat desiredWidth = [proxy_ autoWidthForSize:CGSizeMake(1000, 1000)];
@@ -136,7 +136,7 @@ DEFINE_EXCEPTIONS
   self.accessibilityIdentifier = [TiUtils composeAccessibilityIdentifier:self];
 
   self.width = [TiUtils floatValue:[proxy_ valueForKey:@"width"] def:0.0];
-  //A width of 0 is treated as Auto by the iPhone OS, so this is safe.
+  // A width of 0 is treated as Auto by the iPhone OS, so this is safe.
   // we need to listen manually to proxy change events if we want to be
   // able to change them dynamically
   proxy.modelDelegate = self;
@@ -147,7 +147,39 @@ DEFINE_EXCEPTIONS
     [self performSelector:@selector(setEnabled_:) withObject:enabled];
   }
 
+  [self setVisibilityPriority_:[proxy_ valueForKey:@"visibilityPriority"]];
+  [self setAxisBehavior_:[proxy_ valueForKey:@"axisBehavior"]];
+
   return self;
+}
+
+// iOS 27.0+: The priority of the item when the bar runs out of space and moves items into the overflow menu.
+- (void)setVisibilityPriority_:(id)value
+{
+#if IS_SDK_IOS_27
+  if (@available(iOS 27.0, *)) {
+    if (value != nil && value != [NSNull null]) {
+      self.visibilityPriority = [TiUtils intValue:value def:UIBarButtonItemVisibilityPriorityStandard];
+    }
+  }
+#endif
+}
+
+// iOS 27.1+: Whether the item prefers the horizontal or the vertical bar axis (iPhone Duo).
+- (void)setAxisBehavior_:(id)value
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    if (value != nil && value != [NSNull null]) {
+      NSInteger behavior = [TiUtils intValue:value def:UIBarButtonItemAxisBehaviorAutomatic];
+      if (behavior == UIBarButtonItemAxisBehaviorAutomatic
+          || behavior == UIBarButtonItemAxisBehaviorHorizontalOnly
+          || behavior == UIBarButtonItemAxisBehaviorVerticalPreferred) {
+        self.axisBehavior = (UIBarButtonItemAxisBehavior)behavior;
+      }
+    }
+  }
+#endif
 }
 
 - (void)clicked:(id)event
@@ -193,8 +225,8 @@ DEFINE_EXCEPTIONS
   UIView *buttonView = [self customView];
 
   if ([buttonView isKindOfClass:[TiUIButton class]]) {
-    //TODO: when using a TiUIButton, for some reason the setEnabled doesn't work.
-    //So we're just going to let it do all the work of updating.
+    // TODO: when using a TiUIButton, for some reason the setEnabled doesn't work.
+    // So we're just going to let it do all the work of updating.
     [(TiUIButton *)buttonView setEnabled_:value];
   } else {
     BOOL enabled = [TiUtils boolValue:value];
@@ -235,6 +267,22 @@ DEFINE_EXCEPTIONS
     TiThreadPerformOnMainThread(
         ^{
           [self setEnabled_:newValue];
+        },
+        NO);
+    return;
+  }
+  if ([key isEqualToString:@"visibilityPriority"]) {
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setVisibilityPriority_:newValue];
+        },
+        NO);
+    return;
+  }
+  if ([key isEqualToString:@"axisBehavior"]) {
+    TiThreadPerformOnMainThread(
+        ^{
+          [self setAxisBehavior_:newValue];
         },
         NO);
     return;

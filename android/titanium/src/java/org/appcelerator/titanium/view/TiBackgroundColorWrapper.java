@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -73,8 +73,7 @@ public class TiBackgroundColorWrapper
 				// Retrieves the real drawable currently used, for things
 				// like StateListDrawable or ScaleDrawable.
 				backgroundDrawable = backgroundDrawable.getCurrent();
-				if (backgroundDrawable instanceof LayerDrawable) {
-					LayerDrawable layerDrawable = (LayerDrawable) backgroundDrawable;
+				if (backgroundDrawable instanceof LayerDrawable layerDrawable) {
 
 					int layerCount = layerDrawable.getNumberOfLayers();
 					if (layerCount > 0) {

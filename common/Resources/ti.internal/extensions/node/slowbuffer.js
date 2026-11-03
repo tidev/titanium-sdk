@@ -107,7 +107,7 @@ export default class SlowBuffer {
 		return SlowBuffer.fromTiBuffer(tiBuffer);
 	}
 
-	// This is a method we should get by extending Uint8Array, so really should only be overriden on a "SlowBuffer" that wraps Ti.Buffer
+	// This is a method we should get by extending Uint8Array, so really should only be overridden on a "SlowBuffer" that wraps Ti.Buffer
 	get buffer() {
 		// Get the slice of the array from byteOffset to length
 		return Uint8Array.from(this).buffer;
@@ -153,7 +153,7 @@ export default class SlowBuffer {
 		return setAdjustedIndex(this, index, value);
 	}
 
-	// This is a method we should get by extending Uint8Array, so really should only be overriden on a "SlowBuffer" that wraps Ti.Buffer
+	// This is a method we should get by extending Uint8Array, so really should only be overridden on a "SlowBuffer" that wraps Ti.Buffer
 	set(src, offset = 0) {
 		const numBytes = src.length;
 		// check src.length + offset doesn't go beyond our length!

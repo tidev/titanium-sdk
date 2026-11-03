@@ -1,4 +1,4 @@
-const LogUpdate = require('./log-update');
+import { LogUpdate } from './log-update.js';
 
 /**
  * Webpack progress reporter.
@@ -8,7 +8,7 @@ const LogUpdate = require('./log-update');
  *
  * @see https://github.com/nuxt/webpackbar/blob/894a16bcb000c448570ccdc96ddd9a5cef9dfc95/src/reporters/fancy.js
  */
-class ProgressBarReporter {
+export class ProgressBarReporter {
 	constructor() {
 		this.lastRender = Date.now();
 		this.logUpdate = new LogUpdate();
@@ -93,7 +93,7 @@ class ProgressBarReporter {
 	}
 }
 
-class SimpleReporter {
+export class SimpleReporter {
 	constructor(logger) {
 		this.logger = logger;
 	}
@@ -111,8 +111,3 @@ class SimpleReporter {
 
 	}
 }
-
-module.exports = {
-	ProgressBarReporter,
-	SimpleReporter
-};

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -22,7 +22,7 @@
 {
   self = [super init];
   if (self) {
-    _coreModules = [[NSSet setWithArray:@[ @"Accelerometer", @"Analytics", @"App", @"API", @"Calendar", @"Codec", @"Contacts", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Media", @"Network", @"Platform", @"Stream", @"Utils", @"UI",
+    _coreModules = [[NSSet setWithArray:@[ @"Accelerometer", @"App", @"API", @"Calendar", @"Codec", @"Contacts", @"Database", @"Filesystem", @"Geolocation", @"Gesture", @"Locale", @"Media", @"Network", @"Platform", @"Stream", @"Utils", @"UI",
       @"WatchSession",
       @"XML" ]] retain];
   }

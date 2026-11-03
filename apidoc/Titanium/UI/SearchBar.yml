@@ -9,7 +9,7 @@ description: |
     Search bars are most commonly used for filtering the rows in a [TableView](Titanium.UI.TableView) and
     [ListView](Titanium.UI.ListView). You can add a search bar to a table view via its
     [search](Titanium.UI.TableView.search) property. You can add a search bar to a list view via its
-    [searchView](Titanium.UI.TableView.searchView) property.
+    [searchBar](Titanium.UI.SearchBar) property.
 
     A search bar can also be used on its own.
 

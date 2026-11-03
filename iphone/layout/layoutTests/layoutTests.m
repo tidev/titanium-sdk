@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -75,7 +75,7 @@ static TiView *createWindow(TiView *parent)
   WAIT_FOR(done)
 }
 
-- (void)test_AbsoluteLayout_LeftPropery
+- (void)test_AbsoluteLayout_LeftProperty
 {
   __block BOOL done = NO;
   TiView *view = [[TiView alloc] init];
@@ -96,7 +96,7 @@ static TiView *createWindow(TiView *parent)
   WAIT_FOR(done)
 }
 
-- (void)test_AbsoluteLayout_RightPropery
+- (void)test_AbsoluteLayout_RightProperty
 {
   __block BOOL done = NO;
   TiView *view = [[TiView alloc] init];
@@ -116,7 +116,7 @@ static TiView *createWindow(TiView *parent)
   WAIT_FOR(done)
 }
 
-- (void)test_AbsoluteLayout_TopPropery
+- (void)test_AbsoluteLayout_TopProperty
 {
   __block BOOL done = NO;
   TiView *view = [[TiView alloc] init];
@@ -135,7 +135,7 @@ static TiView *createWindow(TiView *parent)
   WAIT_FOR(done)
 }
 
-- (void)test_AbsoluteLayout_BottomPropery
+- (void)test_AbsoluteLayout_BottomProperty
 {
   __block BOOL done = NO;
   TiView *view = [[TiView alloc] init];

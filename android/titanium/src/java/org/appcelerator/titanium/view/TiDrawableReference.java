@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -44,7 +44,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.webkit.URLUtil;
 import androidx.annotation.NonNull;
@@ -199,9 +201,9 @@ public class TiDrawableReference
 	}
 
 	/**
-	 * Resolves the url, then creates and returns a TiDrawableReference instance.
+	 * Resolves the URL, then creates and returns a TiDrawableReference instance.
 	 * @param proxy the activity proxy.
-	 * @param url the url to resolve.
+	 * @param url the URL to resolve.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromUrl(KrollProxy proxy, String url)
@@ -222,7 +224,7 @@ public class TiDrawableReference
 	/**
 	 * Creates and returns a TiDrawableReference with type DrawableReferenceType.URL.
 	 * @param activity the referenced activity.
-	 * @param url the resource's url.
+	 * @param url the resource's URL.
 	 * @return A ready instance of TiDrawableReference.
 	 */
 	public static TiDrawableReference fromUrl(Activity activity, String url)
@@ -272,7 +274,7 @@ public class TiDrawableReference
 	 * Does its best to determine the type of reference (url, blob, etc) based on object parameter.
 	 * <p>
 	 * Uses the given proxy to resolve relative paths to an image file, if applicable.
-	 * @param proxy Used to acquire an activty and resolve relative paths if given object is a string path.
+	 * @param proxy Used to acquire an activity and resolve relative paths if given object is a string path.
 	 * @param object Reference to the image to be loaded such as a file, path, blob, etc.
 	 * @return Returns an instance of TiDrawableReference wrapping the given object.
 	 */
@@ -465,6 +467,36 @@ public class TiDrawableReference
 		}
 		return drawable;
 	}
+
+	/**
+	 * Gets the vector drawable if the reference is to a vector XML resource.
+	 * Does not decode bitmap resources, so it is safe to call on the main thread.
+	 * @return VectorDrawable, or null if the reference is not a vector XML resource.
+	 */
+	public VectorDrawable getVectorDrawable()
+	{
+		if (!isTypeResourceId() || resourceId <= 0) {
+			return null;
+		}
+
+		Context context = TiApplication.getAppCurrentActivity();
+		if (context == null) {
+			context = TiApplication.getInstance();
+		}
+		try {
+			TypedValue value = new TypedValue();
+			context.getResources().getValue(resourceId, value, true);
+			if (value.string == null || !value.string.toString().endsWith(".xml")) {
+				return null;
+			}
+		} catch (Resources.NotFoundException e) {
+			return null;
+		}
+
+		Drawable drawable = getResourceDrawable();
+		return (drawable instanceof VectorDrawable) ? (VectorDrawable) drawable : null;
+	}
+
 	/**
 	 * Gets a resource drawable directly if the reference is to a resource, else
 	 * makes a BitmapDrawable with the given attributes.
@@ -855,7 +887,7 @@ public class TiDrawableReference
 				stream = TiFileHelper.getInstance().openInputStream(url, false);
 
 			} catch (IOException e) {
-				Log.e(TAG, "Problem opening stream with url " + url + ": " + e.getMessage());
+				Log.e(TAG, "Problem opening stream with URL " + url + ": " + e.getMessage());
 			}
 
 		} else if (isTypeFile() && file != null) {

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -117,7 +117,7 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 			return;
 		}
 
-		final var diffResult = DiffUtil.calculateDiff(new DiffCallback(newModelsClone, this.models));
+		final var diffResult = DiffUtil.calculateDiff(new AsyncListDiffer(newModelsClone, this.models));
 
 		// Update models.
 		this.models = newModelsClone;
@@ -129,13 +129,13 @@ public abstract class TiRecyclerViewAdapter<VH extends TiRecyclerViewHolder<V>, 
 	/**
 	 * Define DiffUtil.Callback to optimize updating the adapter.
 	 */
-	private class DiffCallback extends DiffUtil.Callback
+	private class AsyncListDiffer extends DiffUtil.Callback
 	{
 
 		List<V> newViews;
 		List<V> oldViews;
 
-		public DiffCallback(List<V> newViews, List<V> oldViews)
+		public AsyncListDiffer(List<V> newViews, List<V> oldViews)
 		{
 			this.newViews = newViews;
 			this.oldViews = oldViews;

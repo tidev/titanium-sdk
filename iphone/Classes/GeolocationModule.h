@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -46,7 +46,7 @@ CONSTANT(NSNumber *, AUTHORIZATION_RESTRICTED);
 CONSTANT(NSNumber *, AUTHORIZATION_UNKNOWN);
 CONSTANT(NSNumber *, AUTHORIZATION_WHEN_IN_USE);
 
-//Accuracy Authorization to use location
+// Accuracy Authorization to use location
 CONSTANT(NSNumber *, ACCURACY_AUTHORIZATION_FULL);
 CONSTANT(NSNumber *, ACCURACY_AUTHORIZATION_REDUCED);
 

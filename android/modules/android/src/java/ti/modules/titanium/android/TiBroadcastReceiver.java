@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -42,7 +42,8 @@ public class TiBroadcastReceiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		if (url != null) {
-			KrollRuntime.isInitialized();
+			// Restart the runtime if it was disposed. Happens when the user exits the app and the process survives.
+			KrollRuntime.initIfDisposed();
 			KrollRuntime.getInstance().runModuleBytes(KrollAssetHelper.readAssetBytes(url), url, proxy);
 		} else if (callback != null) {
 			KrollDict event = new KrollDict();

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -53,7 +53,7 @@ NSArray *moviePlayerKeys = nil;
 - (NSArray *)keySequence
 {
   if (moviePlayerKeys == nil) {
-    moviePlayerKeys = [[NSArray alloc] initWithObjects:@"url", nil];
+    moviePlayerKeys = [[NSArray alloc] initWithObjects:@"fairPlayConfiguration", @"url", nil];
   }
   return moviePlayerKeys;
 }
@@ -83,7 +83,7 @@ NSArray *moviePlayerKeys = nil;
 
 - (void)addNotificationObserver
 {
-  WARN_IF_BACKGROUND_THREAD; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
   // For durationavailable event
@@ -126,7 +126,7 @@ NSArray *moviePlayerKeys = nil;
 
   // we need this code below since the player can be realized before loading
   // properties in certain cases and when we go to create it again after setting
-  // url we will need to set the new controller to the already created view
+  // URL we will need to set the new controller to the already created view
   if ([self viewAttached]) {
     TiMediaVideoPlayer *vp = (TiMediaVideoPlayer *)[self view];
     [vp setMovie:movie];
@@ -140,11 +140,19 @@ NSArray *moviePlayerKeys = nil;
     if (url == nil) {
       [playerLock unlock];
       // this is OK - we just need to delay creation of the
-      // player until after the url is set
+      // player until after the URL is set
       return nil;
     }
     movie = [[AVPlayerViewController alloc] init];
-    [movie setPlayer:[AVPlayer playerWithURL:url]];
+    AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+
+    // Apply DRM validation if configuration is provided
+    if (fairPlayCertificate != nil) {
+      [urlAsset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
+    }
+
+    AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
+    [movie setPlayer:[AVPlayer playerWithPlayerItem:newVideoItem]];
     [self configurePlayer];
   }
   [playerLock unlock];
@@ -188,6 +196,20 @@ NSArray *moviePlayerKeys = nil;
 
 #pragma mark Public APIs
 
+- (void)setFairPlayConfiguration:(id)params
+{
+  ENSURE_SINGLE_ARG(params, NSDictionary);
+
+  NSLog(@"[WARN] Setting \"fairPlayConfiguration\" property …");
+
+  fairPlayLicenseURL = [[TiUtils stringValue:@"licenseURL" properties:params] retain];
+  fairPlayCertificate = [[(TiBlob *)params[@"certificate"] data] retain];
+
+  if (fairPlayCertificate == nil || fairPlayLicenseURL == nil) {
+    [self throwException:@"Invalid method call!" subreason:@"Missing certificate, callback or fairPlayLicenseURL" location:CODELOCATION];
+  }
+}
+
 - (void)setOverlayView:(id)proxy
 {
   if (movie != nil && [movie view] != nil) {
@@ -204,7 +226,7 @@ NSArray *moviePlayerKeys = nil;
 - (void)setBackgroundView:(id)proxy
 {
   DEPRECATED_REPLACED(@"Media.VideoPlayer.backgroundView", @"7.0.0", @"Media.VideoPlayer.overlayView")
-      [self setOverlayView:proxy];
+  [self setOverlayView:proxy];
 }
 
 - (NSNumber *)playing
@@ -334,10 +356,17 @@ NSArray *moviePlayerKeys = nil;
   loaded = NO;
   sizeSet = NO;
   if (movie != nil) {
-    AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithURL:url];
+    AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:url options:nil];
+
+    // Apply DRM validation if configuration is provided
+    if (fairPlayCertificate != nil) {
+      [urlAsset.resourceLoader setDelegate:self queue:dispatch_get_main_queue()];
+    }
+
+    AVPlayerItem *newVideoItem = [AVPlayerItem playerItemWithAsset:urlAsset];
     [[movie player] replaceCurrentItemWithPlayerItem:newVideoItem];
     [self removeNotificationObserver]; // Remove old observers
-    [self addNotificationObserver]; // Add new oberservers
+    [self addNotificationObserver]; // Add new observers
   } else {
     [self ensurePlayer];
   }
@@ -412,6 +441,8 @@ NSArray *moviePlayerKeys = nil;
       imageGenerator.requestedTimeToleranceBefore = kCMTimeZero;
       imageGenerator.requestedTimeToleranceAfter = kCMTimeZero;
     }
+
+    imageGenerator.appliesPreferredTrackTransform = YES;
 
     [imageGenerator cancelAllCGImageGeneration];
 
@@ -710,7 +741,7 @@ NSArray *moviePlayerKeys = nil;
 
   if (url == nil) {
     [self throwException:TiExceptionInvalidType
-               subreason:@"Tried to play movie player without a valid url or media property"
+               subreason:@"Tried to play movie player without a valid URL or media property"
                 location:CODELOCATION];
   }
 
@@ -976,6 +1007,49 @@ NSArray *moviePlayerKeys = nil;
   if ([keyPath isEqualToString:@"player.timeControlStatus"]) {
     [self handleTimeControlStatusNotification:nil];
   }
+}
+
+#pragma mark AVAssetResourceLoaderDelegate
+
+- (void)resourceLoader:(AVAssetResourceLoader *)resourceLoader didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)authenticationChallenge
+{
+  NSLog(@"[DEBUG] Cancelled resource loader authentication challenge");
+}
+
+- (BOOL)resourceLoader:(AVAssetResourceLoader *)resourceLoader shouldWaitForLoadingOfRequestedResource:(AVAssetResourceLoadingRequest *)loadingRequest
+{
+  NSString *contentId = loadingRequest.request.URL.host;
+
+  if (contentId) {
+    NSError *error;
+    NSData *contentIdData = [contentId dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *spcData = [loadingRequest streamingContentKeyRequestDataForApp:fairPlayCertificate contentIdentifier:contentIdData options:nil error:&error];
+
+    if (error == nil) {
+      NSMutableURLRequest *ckcRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fairPlayLicenseURL]];
+      [ckcRequest setHTTPMethod:@"POST"];
+      [ckcRequest setHTTPBody:spcData];
+
+      NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+      NSURLSessionDataTask *task = [session dataTaskWithRequest:ckcRequest
+                                              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                                                if (data) {
+                                                  [loadingRequest.dataRequest respondWithData:data];
+                                                  [loadingRequest finishLoading];
+                                                } else {
+                                                  [loadingRequest finishLoadingWithError:error];
+                                                }
+                                              }];
+
+      [task resume];
+
+      return YES;
+    } else {
+      [loadingRequest finishLoadingWithError:error];
+    }
+  }
+
+  return NO;
 }
 
 @end

@@ -70,11 +70,11 @@ function dirname(separator, filepath) {
 	const foundIndex = filepath.lastIndexOf(separator, fromIndex);
 	// no separators
 	if (foundIndex === -1) {
-		// handle special case of root windows paths
+		// handle special case of root Windows paths
 		if (length >= 2 && separator === '\\' && filepath.charAt(1) === ':') {
 			const firstChar = filepath.charCodeAt(0);
 			if (isWindowsDeviceName(firstChar)) {
-				return filepath; // it's a root windows path
+				return filepath; // it's a root Windows path
 			}
 		}
 		return '.';

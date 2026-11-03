@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -42,7 +42,6 @@ public class TiBorderWrapperView extends FrameLayout
 	private Paint paint;
 	private Rect bounds;
 	private ViewOutlineProvider viewOutlineProvider;
-	Path outerPath;
 	public TiBorderWrapperView(Context context)
 	{
 		super(context);
@@ -61,7 +60,6 @@ public class TiBorderWrapperView extends FrameLayout
 
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		bounds = new Rect();
-		outerPath = new Path();
 	}
 
 	public void reset()
@@ -92,6 +90,7 @@ public class TiBorderWrapperView extends FrameLayout
 			paint.setAlpha(alpha);
 		}
 
+		Path outerPath = new Path();
 		if (hasRadius()) {
 			float[] innerRadius = new float[this.radius.length];
 			for (int i = 0; i < this.radius.length; i++) {

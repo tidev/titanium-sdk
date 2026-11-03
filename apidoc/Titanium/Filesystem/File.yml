@@ -165,6 +165,9 @@ methods:
     summary: Returns the creation Date for the file identified by this file object.
     description: |
         On Android, returns a Date whose `getTime()` value is 0 for resource files.
+
+        **Important**: When developing for the Apple ecosystem, using this API requires the `NSPrivacyAccessedAPICategoryFileTimestamp`
+        property set in the privacy manifest that was introduced in iOS 17. You can learn more about it [here](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api).
     returns:
         type: Date
     platforms: [iphone, ipad, android, macos]
@@ -255,6 +258,9 @@ methods:
     summary: Returns the last modification Date for the file identified by this file object.
     description: |
         On Android, returns a Date whose `getTime()` value is 0 for resource files.
+
+        **Important**: When developing for the Apple ecosystem, using this API requires the `NSPrivacyAccessedAPICategoryFileTimestamp`
+        property set in the privacy manifest that was introduced in iOS 17. You can learn more about it [here](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api).
     returns:
         type: Date
     platforms: [iphone, ipad, android, macos]
@@ -346,6 +352,9 @@ methods:
         identified by this file object is stored.
     description: |
         Free space is returned in bytes.
+
+        **Important**: When developing for the Apple ecosystem, using this API requires the `NSPrivacyAccessedAPICategoryDiskSpace`
+        property set in the privacy manifest that was introduced in iOS 17. You can learn more about it [here](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api).
     returns:
         type: Number
 
@@ -403,7 +412,7 @@ properties:
     description: |
         iOS platform-note: Prior to Titanium SDK 7.0.0, this method returned the
         path of the parent directory as a String. Since Titanium SDK 7.0.0 it
-        returnes a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
+        returns a <Titanium.Filesystem.File> reference for parity wih Android and Windows.
     type: Titanium.Filesystem.File
     permission: read-only
     platforms: [android]
@@ -431,7 +440,7 @@ properties:
         versions 5.0.1 and later, but is safe to set on earlier versions.
 
         Note that setting this property to `false` will also prevent the
-        file identified by this object from being backed up to iTunes.
+        file identified by this object from being backed up to iCloud.
     default: true
     type: Boolean
     platforms: [iphone,ipad, macos]

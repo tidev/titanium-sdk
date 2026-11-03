@@ -208,7 +208,7 @@ examples:
         bonjourSocket.accept({ timeout: 10000 });
 
         // Publish the service
-        localService.publish(bonjourSocket, fnction (err, bool) {
+        localService.publish(bonjourSocket, function (err, bool) {
           // Now you can find the service on your network (including using a Ti.Network.BonjourBrowser)
         });
         ```

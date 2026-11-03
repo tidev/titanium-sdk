@@ -23,6 +23,9 @@ import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiToolbarStyleHandler;
 import org.appcelerator.titanium.view.TiUIView;
 
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
 public class TiToolbar extends TiUIView
 {
 	//region private primitive fields
@@ -124,11 +127,11 @@ public class TiToolbar extends TiUIView
 
 	/**
 	 * Sets the background color of the toolbar
-	 * @param color String in Titanium color format
+	 * @param value Color in any format supported by Titanium.
 	 */
-	public void setToolbarColor(String color)
+	public void setToolbarColor(Object value)
 	{
-		toolbar.setBackgroundColor((TiColorHelper.parseColor(color, proxy.getActivity())));
+		toolbar.setBackgroundColor((TiColorHelper.parseColor(value, proxy.getActivity())));
 		if (proxy.hasProperty(TiC.PROPERTY_TRANSLUCENT)) {
 			if ((Boolean) proxy.getProperty(TiC.PROPERTY_TRANSLUCENT)) {
 				toolbar.getBackground().setAlpha(BACKGROUND_TRANSLUCENT_VALUE);
@@ -172,9 +175,11 @@ public class TiToolbar extends TiUIView
 		toolbar.setFitsSystemWindows(true);
 
 		// Set flags so that the current window will allow drawing behind the status bar.
-		int flags = decorView.getSystemUiVisibility();
-		flags |= View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-		decorView.setSystemUiVisibility(flags);
+		WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(window, decorView);
+		if (insetsController != null) {
+			insetsController.setSystemBarsBehavior(
+				WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+		}
 		window.setStatusBarColor(Color.TRANSPARENT);
 
 		// Request window to re-fit its views.
@@ -322,7 +327,7 @@ public class TiToolbar extends TiUIView
 	 * Sets title's text color
 	 * @param value Color in any format supported by Titanium.
 	 */
-	private void setTitleTextColor(String value)
+	private void setTitleTextColor(Object value)
 	{
 		toolbar.setTitleTextColor(TiColorHelper.parseColor(value, proxy.getActivity()));
 	}
@@ -340,7 +345,7 @@ public class TiToolbar extends TiUIView
 	 * Sets subtitle's text color
 	 * @param value Color in any format supported by Titanium.
 	 */
-	private void setSubtitleTextColor(String value)
+	private void setSubtitleTextColor(Object value)
 	{
 		toolbar.setSubtitleTextColor(TiColorHelper.parseColor(value, proxy.getActivity()));
 	}
@@ -394,7 +399,7 @@ public class TiToolbar extends TiUIView
 	{
 		//region process common properties
 		if (d.containsKey(TiC.PROPERTY_BAR_COLOR)) {
-			setToolbarColor(d.getString(TiC.PROPERTY_BAR_COLOR));
+			setToolbarColor(d.get(TiC.PROPERTY_BAR_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_EXTEND_BACKGROUND)) {
 			if (d.getBoolean(TiC.PROPERTY_EXTEND_BACKGROUND)) {
@@ -422,7 +427,7 @@ public class TiToolbar extends TiUIView
 			setTitle(d.getString(TiC.PROPERTY_TITLE));
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_TEXT_COLOR)) {
-			setTitleTextColor(d.getString(TiC.PROPERTY_TITLE_TEXT_COLOR));
+			setTitleTextColor(d.get(TiC.PROPERTY_TITLE_TEXT_COLOR));
 		}
 		if (d.containsKey(TiC.PROPERTY_SUBTITLE)) {
 			setSubtitle(d.getString(TiC.PROPERTY_SUBTITLE));
@@ -456,7 +461,7 @@ public class TiToolbar extends TiUIView
 	{
 		super.propertyChanged(key, oldValue, newValue, proxy);
 		if (key.equals(TiC.PROPERTY_BAR_COLOR)) {
-			setToolbarColor(((String) newValue));
+			setToolbarColor(newValue);
 		}
 		if (key.equals(TiC.PROPERTY_TRANSLUCENT)) {
 			setTranslucent(((Boolean) newValue));
@@ -477,13 +482,13 @@ public class TiToolbar extends TiUIView
 			setTitle((String) newValue);
 		}
 		if (key.equals(TiC.PROPERTY_TITLE_TEXT_COLOR)) {
-			setTitleTextColor((String) newValue);
+			setTitleTextColor(newValue);
 		}
 		if (key.equals(TiC.PROPERTY_SUBTITLE)) {
 			setSubtitle((String) newValue);
 		}
 		if (key.equals(TiC.PROPERTY_SUBTITLE_TEXT_COLOR)) {
-			setSubtitleTextColor((String) newValue);
+			setSubtitleTextColor(newValue);
 		}
 		if (key.equals(TiC.PROPERTY_CONTENT_INSET_END_WITH_ACTIONS)) {
 			setContentInsetEndWithActions((Integer) newValue);

@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2020-Present by Axway, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -74,7 +74,7 @@ describe('Titanium.Media', () => {
 			it('is an Array', () => {
 				// TODO: Verify it's an array of numbers
 				should(Ti.Media).have.a.readOnlyProperty('availableCameras').which.is.an.Array();
-				should(Ti.Media.availableCameras).be.an.Array(); // necessary for ios devices due to way we sniff api usage to turn on/off defines
+				should(Ti.Media.availableCameras).be.an.Array(); // necessary for iOS devices due to way we sniff API usage to turn on/off defines
 			});
 
 			// TODO: Verify the members of the array are one of these constants!
@@ -88,7 +88,7 @@ describe('Titanium.Media', () => {
 
 		describe.ios('.availablePhotoGalleryMediaTypes', () => {
 			it('is am Array', () => {
-				// TODO: verify it's an array of Strings
+				// TODO: verify it's an array of strings
 				should(Ti.Media).have.a.property('availablePhotoGalleryMediaTypes').which.is.an.Array();
 			});
 
@@ -178,7 +178,7 @@ describe('Titanium.Media', () => {
 		describe('.isCameraSupported', () => {
 			it('is a Boolean', () => {
 				should(Ti.Media).have.a.readOnlyProperty('isCameraSupported').which.is.a.Boolean();
-				should(Ti.Media.isCameraSupported).be.a.Boolean(); // necessary for ios devices due to way we sniff api usage to turn on/off defines
+				should(Ti.Media.isCameraSupported).be.a.Boolean(); // necessary for iOS devices due to way we sniff API usage to turn on/off defines
 			});
 		});
 

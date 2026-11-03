@@ -19,7 +19,7 @@ TODOs!!!
 Testing V8-inspector/debugger
 ========
 The goal is to be able to debug apps via Chrome Devtools or Studio.
-We hook up a websocket server in JSDebugger.java to talk to DevTools. This carries the messages back and forth (basically wbesaockets are the "base" protocol that the isnpector protocol travels over)
+We hook up a websocket server in JSDebugger.java to talk to DevTools. This carries the messages back and forth (basically websockets are the "base" protocol that the inspector protocol travels over)
 
 - Use multiple terminal tabs/windows:
 	- One for running a test app to debug with:

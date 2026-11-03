@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -117,6 +117,7 @@ public class TiAnimationBuilder
 	protected String width = null, height = null;
 	protected Integer backgroundColor = null;
 	protected Integer color = null;
+	protected Float rotationY = null, rotationX = null, rotation = null;
 	protected TiAnimationCurve curve = TiAnimationBuilder.DEFAULT_CURVE;
 
 	protected TiAnimation animationProxy;
@@ -243,6 +244,17 @@ public class TiAnimationBuilder
 			elevation = TiConvert.toFloat(options, TiC.PROPERTY_ELEVATION, -1);
 		}
 
+		if (options.containsKey(TiC.PROPERTY_ROTATION_Y)) {
+			rotationY = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_Y, 0f);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ROTATION_X)) {
+			rotationX = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION_X, 0f);
+		}
+
+		if (options.containsKey(TiC.PROPERTY_ROTATION)) {
+			rotation = TiConvert.toFloat(options, TiC.PROPERTY_ROTATION, 0f);
+		}
 		this.options = options;
 	}
 
@@ -303,6 +315,23 @@ public class TiAnimationBuilder
 
 		if (elevation >= 0) {
 			addAnimator(animators, ObjectAnimator.ofFloat(view, "elevation", elevation));
+		}
+
+		if (rotationY != null) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationY", rotationY));
+		}
+		if (rotationX != null) {
+			addAnimator(animators, ObjectAnimator.ofFloat(view, "rotationX", rotationX));
+		}
+		if (rotation != null) {
+			if (tdm != null) {
+				// The "transform" matrix animates "rotation" as well. Honoring both would
+				// leave two competing animators on the same property.
+				Log.w(TAG, "Ignoring 'rotation' because a 'transform' was also given.");
+			} else {
+				includesRotation = true;
+				addAnimator(animators, ObjectAnimator.ofFloat(view, "rotation", rotation));
+			}
 		}
 
 		if (backgroundColor != null) {
@@ -946,7 +975,7 @@ public class TiAnimationBuilder
 			}
 
 			if (applyOpacity && (autoreverse == null || !autoreverse.booleanValue())) {
-				// There is an android bug where animations still occur after
+				// There is an Android bug where animations still occur after
 				// this method. We clear it from the view to
 				// correct this.
 				view.clearAnimation();
@@ -1019,6 +1048,15 @@ public class TiAnimationBuilder
 		if (tdm == null || tdm.canUsePropertyAnimators()) {
 			buildPropertyAnimators().start();
 		}
+	}
+
+	/**
+	 * Determines if the property animators created by this builder were started and did not end yet.
+	 * @return true if the AnimatorSet is still running, false otherwise.
+	 */
+	public boolean isRunning()
+	{
+		return (animatorSet != null) && animatorSet.isStarted();
 	}
 
 	public void stop(View view)

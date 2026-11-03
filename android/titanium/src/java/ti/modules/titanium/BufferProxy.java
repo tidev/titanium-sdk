@@ -1,13 +1,10 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package ti.modules.titanium;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollModule;
@@ -17,6 +14,9 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiBlob;
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 import ti.modules.titanium.codec.CodecModule;
 
@@ -28,7 +28,7 @@ import ti.modules.titanium.codec.CodecModule;
 		TiC.PROPERTY_BYTE_ORDER,
 		TiC.PROPERTY_TYPE,
 		TiC.PROPERTY_VALUE
-})
+	})
 public class BufferProxy extends KrollProxy
 {
 	private static final String TAG = "BufferProxy";
@@ -170,13 +170,14 @@ public class BufferProxy extends KrollProxy
 	{
 		if (length > offset + bufferLength) {
 			throw new IllegalArgumentException("offset of " + offset + " and length of " + length
-											   + " is larger than the buffer length: " + bufferLength);
+				+ " is larger than the buffer length: " + bufferLength);
 		}
 	}
 
 	/**
 	 * Writes data from sourceBuffer into this.
-	 * @param position the offset position of this buffer.
+	 *
+	 * @param position     the offset position of this buffer.
 	 * @param sourceBuffer the source buffer to write from.
 	 * @param sourceOffset the offset position of the sourceBuffer.
 	 * @param sourceLength the length of the sourceBuffer.
@@ -372,6 +373,7 @@ public class BufferProxy extends KrollProxy
 	/**
 	 * Sets the length of this buffer proxy by either growing or shrinking
 	 * the allocated buffer space
+	 *
 	 * @param length The new length of this buffer proxy in bytes
 	 */
 	@Kroll.setProperty

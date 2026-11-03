@@ -11,6 +11,7 @@ xcodebuild archive \
 -scheme $SCHEME \
 -archivePath $UNIVERSAL_OUTPUTFOLDER/macCatalyst.xcarchive \
 -sdk macosx \
+-destination generic/platform=macOS \
 SKIP_INSTALL=NO \
 BUILD_LIBRARIES_FOR_DISTRIBUTION=YES \
 SUPPORTS_MACCATALYST=YES \
@@ -20,6 +21,7 @@ xcodebuild archive \
 -scheme $SCHEME \
 -archivePath $UNIVERSAL_OUTPUTFOLDER/simulator.xcarchive \
 -sdk iphonesimulator \
+-destination "generic/platform=iOS Simulator" \
 SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
 
 #----- Make iOS device archive
@@ -27,6 +29,7 @@ xcodebuild archive \
 -scheme $SCHEME \
 -archivePath $UNIVERSAL_OUTPUTFOLDER/iosdevice.xcarchive \
 -sdk iphoneos \
+-destination generic/platform=iOS \
 SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES
 
 #----- Make XCFramework

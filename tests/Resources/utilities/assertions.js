@@ -1,5 +1,5 @@
 'use strict';
-/* globals OS_ANDROID,OS_IOS */
+/* globals OS_ANDROID, OS_IOS */
 const should = require('should');
 const utilities = require('./utilities');
 const isIOSDevice = OS_IOS && !Ti.Platform.model.includes('(Simulator)');
@@ -39,7 +39,7 @@ should.Assertion.add('propertyWithDescriptor', function (propName, desc) {
 	}
 
 	// first let's see if we can find the property up the prototype chain...
-	// need to call hasOwnProperty in a funky way due to https://jira.appcelerator.org/browse/TIMOB-23504
+	// need to call hasOwnProperty in a funky way due to https://jira-archive.titaniumsdk.com/TIMOB-23504
 	while (!Object.prototype.hasOwnProperty.call(target, propName)) {
 		target = Object.getPrototypeOf(target); // go up the prototype chain
 		if (!target) {
@@ -322,7 +322,7 @@ should.Assertion.add('matchImage', function (image, options = { threshold: 0.1, 
 	}
 }, false);
 
-// TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), i.e. Ti.UI.FILL vs SIZE vs UNKNOWN
+// TODO Add an assertion for "exclusive" group of constants: A set of constants whose values must be unique (basically an enum), e.g. Ti.UI.FILL vs SIZE vs UNKNOWN
 // TODO Use more custom assertions for things like color properties?
 module.exports = should;
 

@@ -61,7 +61,7 @@ This is the general availability (GA) release version of the Titanium SDK 4.0.0.
 
 Note that this release includes feature and behavior changes. See [Notice of Feature and Behavior Changes](#changes) for details.
 
-This release includes over 150 bug fixes and improvements, see the [full list of issues that were addressed in Release 4.0.0](https://jira.appcelerator.org/issues/?filter=16715)
+This release includes over 150 bug fixes and improvements, see the full list of issues that were addressed in Release 4.0.0
 
 <a name="alloy"></a>
 ### Alloy 1.6.0
@@ -104,7 +104,7 @@ This Release coincides with the release of Studio 4.0.0.
   * Update content assist for Alloy projects.
   * Add hyperlink detector to jump from i18n translation keys in Alloy JavaScript and TSS attributes to their definition in strings.xml files.
 
-For more details, see the [Studio Release Notes](https://docs.appcelerator.com/platform/latest/#!/guide/Studio_Release_Notes).
+For more details, see the [Studio Release Notes](https://titaniumsdk.com/api/).
 
 <a name="changes"></a>
 ## Notice of Feature or Behavior Changes
@@ -134,7 +134,7 @@ The Facebook module was updated to use a newer version of the Facebook SDK for A
 Some APIs were removed due to changes in the native Facebook SDKs and removal of the Facebook v1.0 REST APIs.
 
 For details, see the Migration section in the
-[Facebook API reference](https://docs.appcelerator.com/platform/latest/#!/api/Modules.Facebook).
+[Facebook API reference](https://titaniumsdk.com/api/).
 
 <a name="deprecated_ios"></a>
 ### iOS Platform
@@ -151,7 +151,7 @@ The Label `link` event now responds to a single tap rather than a long press.
 <a name="ipad_split_window"></a>
 #### iPad Split Window
 
-In iOS 8, the iPhone now supports the SplitView class.  The `Titanium.UI.iPad.SplitWindow` class is deprecated and a new [Titanium.UI.iOS.SplitWindow](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.SplitWindow) class was added.
+In iOS 8, the iPhone now supports the SplitView class.  The `Titanium.UI.iPad.SplitWindow` class is deprecated and a new [Titanium.UI.iOS.SplitWindow](https://titaniumsdk.com/api/) class was added.
 Any application that uses the old iPad SplitWindow should transition to the new iOS SplitWindow.
 
 
@@ -170,7 +170,7 @@ This section lists new features and improvements only available on the Android p
 
 As of this Release, the Android platform supports attributed strings using the [Titanium.UI.AttributedString](https://titaniumsdk.com/api/titanium/ui/attributedstring.html) class.  Previously, this feature was only available for iOS.
 
-For more details, see the [Attributed String guide](https://docs.appcelerator.com/platform/latest/#!/guide/Attributed_Strings).
+For more details, see the [Attributed String guide](https://titaniumsdk.com/api/).
 
 <a name="material_theme"></a>
 #### Material Theme
@@ -186,20 +186,20 @@ For details, see the "Material Theme" section in the
 #### Module Lifecycle Hooks
 
 Starting with this Release, an Android module proxy can respond to activity lifecycle events by overriding the activity lifecycle callbacks in the proxy, then in the JavaScript application, assign either a Window or TabGroup object to the proxy's
-[lifecycleContainer property](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Proxy-property-lifecycleContainer)
+[lifecycleContainer property](https://titaniumsdk.com/api/)
 when creating the module proxy to monitor the lifecycle events of that object to trigger the module proxy's lifecycle events.
 
 For details, see the "Activity Lifecycle Events" section in
-[Android Module Architecture guide](https://docs.appcelerator.com/platform/latest/#!/guide/Android_Module_Architecture).
+[Android Module Architecture guide](https://titaniumsdk.com/api/).
 
 <a name="notifications"></a>
 #### Notifications
 
 The `Titanium.Android.Notifications` class exposes the following new properties:
 
-  * [category](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-category): Set to a `Titanium.Android.CATEGORY_*` constant if the notification falls into one of the pre-defined notification categories.  Android uses the category to determine where and how it should be displayed. Supported on Android 5.0 and greater.
-  * [priority](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-priority): Set to a `Titanium.Android.PRIORITY_*` constant to determine where the notification is displayed in the drawer.  Supported on Android 4.1 and greater.
-  * [visibility](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Android.Notification-property-visibility): Set to a `Titanium.Android.VISIBILITY_*` constant to filter notifications in the lock screen. Supported on Android 5.0 and greater.
+  * [category](https://titaniumsdk.com/api/): Set to a `Titanium.Android.CATEGORY_*` constant if the notification falls into one of the pre-defined notification categories.  Android uses the category to determine where and how it should be displayed. Supported on Android 5.0 and greater.
+  * [priority](https://titaniumsdk.com/api/): Set to a `Titanium.Android.PRIORITY_*` constant to determine where the notification is displayed in the drawer.  Supported on Android 4.1 and greater.
+  * [visibility](https://titaniumsdk.com/api/): Set to a `Titanium.Android.VISIBILITY_*` constant to filter notifications in the lock screen. Supported on Android 5.0 and greater.
 
 For details, see the
 [Android Notifications guide](https://titaniumsdk.com/guide/Titanium_SDK/Titanium_SDK_How-tos/Notification_Services/Android_Notifications.html).
@@ -209,31 +209,31 @@ For details, see the
 
 This Release adds support for scrollable tabs, where users can swipe to navigate between tabs in addition to tapping a tab in the tab bar. The following APIs were added:
 
-  * [Titanium.UI.TabGroup.disableTabNavigation() method](https://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.TabGroup-method-disableTabNavigation): Enable or disables tab navigation, which displays or hides the tab bar, respectively.
-  * [Titanium.UI.TabGroup.smoothScrollOnTabClick property](https://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.TabGroup-property-smoothScrollOnTabClick): Determines if the tab transition should be animated or not if the user taps the tab.
-  * [Titanium.UI.TabGroup.swipeable property](https://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.TabGroup-property-swipeable): Determines if the user can swipe to navigate between tabs.
-  * [Titanium.UI.Tab.selected event](https://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.Tab-event-selected): Fired when the tab is selected.
-  * [Titanium.UI.Tab.unselected event](https://docs.appcelerator.com/platform/latest/#!/apiTitanium.UI.Tab-event-unselected): Fired when the tab is unselected.
+  * [Titanium.UI.TabGroup.disableTabNavigation() method](https://titaniumsdk.com/api/): Enable or disables tab navigation, which displays or hides the tab bar, respectively.
+  * [Titanium.UI.TabGroup.smoothScrollOnTabClick property](https://titaniumsdk.com/api/): Determines if the tab transition should be animated or not if the user taps the tab.
+  * [Titanium.UI.TabGroup.swipeable property](https://titaniumsdk.com/api/): Determines if the user can swipe to navigate between tabs.
+  * [Titanium.UI.Tab.selected event](https://titaniumsdk.com/api/): Fired when the tab is selected.
+  * [Titanium.UI.Tab.unselected event](https://titaniumsdk.com/api/): Fired when the tab is unselected.
 
 
 <a name="split_action_bar"></a>
 #### Split Action Bar
 
 This Release adds support for the split action bar, which displays action items in a separate bar at the bottom of the window instead of at the top.  To create a split action bar, set the
-[splitActionBar property](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.Window-property-splitActionBar)
+[splitActionBar property](https://titaniumsdk.com/api/)
 to `true` when creating a Window object.
 
 <a name="tls_support"></a>
 #### TLS Support
 
 As of this Release, the application can specify which TLS version to use with the HTTPClient.  Set the HTTPClient's
-[tlsVersion](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.HTTPClient-property-tlsVersion)
+[tlsVersion](https://titaniumsdk.com/api/)
 property to one of the `Titanium.Network.TLS_*` constants to force the TLS version to use.
 
 Previously, this feature was only available for iOS.
 
 For details, see the "TLS Support" section in the
-[HTTPClient API reference](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Network.HTTPClient).
+[HTTPClient API reference](https://titaniumsdk.com/api/).
 
 <a name="video_thumbnail_support"></a>
 #### Video Thumbnails
@@ -253,7 +253,7 @@ Previously, this feature was only available for iOS.
 The Facebook module was updated to use a newer version of the Facebook SDK for Android and iOS.  New features include the Like button and using the Facebook application's interface for dialogs if the Facebook app is also installed on device.
 
 For details, see the
-[Facebook API reference](https://docs.appcelerator.com/platform/latest/#!/api/Modules.Facebook).
+[Facebook API reference](https://titaniumsdk.com/api/).
 
 <a name="new_ios"></a>
 ### iOS Platform
@@ -266,8 +266,8 @@ This section lists new features and improvements only available on the iOS platf
 
 This Release exposes the following APIs to request permission to use the device's camera:
 
- * [Titanium.Media.requestCameraAccess()](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media-method-requestCameraAccess): Request permission to use the device's camera.</li>
- * [Titanium.Media.cameraAuthorizationStatus](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Media-property-cameraAuthorizationStatus): Retrieve the current authorization status for the camera.
+ * [Titanium.Media.requestCameraAccess()](https://titaniumsdk.com/api/): Request permission to use the device's camera.</li>
+ * [Titanium.Media.cameraAuthorizationStatus](https://titaniumsdk.com/api/): Retrieve the current authorization status for the camera.
 
 Note that the application will automatically request permission to use the camera if the camera
 application is launched.  The new APIs allow the application to explicitly request permission from
@@ -278,14 +278,14 @@ the user before the camera is launched.
 
 The `Titanium.Contacts.Person` class exposes the following new properties:
 
-  * [alternateBirthday](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Contacts.Person-property-alternateBirthday): Adds an alternate birthday to the contact.
-  * [socialProfile](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.Contacts.Person-property-socialProfile): Adds social profile information to the contact.
+  * [alternateBirthday](https://titaniumsdk.com/api/): Adds an alternate birthday to the contact.
+  * [socialProfile](https://titaniumsdk.com/api/): Adds social profile information to the contact.
 
 <a name="split_window"></a>
 #### Split Window
 
 This Release introduces the
-[Titanium.UI.iOS.SplitWindow class](https://docs.appcelerator.com/platform/latest/#!/api/Titanium.UI.iOS.SplitWindow)
+[Titanium.UI.iOS.SplitWindow class](https://titaniumsdk.com/api/)
 to support the SplitWindow object on both iPhone and iPad devices, introduced in iOS 8.  Previously, this feature was only available for iPad.  This class deprecates the `Titanium.UI.iPad.SplitWindow` class.
 
 <a name="user_defaults"></a>
@@ -297,7 +297,7 @@ preferences that can be shared between multiple applications that are registered
 application group permission.
 
 For more details, see the
-[iOS Extension Guide](https://docs.appcelerator.com/platform/latest/#!/guide/Integrate_a_Native_iOS_App_Extension_or_WatchKit_App-section-43301277_IntegrateaNativeiOSAppExtensionorWatchKitApp-ShareDataBetweentheApplicationandExtension).
+[iOS Extension Guide](https://titaniumsdk.com/api/).
 
 
 <a name="known_issues"></a>

@@ -43,7 +43,7 @@ This is the general availability (GA) release version of the Titanium SDK 3.4.0.
 
 Note that this release includes feature and behavior changes. See [Notice of Feature and Behavior Changes](#changes) for details.
 
-This release includes over 300 bug fixes and improvements, see the [full list of issues that were addressed in Release 3.4.0](https://jira.appcelerator.org/issues/?filter=16132)
+This release includes over 300 bug fixes and improvements, see the full list of issues that were addressed in Release 3.4.0
 
 <a name="alloy"></a>
 ### Alloy 1.5.0
@@ -119,7 +119,7 @@ This Release coincides with the release of Studio 3.4.0.
   * Add hyperlink detector to jump from i18n translation keys in Alloy View XML attributes to their definition in strings.xml files.
   * Add ability to extract strings in Alloy XML files to i18n files.
 
-For more details, see the [Studio Release Notes](https://docs.appcelerator.com/titanium/latest/#!/guide/Studio_Release_Notes).
+For more details, see the [Studio Release Notes](https://titaniumsdk.com/api/).
 
 <a name="cli"></a>
 ### Titanium CLI 3.4.0
@@ -202,7 +202,7 @@ key to the iOS plist section of the project's `tiapp.xml` file.
 
 Starting in iOS 8, the application must ask the user for permission before using local or push notifications.
 For devices running iOS 8 and later, you need to register the application to use the notification services. Use the
-[Titanium.App.iOS.registerUserNotificationSettings()](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.iOS-method-registerUserNotificationSettings)
+[Titanium.App.iOS.registerUserNotificationSettings()](https://titaniumsdk.com/api/)
 method to enroll the application in local notification services.
 Pass the method a dictionary with the `types` property set to the notification types to use.
 
@@ -215,7 +215,7 @@ If the application needs to use push notifications, call the
 `Titanium.Network.registerForPushNotifications()` method.  Do not pass the notification types to use
 to the `registerForPushNotifications()` method.  Instead, pass the notification types to use with
 the `registerUserNotificationSettings()` method. For an example, see
-[Subscribing to push notifications: Obtain a device token on iOS](https://docs.appcelerator.com/titanium/latest/#!/guide/Subscribing_to_push_notifications-section-37551717_Subscribingtopushnotifications-ObtainingadevicetokenoniOS).
+[Subscribing to push notifications: Obtain a device token on iOS](https://titaniumsdk.com/api/).
 
 For iOS 7 and older, the application does not need to request the user's permission to use local notifications.
 For push notification, use the `registerForPushNotifications()` method and pass in the notification types to use.
@@ -235,13 +235,13 @@ This section lists new features and improvements only available on the Android p
 
 To be notified when an activity's lifecycle event is triggered, assign callbacks to the following activity properties:
 
-  * [onCreate](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onCreate)
-  * [onStart](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onStart)
-  * [onResume](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onResume)
-  * [onPause](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onPause)
-  * [onStop](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onStop)
-  * [onDestroy](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onDestroy)
-  * [onRestart](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.Activity-property-onRestart)
+  * [onCreate](https://titaniumsdk.com/api/)
+  * [onStart](https://titaniumsdk.com/api/)
+  * [onResume](https://titaniumsdk.com/api/)
+  * [onPause](https://titaniumsdk.com/api/)
+  * [onStop](https://titaniumsdk.com/api/)
+  * [onDestroy](https://titaniumsdk.com/api/)
+  * [onRestart](https://titaniumsdk.com/api/)
 
 These properties deprecate the activity's lifecycle events (`create`, `destroy`, `pause`, `resume`, `start` and `stop`).
 
@@ -249,14 +249,14 @@ These properties deprecate the activity's lifecycle events (`create`, `destroy`,
 <a name="http_file"></a>
 #### HTTPClient file property
 
-This Release adds support for HTTPClient's [file](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.HTTPClient-property-file) property.  Use this property to target a local, writable file to receive the HTTP response data.
+This Release adds support for HTTPClient's [file](https://titaniumsdk.com/api/) property.  Use this property to target a local, writable file to receive the HTTP response data.
 
 Previously, the Android platform did not support this property.
 
 <a name="tabgroup_activity"></a>
 #### TabGroup Activity
 
-As of this Release, you can set properties on the TabGroup's [activity](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TabGroup-property-activity) before opening the tab group, which matches the same behavior as a Window activity.
+As of this Release, you can set properties on the TabGroup's [activity](https://titaniumsdk.com/api/) before opening the tab group, which matches the same behavior as a Window activity.
 
 Prior to this Release, you can only set Activity properties from a TabGroup object after the tab group opens.
 
@@ -264,7 +264,7 @@ Prior to this Release, you can only set Activity properties from a TabGroup obje
 <a name="window_theme"></a>
 #### Window theme property
 
-Starting with this Release, the Titanium SDK introduces the [theme](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-theme) property for Windows.  Use the  `theme` property to override the global theme for an individual window.  Set the property to the name of the theme you want to apply to the window.  The property can only be set when creating the Window object and cannot be changed after it is set.
+Starting with this Release, the Titanium SDK introduces the [theme](https://titaniumsdk.com/api/) property for Windows.  Use the  `theme` property to override the global theme for an individual window.  Set the property to the name of the theme you want to apply to the window.  The property can only be set when creating the Window object and cannot be changed after it is set.
 
     var win = Ti.UI.createWindow({theme: "Theme.AppCompat.Fullscreen"});
 
@@ -307,7 +307,7 @@ Prior to this Release, the camera preview would always rotate.
 #### Geolocation
 
 Starting with this Release, the application can monitor the
-[`authorization`](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Geolocation-event-authorization)
+[`authorization`](https://titaniumsdk.com/api/)
 event of the `Titanium.Geolocation` class.  The event triggers when the application's authorization status changes.
 
 This API is only available for iOS 8 and later.
@@ -319,14 +319,14 @@ This API is only available for iOS 8 and later.
 Starting with this Release, you can create interactive notifications, where users can respond to application notifications without launching the application to the foreground.  The user needs to reveal notification actions in the notification, then press a notification action to respond to the notification.  This feature is available on devices running iOS 8 or later.
 
 For more information, see
-[iOS Interactive Notifications guide](https://docs.appcelerator.com/titanium/latest/#!/guide/iOS_Interactive_Notifications).
+[iOS Interactive Notifications guide](https://titaniumsdk.com/api/).
 
 <a name="touch_id"></a>
 #### Touch ID Module
 
 The Touch ID module allows an application to use the iOS Touch ID security mechanism.  Touch ID is a security mechanism that uses a fingerprint to authenticate the user. The fingerprint sensor is located in the Home button of the device. Users can use their fingerprint instead of entering their passcode for authentication.
 
-For more information, see the [Touch ID module API reference](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.TouchId).
+For more information, see the [Touch ID module API reference](https://titaniumsdk.com/api/).
 
 <a name="known_issues"></a>
 ## Known Issues

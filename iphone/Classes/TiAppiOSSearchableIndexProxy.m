@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -32,7 +32,7 @@
 
   ENSURE_UI_THREAD(addToDefaultSearchableIndex, args);
 
-  //Convert from Proxy to search item
+  // Convert from Proxy to search item
   NSMutableArray *items = [[[NSMutableArray alloc] init] autorelease];
   for (TiAppiOSSearchableItemProxy *item in searchItems) {
     [items addObject:item.item];
@@ -83,6 +83,10 @@
 
 - (void)deleteAllSearchableItemByDomainIdenifiers:(id)args
 {
+  [self deleteAllSearchableItemByDomainIdentifiers:args];
+}
+- (void)deleteAllSearchableItemByDomainIdentifiers:(id)args
+{
   ENSURE_ARG_COUNT(args, 2);
   NSArray *domainIdentifiers = [args objectAtIndex:0];
   ENSURE_TYPE(domainIdentifiers, NSArray);
@@ -90,7 +94,7 @@
   KrollCallback *callback = [args objectAtIndex:1];
   ENSURE_TYPE(callback, KrollCallback);
 
-  ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdenifiers, args);
+  ENSURE_UI_THREAD(deleteAllSearchableItemByDomainIdentifiers, args);
 
   [[CSSearchableIndex defaultSearchableIndex] deleteSearchableItemsWithDomainIdentifiers:domainIdentifiers
                                                                        completionHandler:^(NSError *_Nullable error) {

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -52,7 +52,7 @@ GETTER_IMPL(NSString *, currentLocale, CurrentLocale);
   NSString *localeID = [NSLocale localeIdentifierFromComponents:[NSDictionary dictionaryWithObject:currencyCode forKey:NSLocaleCurrencyCode]];
   NSLocale *locale = [[[NSLocale alloc] initWithLocaleIdentifier:localeID] autorelease];
   NSString *currency = [locale objectForKey:NSLocaleCurrencySymbol];
-  // Many countries do $ and iOS (correctly) differentiates them when provided only with currecy code.  However
+  // Many countries do $ and iOS (correctly) differentiates them when provided only with currency code.  However
   // this doesn't match Android.  So, if the currency contains a $, that's all we return.
   if ([currency hasSuffix:@"$"]) {
     return @"$";

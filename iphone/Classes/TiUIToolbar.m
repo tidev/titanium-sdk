@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -36,7 +36,7 @@
 {
   if (toolBar == nil) {
     toolBar = [[UIToolbar alloc] initWithFrame:[self bounds]];
-    [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin];
+    [toolBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin];
     [self addSubview:toolBar];
     id extendVal = [[self proxy] valueForUndefinedKey:@"extendBackground"];
     extendsBackground = [TiUtils boolValue:extendVal def:NO];
@@ -84,7 +84,17 @@
   CGRect toolBounds;
   toolBounds.size = [[self toolBar] sizeThatFits:ourBounds.size];
   toolBounds.origin.x = 0.0;
-  toolBounds.origin.y = hideTopBorder ? -1.0 : 0.0;
+
+  TiDimension heightDim = ((TiViewProxy *)[self proxy]).layoutProperties->height;
+  if (!TiDimensionIsUndefined(heightDim) && !TiDimensionIsAuto(heightDim) && !TiDimensionIsAutoFill(heightDim) && !TiDimensionIsAutoSize(heightDim)) {
+    toolBounds.origin.y = (ourBounds.size.height - toolBounds.size.height) / 2.0;
+    if (hideTopBorder) {
+      toolBounds.origin.y -= 1.0;
+    }
+  } else {
+    toolBounds.origin.y = hideTopBorder ? -1.0 : 0.0;
+  }
+
   [toolBar setFrame:toolBounds];
 }
 #endif
@@ -98,9 +108,9 @@
     for (TiViewProxy *thisProxy in value) {
       ENSURE_CLASS(thisProxy, proxyClass);
       if (![thisProxy supportsNavBarPositioning]) {
-        //TODO: This is an exception that should have been raised long ago.
+        // TODO: This is an exception that should have been raised long ago.
         DebugLog(@"[ERROR] %@ does not support being in a toolbar!", thisProxy);
-        //continue;
+        // continue;
       }
       if ([thisProxy conformsToProtocol:@protocol(TiToolbarButton)]) {
         [(id<TiToolbarButton>)thisProxy setToolbar:(id<TiToolbar>)self.proxy];
@@ -109,6 +119,20 @@
       [result addObject:[thisProxy barButtonItem]];
       [thisProxy windowDidOpen];
     }
+
+#if IS_SDK_IOS_26
+    BOOL toolbarSeparated = [TiUtils boolValue:[[self proxy] valueForUndefinedKey:@"hideSharedBackground"] def:NO];
+    for (NSUInteger i = 0; i < result.count; i++) {
+      UIBarButtonItem *item = result[i];
+      TiViewProxy *proxy = value[i];
+      BOOL itemSeparated = [TiUtils boolValue:[proxy valueForUndefinedKey:@"hideSharedBackground"] def:NO];
+      if (toolbarSeparated || itemSeparated) {
+        if (@available(iOS 26.0, *)) {
+          item.hidesSharedBackground = YES;
+        }
+      }
+    }
+#endif
     [[self toolBar] setItems:result];
   } else {
     UIToolbar *toolbar = [self toolBar];
@@ -168,6 +192,11 @@
 
 - (CGFloat)verifyHeight:(CGFloat)suggestedHeight
 {
+  TiDimension heightDim = ((TiViewProxy *)[self proxy]).layoutProperties->height;
+  if (!TiDimensionIsUndefined(heightDim) && !TiDimensionIsAuto(heightDim) && !TiDimensionIsAutoFill(heightDim) && !TiDimensionIsAutoSize(heightDim)) {
+    return suggestedHeight;
+  }
+
   CGFloat result = [[self toolBar] sizeThatFits:CGSizeZero].height;
   if (hideTopBorder) {
     result -= 1.0;

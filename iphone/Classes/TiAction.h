@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -7,7 +7,7 @@
 
 /**
  The generic action wrapper class for packaging something that you
- want to be executed but simplier than an NSOperation.
+ want to be executed but simpler than an NSOperation.
  @deprecated
  */
 @interface TiAction : NSObject {

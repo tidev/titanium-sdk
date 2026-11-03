@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-'use strict';
 
-const utils = require('./lib/utils');
-const fs = require('fs-extra');
-const path = require('path');
+import { generateSSRIHashFromURL } from './lib/utils.js';
+import fs from 'fs-extra';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const modulesPath = path.join(__dirname, '../support/module/packaged/modules.json');
 
 /**
@@ -13,7 +15,7 @@ const modulesPath = path.join(__dirname, '../support/module/packaged/modules.jso
  * @returns {Promise<object>}
  */
 async function handleModule(moduleObject, moduleName) {
-	const hash = await utils.generateSSRIHashFromURL(moduleObject.url);
+	const hash = await generateSSRIHashFromURL(moduleObject.url);
 	// eslint-disable-next-line require-atomic-updates
 	moduleObject.integrity = hash.toString();
 	return {
@@ -43,7 +45,7 @@ async function main() {
 		throw new Error('The modules.json does not exist, aborting ...');
 	}
 
-	const modules = require(modulesPath); // eslint-disable-line security/detect-non-literal-require
+	const modules = fs.readJsonSync(modulesPath);
 	const platforms = Object.keys(modules);
 
 	console.log('Attempting to download...');

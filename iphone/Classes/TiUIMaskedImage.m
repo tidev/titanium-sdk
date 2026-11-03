@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -78,7 +78,7 @@
 - (void)setImage_:(id)newImage
 {
   RELEASE_TO_NIL(imageURL);
-  imageURL = [[TiUtils toURL:newImage proxy:self.proxy] retain]; //If this results in a nil, then it's a proxy.
+  imageURL = [[TiUtils toURL:newImage proxy:self.proxy] retain]; // If this results in a nil, then it's a proxy.
   [self setNeedsDisplay];
 }
 
