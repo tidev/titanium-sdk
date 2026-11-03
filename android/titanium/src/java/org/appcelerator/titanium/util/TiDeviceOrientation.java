@@ -7,6 +7,7 @@
 package org.appcelerator.titanium.util;
 
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.Surface;
@@ -155,30 +156,14 @@ public enum TiDeviceOrientation {
 	public static TiDeviceOrientation fromAndroidSurfaceRotationId(int value)
 	{
 		// Fetch the device's display info.
+		// Note: This determines if the device's upright orientation is portrait or landscape.
+		//       Large tablets typically have a landscape upright orientation.
 		DisplayInfo displayInfo = DisplayInfo.from(getDefaultDisplay());
 		if (displayInfo == null) {
 			return TiDeviceOrientation.UNKNOWN;
 		}
 
-		// Determine if the device's upright orientation is portrait or landscape.
-		// Note: Large tablets typically have a landscape upright orientation.
-		boolean isUprightOrientationPortrait = displayInfo.isUprightOrientationPortrait();
-
-		// Configure display info object with given rotation and device's upright orientation.
-		// Note: The below width/height doesn't need to match the device's actual display size.
-		//       They just need to indicate if the device is portrait/landscape for given rotation.
-		switch (value) {
-			case Surface.ROTATION_0:
-			case Surface.ROTATION_180:
-				displayInfo.setWidth(isUprightOrientationPortrait ? 320 : 480);
-				displayInfo.setHeight(isUprightOrientationPortrait ? 480 : 320);
-				break;
-			case Surface.ROTATION_90:
-			case Surface.ROTATION_270:
-				displayInfo.setWidth(isUprightOrientationPortrait ? 480 : 320);
-				displayInfo.setHeight(isUprightOrientationPortrait ? 320 : 480);
-				break;
-		}
+		// Apply the given rotation to the display info. The upright orientation is unaffected by it.
 		displayInfo.setRotationId(value);
 
 		// Return a matching orientation for the given Android surface rotation ID.
@@ -257,8 +242,7 @@ public enum TiDeviceOrientation {
 	}
 
 	/**
-	 * Fetches the orientation the screen contents are being displayed from the display returned
-	 * by Android's WindowManager.getDefaultDisplay() method.
+	 * Fetches the orientation the screen contents are being displayed from the device's default display.
 	 * <p>
 	 * This method will never return FACE_UP or FACE_DOWN orientations.
 	 * @return
@@ -343,11 +327,22 @@ public enum TiDeviceOrientation {
 	private static Display getDefaultDisplay()
 	{
 		TiApplication application = TiApplication.getInstance();
-		if (application != null) {
-			Object object = application.getSystemService(Context.WINDOW_SERVICE);
-			if (object instanceof WindowManager windowManager) {
-				return windowManager.getDefaultDisplay();
+		if (application == null) {
+			return null;
+		}
+
+		// Prefer the DisplayManager. The WindowManager.getDefaultDisplay() method is deprecated
+		// and its reported size can be sandboxed to the app's window bounds on newer OS versions.
+		Object object = application.getSystemService(Context.DISPLAY_SERVICE);
+		if (object instanceof DisplayManager displayManager) {
+			Display display = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+			if (display != null) {
+				return display;
 			}
+		}
+		object = application.getSystemService(Context.WINDOW_SERVICE);
+		if (object instanceof WindowManager windowManager) {
+			return windowManager.getDefaultDisplay();
 		}
 		return null;
 	}
@@ -360,6 +355,7 @@ public enum TiDeviceOrientation {
 		private int rotationId;
 		private int width;
 		private int height;
+		private Boolean isNaturalOrientationPortrait;
 
 		public void setRotationId(int value)
 		{
@@ -393,6 +389,12 @@ public enum TiDeviceOrientation {
 
 		public boolean isUprightOrientationPortrait()
 		{
+			// Use the display panel's natural orientation if known. This never changes at runtime
+			// and does not depend on the current rotation or on the app's window bounds.
+			if (this.isNaturalOrientationPortrait != null) {
+				return this.isNaturalOrientationPortrait;
+			}
+
 			// Determine if the display size is portrait.
 			// Note: A square display size is considered portrait. (The most commonly used orientation.)
 			boolean result;
@@ -461,7 +463,36 @@ public enum TiDeviceOrientation {
 			displayInfo.rotationId = display.getRotation();
 			displayInfo.width = metrics.widthPixels;
 			displayInfo.height = metrics.heightPixels;
+			displayInfo.isNaturalOrientationPortrait = fetchIsNaturalOrientationPortrait(display);
 			return displayInfo;
+		}
+
+		/**
+		 * Determines the natural (upright) orientation of the given display from its physical panel size.
+		 * <p>
+		 * Unlike the display's metrics, the physical mode size is always reported in the panel's
+		 * natural orientation. It is not swapped on rotation and is not sandboxed to the app's
+		 * window bounds when the app is letterboxed or in multi-window mode.
+		 * @param display The display to query. Cannot be null.
+		 * @return
+		 * Returns true if the natural orientation is portrait or square. Returns false if landscape.
+		 * <p>
+		 * Returns null if the physical size could not be acquired.
+		 */
+		private static Boolean fetchIsNaturalOrientationPortrait(Display display)
+		{
+			try {
+				Display.Mode mode = display.getMode();
+				if (mode != null) {
+					int physicalWidth = mode.getPhysicalWidth();
+					int physicalHeight = mode.getPhysicalHeight();
+					if ((physicalWidth > 0) && (physicalHeight > 0)) {
+						return (physicalWidth <= physicalHeight);
+					}
+				}
+			} catch (Exception ex) {
+			}
+			return null;
 		}
 	}
 }
