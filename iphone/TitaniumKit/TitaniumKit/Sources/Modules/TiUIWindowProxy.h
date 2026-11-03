@@ -22,9 +22,17 @@
   NSURL *oldBaseURL;
   id latch;
   UIEdgeInsets oldSafeAreaInsets;
+  NSArray *lastReservedRegions;
+  BOOL observesReservedRegions;
 }
 
 - (void)refreshBackButton;
+
+/**
+ Called by the window view after every layout pass. Fires "reservedregionschange" if the
+ reserved regions (fold, inner camera) of the window changed and someone listens for it.
+ */
+- (void)reservedRegionsMightHaveChanged;
 - (void)updateNavBar;
 - (void)boot:(BOOL)timeout args:(id)args;
 

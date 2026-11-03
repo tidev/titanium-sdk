@@ -1195,6 +1195,34 @@ describe('Titanium.UI.ListView', function () {
 		win.open();
 	});
 
+	it('itemlongpress event listener', finish => {
+		const listView = Ti.UI.createListView();
+		const section = Ti.UI.createListSection();
+		section.items = [
+			{ properties: { title: 'Row 1', itemId: 'row1' } },
+			{ properties: { title: 'Row 2', itemId: 'row2' } }
+		];
+		listView.sections = [ section ];
+
+		// A long press can not be simulated here. Make sure that the listener can be added,
+		// removed and re-added without error while the view is created and shown.
+		const listener = () => {};
+		listView.addEventListener('itemlongpress', listener);
+
+		win = Ti.UI.createWindow({ backgroundColor: 'gray' });
+		win.addEventListener('open', () => {
+			try {
+				listView.removeEventListener('itemlongpress', listener);
+				listView.addEventListener('itemlongpress', listener);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+		win.add(listView);
+		win.open();
+	});
+
 	it('ListViewItem scaling (percent)', function () {
 		// FIXME: Does not honour scale correctly on macOS: https://jira-archive.titaniumsdk.com/TIMOB-28261
 		if (isCI && utilities.isMacOS() && OS_VERSION_MAJOR < 11) {

@@ -30,6 +30,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUIHelper;
+import org.appcelerator.titanium.view.TiDrawableReference;
 import org.appcelerator.titanium.view.TiUIView;
 
 import java.util.HashMap;
@@ -324,13 +325,12 @@ public class TiUIButton extends TiUIView
 		Drawable drawable = null;
 		Object imageObject = this.proxy.getProperty(TiC.PROPERTY_IMAGE);
 		if (imageObject != null) {
-			drawable = TiUIHelper.getResourceDrawable(imageObject);
+			drawable = TiDrawableReference.fromObject(this.proxy, imageObject).getDrawable();
 		}
 
 		// Update button's image/icon.
 		if (drawable != null) {
 			boolean imageIsMask = TiConvert.toBoolean(this.proxy.getProperty(TiC.PROPERTY_IMAGE_IS_MASK), true);
-			String colorString = TiConvert.toString(this.proxy.getProperty(TiC.PROPERTY_TINT_COLOR));
 			int colorValue = this.defaultColor;
 			if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_TINT_COLOR)) {
 				colorValue = TiConvert.toColor(proxy.getProperty(TiC.PROPERTY_TINT_COLOR), proxy.getActivity());

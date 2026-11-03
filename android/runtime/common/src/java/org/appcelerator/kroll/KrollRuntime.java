@@ -417,6 +417,20 @@ public abstract class KrollRuntime implements Handler.Callback
 		return serviceReceiverRefCount;
 	}
 
+	/**
+	 * Starts up the JavaScript runtime if it was disposed after the last Titanium activity was destroyed.
+	 * <p>
+	 * Services and broadcast receivers must call this before they run JavaScript, because Android can
+	 * start them while no activity exists and the runtime is only restarted by the first activity.
+	 * Does nothing if the runtime is already initialized.
+	 */
+	public static void initIfDisposed()
+	{
+		if ((instance != null) && !isInitialized()) {
+			instance.doInit();
+		}
+	}
+
 	private void internalDispose()
 	{
 		// Make sure this method is called on the runtime's thread.

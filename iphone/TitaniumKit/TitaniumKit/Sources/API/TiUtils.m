@@ -233,6 +233,48 @@ static NSDictionary *sizeMap = nil;
   return [UIDevice.currentDevice.systemVersion compare:version options:NSNumericSearch] == NSOrderedAscending;
 }
 
++ (UIWindowScene *)windowScene
+{
+  UIWindowScene *scene = [[TiApp app] window].windowScene;
+  if (scene != nil) {
+    return scene;
+  }
+  UIWindowScene *fallback = nil;
+  for (UIScene *connectedScene in UIApplication.sharedApplication.connectedScenes) {
+    if (![connectedScene isKindOfClass:[UIWindowScene class]]) {
+      continue;
+    }
+    if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
+      return (UIWindowScene *)connectedScene;
+    }
+    if (fallback == nil) {
+      fallback = (UIWindowScene *)connectedScene;
+    }
+  }
+  return fallback;
+}
+
++ (UIInterfaceOrientation)interfaceOrientation
+{
+  return [self interfaceOrientationForScene:[self windowScene]];
+}
+
++ (UIInterfaceOrientation)interfaceOrientationForScene:(UIWindowScene *)scene
+{
+  if (scene == nil) {
+    return UIInterfaceOrientationUnknown;
+  }
+#if !TARGET_OS_MACCATALYST
+  return scene.effectiveGeometry.interfaceOrientation;
+#else
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  // Deprecated since iOS 26 in favor of effectiveGeometry.interfaceOrientation, which is not available on Mac Catalyst.
+  return scene.interfaceOrientation;
+#pragma clang diagnostic pop
+#endif
+}
+
 + (BOOL)isIPad
 {
   return UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
@@ -1742,7 +1784,14 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 + (CGRect)frameForController:(UIViewController *)theController
 {
   CGRect mainScreen = UIScreen.mainScreen.bounds;
-  CGRect rect = UIApplication.sharedApplication.keyWindow.frame;
+  UIWindow *sceneWindow = nil;
+  if ([theController isViewLoaded]) {
+    sceneWindow = theController.view.window;
+  }
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  CGRect rect = sceneWindow.frame;
   NSUInteger edges = [theController edgesForExtendedLayout];
   // Check if I cover status bar
   if (((edges & UIRectEdgeTop) != 0)) {
@@ -2174,7 +2223,11 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 
 + (BOOL)forceTouchSupported
 {
-  return [[[[TiApp app] window] traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
+  UIWindow *sceneWindow = [TiApp app].window;
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  return [[sceneWindow traitCollection] forceTouchCapability] == UIForceTouchCapabilityAvailable;
 }
 
 + (BOOL)livePhotoSupported

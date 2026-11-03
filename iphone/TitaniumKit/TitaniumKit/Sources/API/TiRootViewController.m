@@ -13,6 +13,23 @@
 #import "TiUtils.h"
 #import "TiViewController.h"
 
+// Maps a single interface orientation to its UIInterfaceOrientationMask counterpart.
+static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation orientation)
+{
+  switch (orientation) {
+  case UIInterfaceOrientationPortrait:
+    return UIInterfaceOrientationMaskPortrait;
+  case UIInterfaceOrientationPortraitUpsideDown:
+    return UIInterfaceOrientationMaskPortraitUpsideDown;
+  case UIInterfaceOrientationLandscapeLeft:
+    return UIInterfaceOrientationMaskLandscapeLeft;
+  case UIInterfaceOrientationLandscapeRight:
+    return UIInterfaceOrientationMaskLandscapeRight;
+  default:
+    return UIInterfaceOrientationMaskPortrait;
+  }
+}
+
 #ifdef FORCE_WITH_MODAL
 @interface ForcingController : UIViewController {
   @private
@@ -91,6 +108,7 @@
   RELEASE_TO_NIL(containedWindows);
   RELEASE_TO_NIL(modalWindows);
   RELEASE_TO_NIL(hostView);
+  RELEASE_TO_NIL(hingeInteraction);
 
   WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -190,7 +208,7 @@
   theHost = hostView;
 
   if (defaultImageView != nil) {
-    [self rotateDefaultImageViewToOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+    [self rotateDefaultImageViewToOrientation:[TiUtils interfaceOrientationForScene:self.view.window.windowScene]];
     [theHost addSubview:defaultImageView];
   }
   [rootView becomeFirstResponder];
@@ -221,7 +239,13 @@
 
   [ourView setBackgroundColor:chosenColor];
   [[ourView superview] setBackgroundColor:chosenColor];
-  [[UIApplication sharedApplication] keyWindow].backgroundColor = chosenColor;
+  UIWindow *sceneWindow = nil;
+  if ([self isViewLoaded]) {
+    sceneWindow = [self view].window;
+  }
+  if (sceneWindow != nil) {
+    sceneWindow.backgroundColor = chosenColor;
+  }
   if (bgImage != nil) {
     [[ourView layer] setContents:(id)bgImage.CGImage];
   } else {
@@ -510,7 +534,10 @@
 
 - (UIView *)viewForKeyboardAccessory;
 {
-  return [[[[TiApp app] window] subviews] lastObject];
+  if (![self isViewLoaded]) {
+    return nil;
+  }
+  return [[[self view].window subviews] lastObject];
 }
 
 - (void)extractKeyboardInfo:(NSDictionary *)userInfo
@@ -570,7 +597,8 @@
   }
   [focusedToolbar setBounds:focusedToolbarBounds];
 
-  CGFloat keyboardHeight = endingFrame.origin.y;
+  UIWindow *keyboardWindow = self.view.window;
+  CGFloat keyboardHeight = [keyboardWindow convertRect:endFrame fromCoordinateSpace:keyboardWindow.screen.coordinateSpace].origin.y;
 
   if ((scrolledView != nil) && (keyboardHeight > 0)) // If this isn't IN the toolbar, then we update the scrollviews to compensate.
   {
@@ -678,6 +706,11 @@
     [leavingAccessoryView removeFromSuperview];
     RELEASE_TO_NIL(leavingAccessoryView);
   }
+}
+
+- (TiWindowProxy *)rootWindowProxy
+{
+  return [containedWindows firstObject];
 }
 
 - (UIView *)topWindowProxyView
@@ -1005,8 +1038,8 @@
 
 - (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
 {
-  if ((![TiUtils isIPad]) && ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
+  if ((![TiUtils isIPad]) && ([TiUtils interfaceOrientationForScene:self.view.window.windowScene] == UIInterfaceOrientationPortraitUpsideDown)) {
+    CGRect statusBarFrame = self.view.window.windowScene.statusBarManager.statusBarFrame;
     if (statusBarFrame.size.height == 0) {
       return;
     }
@@ -1101,6 +1134,20 @@
   if (activeAlertControllerCount == 0) {
     UIViewController *topVC = [self topPresentedController];
     if (topVC == self) {
+      // Only trigger orientation change if this controller's window is in the foreground.
+      // In multi-scene mode, a background scene closing an alert should not
+      // force orientation changes on the foreground scene.
+      if (@available(iOS 13.0, *)) {
+        UIWindow *sceneWindow = nil;
+        if ([self isViewLoaded]) {
+          sceneWindow = [self view].window;
+        }
+        if (sceneWindow != nil && ![sceneWindow isKeyWindow]) {
+          // This scene is not in the foreground — skip orientation change
+          [self dismissKeyboard];
+          return;
+        }
+      }
       [self didCloseWindow:nil];
     } else {
       [self dismissKeyboard];
@@ -1175,7 +1222,7 @@
 
 - (void)refreshOrientationWithDuration:(id)unused
 {
-  if (![[TiApp app] windowIsKeyWindow]) {
+  if (![self isViewLoaded] || ![[self view].window isKeyWindow]) {
     VerboseLog(@"[DEBUG] RETURNING BECAUSE WE ARE NOT KEY WINDOW");
     return;
   }
@@ -1192,21 +1239,51 @@
     }
   }
 
-  if ([[UIApplication sharedApplication] statusBarOrientation] != target) {
+  UIInterfaceOrientation current = [TiUtils interfaceOrientationForScene:self.view.window.windowScene];
+
+#if !TARGET_OS_MACCATALYST
+  // Let UIKit re-evaluate -supportedInterfaceOrientations. If the current orientation is still
+  // allowed there is nothing to force: UIKit rotates on its own once the device is turned.
+  [self setNeedsUpdateOfSupportedInterfaceOrientations];
+
+  if (current == UIInterfaceOrientationUnknown || [self shouldRotateToInterfaceOrientation:current checkModal:NO]) {
+    [self resetTransformAndForceLayout:NO];
+    return;
+  }
+
+  if ([TiSharedConfig defaultConfig].debugEnabled) {
+    DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
+  }
+
+  UIWindowScene *scene = self.view.window.windowScene;
+  if (scene == nil) {
+    return;
+  }
+  UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:TiMaskForOrientation(target)];
+  [scene requestGeometryUpdateWithPreferences:preferences
+                                 errorHandler:^(NSError *error) {
+                                   DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
+                                 }];
+  [preferences release];
+  return;
+#else
+  // Mac Catalyst has no scene geometry API, so rotate the hosting view manually.
+  if (current != target) {
     forcingRotation = YES;
     if ([TiSharedConfig defaultConfig].debugEnabled) {
-      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, [[UIApplication sharedApplication] statusBarOrientation]);
+      DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
     }
 #ifdef FORCE_WITH_MODAL
     [self forceRotateToOrientation:target];
 #else
     [self rotateHostingViewToOrientation:target
-                         fromOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                         fromOrientation:current];
     forcingRotation = NO;
 #endif
   } else {
     [self resetTransformAndForceLayout:NO];
   }
+#endif
 }
 
 - (void)updateOrientationHistory:(UIInterfaceOrientation)newOrientation
@@ -1369,6 +1446,12 @@
   if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
+
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    [self setNeedsUpdateOfVerticalBarConfiguration];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1447,7 +1530,9 @@
       [thisWindow viewDidAppear:animated];
     }
     forcingRotation = NO;
-    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration]];
+    // 0.3s is the duration of the rotation animation, formerly reported by the deprecated
+    // -[UIApplication statusBarOrientationAnimationDuration].
+    [self performSelector:@selector(childOrientationControllerChangedFlags:) withObject:[containedWindows lastObject] afterDelay:0.3];
 
     [[containedWindows lastObject] gainFocus];
   }
@@ -1467,9 +1552,21 @@
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
-  UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)[[UIDevice currentDevice] orientation];
-  [self updateOrientationHistory:interfaceOrientation];
-  [self rotateDefaultImageViewToOrientation:interfaceOrientation];
+  UIDeviceOrientation currentDeviceOrientation = [[UIDevice currentDevice] orientation];
+  if (UIDeviceOrientationIsValidInterfaceOrientation(currentDeviceOrientation)) {
+    UIInterfaceOrientation interfaceOrientation = (UIInterfaceOrientation)currentDeviceOrientation;
+    [self updateOrientationHistory:interfaceOrientation];
+    [self rotateDefaultImageViewToOrientation:interfaceOrientation];
+  }
+  // The device orientation is not necessarily the orientation we end up in (e.g. a forced rotation
+  // while the device lies flat), so record the resulting interface orientation once the transition is done.
+  [coordinator animateAlongsideTransition:nil
+                               completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+                                 UIInterfaceOrientation resultingOrientation = [TiUtils interfaceOrientationForScene:self.view.window.windowScene];
+                                 if (resultingOrientation != UIInterfaceOrientationUnknown) {
+                                   [self updateOrientationHistory:resultingOrientation];
+                                 }
+                               }];
   [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
@@ -1497,6 +1594,43 @@
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
+#pragma mark - Hinge (iPhone Duo)
+
+- (void)setHingeObservationEnabled:(BOOL)enabled
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    TiThreadPerformOnMainThread(
+        ^{
+          if (!enabled) {
+            if (hingeInteraction != nil) {
+              [[self view] removeInteraction:hingeInteraction];
+              RELEASE_TO_NIL(hingeInteraction);
+            }
+            return;
+          }
+
+          if (hingeInteraction != nil) {
+            return;
+          }
+
+          __block TiRootViewController *blockSelf = self;
+          hingeInteraction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
+            // A nil hinge means the interaction left a hierarchy that provides hinge updates
+            UIHinge *hinge = update.hinge;
+            NSDictionary *info = @{
+              @"status" : @(hinge != nil ? hinge.status : UIHingeStatusUnknown),
+              @"angle" : @(hinge != nil ? hinge.angle * 180.0 / M_PI : 0.0)
+            };
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHingeChanged object:blockSelf userInfo:info];
+          }];
+          [[self view] addInteraction:hingeInteraction];
+        },
+        NO);
+  }
+#endif
+}
+
 #pragma mark - HomeIndicatorAutoHidden
 
 - (BOOL)prefersHomeIndicatorAutoHidden
@@ -1506,6 +1640,20 @@
   }
   return NO;
 }
+
+#pragma mark - Vertical Bar Behavior (iPhone Duo)
+
+#if IS_SDK_IOS_27_1
+- (UIVerticalBarBehavior)preferredVerticalBarBehavior
+{
+  id<TiWindowProtocol> topWindow = [containedWindows lastObject];
+  if (topWindow != nil && [topWindow respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+    return [topWindow preferredVerticalBarBehavior] == UIVerticalBarBehaviorDisabled ? UIVerticalBarBehaviorDisabled : UIVerticalBarBehaviorAutomatic;
+  }
+
+  return UIVerticalBarBehaviorAutomatic;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 

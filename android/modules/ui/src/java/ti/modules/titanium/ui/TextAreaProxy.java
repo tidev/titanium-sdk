@@ -47,7 +47,8 @@ import ti.modules.titanium.ui.widget.TiUIText;
 		TiC.PROPERTY_VALUE,
 		TiC.PROPERTY_VERTICAL_ALIGN,
 		TiC.PROPERTY_PADDING,
-		TiC.PROPERTY_RETURN_KEY_TYPE
+		TiC.PROPERTY_RETURN_KEY_TYPE,
+		TiC.PROPERTY_SCROLLABLE
 	})
 public class TextAreaProxy extends TiViewProxy
 {
@@ -62,6 +63,7 @@ public class TextAreaProxy extends TiViewProxy
 		defaultValues.put(TiC.PROPERTY_EDITABLE, true);
 		defaultValues.put(TiC.PROPERTY_ENABLE_COPY, true);
 		defaultValues.put(TiC.PROPERTY_HINT_TYPE, UIModule.HINT_TYPE_STATIC);
+		defaultValues.put(TiC.PROPERTY_SCROLLABLE, true);
 	}
 
 	@Override

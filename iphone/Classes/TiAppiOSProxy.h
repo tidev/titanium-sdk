@@ -13,6 +13,7 @@
 @interface TiAppiOSProxy : TiProxy {
   @private
   NSMutableDictionary *backgroundServices;
+  BOOL _sceneObserversRegistered;
 
 #if defined(USE_TI_APPIOSUSERNOTIFICATIONCENTER)
   TiProxy *UserNotificationCenter;

@@ -773,6 +773,32 @@ describe('Titanium.UI.WebView', function () {
 		should(webView).have.a.property('progress').which.is.a.Number(); // should default to 0 until we start loading the page.
 	});
 
+	it('.touchEnabled', function (finish) {
+		win = Ti.UI.createWindow();
+		const webView = Ti.UI.createWebView({
+			html: '<html><body><a href="#">link</a></body></html>',
+			touchEnabled: false
+		});
+		should(webView.touchEnabled).be.a.Boolean();
+		should(webView.touchEnabled).be.false();
+
+		win.addEventListener('open', () => {
+			try {
+				should(webView.touchEnabled).be.false();
+				webView.touchEnabled = true;
+				should(webView.touchEnabled).be.true();
+				webView.touchEnabled = false;
+				should(webView.touchEnabled).be.false();
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+
+		win.add(webView);
+		win.open();
+	});
+
 	it.ios('#findString', function (finish) {
 		if (OS_VERSION_MAJOR < 14) {
 			return finish();

@@ -476,9 +476,9 @@ describe('Titanium.Geolocation', () => {
 						try {
 							should(data).have.property('success').which.is.a.Boolean();
 							if (OS_ANDROID && !data.success) {
-								// Sometimes fails on Android device/emulator with network/passive/gps is unavailable
+								// Sometimes fails on Android device/emulator when no fix is available in time
 								should(data).have.property('code').which.is.not.eql(0);
-								should(data).have.property('error').which.match(/^\w+ is unavailable$/);
+								should(data).have.property('error').which.match(/^location (is unavailable|services are disabled)$/);
 							} else {
 								should(data).have.property('code').which.eql(0);
 								should(data.coords).be.an.Object();
@@ -543,11 +543,11 @@ describe('Titanium.Geolocation', () => {
 						}
 						return finish();
 					}).catch(e => {
-						// Sometimes fails on Android device/emulator w/ 'passive/gps/network is unavailable'
+						// Sometimes fails on Android device/emulator when no fix is available in time
 						if (OS_ANDROID) {
 							try {
 								e.should.have.property('message').which.is.a.String();
-								e.message.should.match(/^\w+ is unavailable$/);
+								e.message.should.match(/^location (is unavailable|services are disabled)$/);
 							} catch (err) {
 								return finish(err);
 							}

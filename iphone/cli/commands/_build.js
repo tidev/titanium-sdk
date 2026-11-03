@@ -22,6 +22,7 @@ import fields from 'fields';
 import fs from 'fs-extra';
 import ioslib from 'ioslib';
 import moment from 'moment';
+import os from 'node:os';
 import path from 'node:path';
 import { PNG } from 'pngjs';
 import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js';
@@ -133,6 +134,11 @@ class iOSBuilder extends Builder {
 
 		// cache of provisioning profiles
 		this.provisioningProfileLookup = {};
+
+		// whether or not the ARM64 architecture should be excluded from the build
+		// this applies if third party modules are not built for ARM64 but the target
+		// is ARM64 (like modern Simulators or Apple Silicon)
+		this.excludeARM64 = false;
 
 		// list of all extensions (including watch apps)
 		this.extensions = [];
@@ -665,6 +671,22 @@ class iOSBuilder extends Builder {
 				if (this.cli.argv['build-only']) {
 					// not required if we're build only
 					return callback();
+				}
+
+				// --device-id not specified, so check if a default udid is set in the CLI config (ios.deviceId)
+				// and use it if it matches a known simulator/device for the current target, otherwise fall
+				// back to the default behavior (auto select or prompt)
+				if (this.cli.argv['device-id'] === undefined && (this.cli.argv.target === 'simulator' || this.cli.argv.target === 'device')) {
+					const defaultUDID = this.config.get('ios.deviceId');
+					if (defaultUDID && typeof defaultUDID === 'string') {
+						const info = this.getDeviceInfo();
+						if (info.udids[defaultUDID] || (this.cli.argv.target === 'device' && defaultUDID === 'all')) {
+							this.logger.debug(`Using default ${this.cli.argv.target === 'device' ? 'device' : 'simulator'} from config: ${cyan(defaultUDID)}`);
+							this.cli.argv['device-id'] = defaultUDID;
+							return callback();
+						}
+						this.logger.debug(`Default ${this.cli.argv.target === 'device' ? 'device' : 'simulator'} from config not found: ${cyan(defaultUDID)}`);
+					}
 				}
 
 				if (this.cli.argv['device-id'] === undefined && this.config.get('ios.autoSelectDevice', true) && (this.cli.argv.target === 'simulator' || this.cli.argv.target === 'device')) {
@@ -2410,6 +2432,15 @@ class iOSBuilder extends Builder {
 				await cli.scanHooks(path.join(module.modulePath, 'hooks'));
 			}
 
+			// Exclude arm64 architecture from simulator build in XCode 12+ - TIMOB-28042
+			if (this.target === 'simulator' && this.legacyModules.size > 0 && appc.version.gte(this.xcodeEnv.version, '12.0.0')) {
+				if (process.arch === 'arm64') {
+					throw new Error(`The app is using native modules that do not support arm64 simulators and you are on an arm64 device:\n- ${Array.from(this.legacyModules).join('\n- ')}`);
+				}
+				this.logger.warn(`The app is using native modules (${Array.from(this.legacyModules)}) that do not support arm64 simulators, we will exclude arm64. This may fail if you're on an arm64 Apple Silicon device.`);
+				this.excludeARM64 = true;
+			}
+
 			this.modulesNativeHash = this.hash(nativeHashes.length ? nativeHashes.sort().join(',') : '');
 			this.collectModuleSpmDependencies();
 		} catch (err) {
@@ -3544,6 +3575,11 @@ class iOSBuilder extends Builder {
 			},
 			legacySwift = version.lt(this.xcodeEnv.version, '8.0.0');
 
+		// scope to the simulator SDK so device builds started from the generated Xcode project keep arm64
+		if (this.excludeARM64 && this.deployType !== 'production') {
+			buildSettings['"EXCLUDED_ARCHS[sdk=iphonesimulator*]"'] = 'arm64';
+		}
+
 		// set additional build settings
 		if (this.target === 'simulator' || this.target === 'macos') {
 			this.gccDefs.set('LOGTOFILE', 1);
@@ -3569,8 +3605,22 @@ class iOSBuilder extends Builder {
 			}
 		}
 
-		// this path is required to properly build for production
-		const buildProductsPath = path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', 'ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+		// Since Xcode 14.3, the archive action fails with "BuildProductsPath couldn't be opened" when
+		// <intermediates root>/ArchiveIntermediates/<scheme>/BuildProductsPath does not exist. Because
+		// we override SYMROOT/OBJROOT, Xcode never creates it, so a build phase creates it for us.
+		// The intermediates root depends on the user's Xcode "Derived Data" location setting
+		// (Xcode > Settings > Locations > Advanced), so create every known variant:
+		//   - Default (Unique/Shared):        <buildDir>/DerivedData/Build/Intermediates.noindex
+		//   - Custom, relative to workspace:   <buildDir>/build/Intermediates.noindex
+		//   - Legacy (determined by targets):  OBJROOT, i.e. <buildDir>/build/Intermediates
+		// See https://github.com/tidev/titanium-sdk/issues/13792
+		const archiveIntermediatesSubpath = path.join('ArchiveIntermediates', this.sanitizedAppName(), 'BuildProductsPath');
+		const buildProductsPaths = [
+			path.join(this.buildDir, 'DerivedData', 'Build', 'Intermediates.noindex', archiveIntermediatesSubpath),
+			path.join(this.buildDir, 'build', 'Intermediates.noindex', archiveIntermediatesSubpath),
+			path.join(this.buildDir, 'build', 'Intermediates', archiveIntermediatesSubpath)
+		];
+		const mkdirBuildProductsPaths = '/bin/mkdir -p ' + buildProductsPaths.map(p => `\\"${p}\\"`).join(' ');
 
 		// add the post-compile build phase for dist-appstore builds
 		if (this.target === 'dist-appstore' || this.target === 'dist-adhoc') {
@@ -3595,7 +3645,7 @@ class iOSBuilder extends Builder {
 				outputPaths: [],
 				runOnlyForDeploymentPostprocessing: 0,
 				shellPath: '/bin/sh',
-				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
+				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\\" && ${mkdirBuildProductsPaths}"`,
 				showEnvVarsInLog: 0
 			};
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -3627,7 +3677,7 @@ class iOSBuilder extends Builder {
 				outputPaths: [],
 				runOnlyForDeploymentPostprocessing: 0,
 				shellPath: '/bin/sh',
-				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && /bin/mkdir -p \\"${buildProductsPath}\\""`,
+				shellScript: `"/bin/cp -rf \\"$PROJECT_DIR/ArchiveStaging\\"/ \\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Resources/\\" && ${mkdirBuildProductsPaths}"`,
 				showEnvVarsInLog: 0
 			};
 			xobjs.PBXShellScriptBuildPhase[buildPhaseUuid + '_comment'] = '"' + name + '"';
@@ -4566,6 +4616,14 @@ class iOSBuilder extends Builder {
 		// if they have not explicitly set the UIRequiresFullScreen setting, then force it to true
 		if (plist.UIRequiresFullScreen === undefined) {
 			plist.UIRequiresFullScreen = true;
+
+			// UIRequiresFullScreen is deprecated as of iPadOS 26. When built with the iOS 27 SDK it no longer
+			// opts the app out of resizing and only enables discrete resizing, so tell the system to ignore it
+			// starting with iOS 27 and keep the legacy full screen behavior on older OS versions.
+			// See https://developer.apple.com/documentation/technotes/tn3192-migrating-your-app-from-the-deprecated-uirequiresfullscreen-key
+			if (appc.version.gte(this.xcodeEnv.version, '27.0.0') && plist.UIRequiresFullScreenIgnoredStartingWithVersion === undefined) {
+				plist.UIRequiresFullScreenIgnoredStartingWithVersion = '27';
+			}
 		}
 
 		// this should not exist, but nuke it so we can create it below
@@ -5190,6 +5248,16 @@ class iOSBuilder extends Builder {
 			path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'xcschemes', 'Titanium.xcscheme'),
 			path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'xcshareddata', 'xcschemes', name + '.xcscheme')
 		);
+
+		// For non-production builds, be able to open the generated Xcode project
+		if (this.deployType !== 'production') {
+			copyAndReplaceFile.call(
+				this,
+				path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'xcshareddata', 'WorkspaceSettings.xcsettings'),
+				path.join(this.buildDir, this.tiapp.name + '.xcodeproj', 'project.xcworkspace', 'xcuserdata', `${os.userInfo().username}.xcuserdatad`, 'WorkspaceSettings.xcsettings')
+			);
+		}
+
 		copyAndReplaceFile.call(
 			this,
 			path.join(this.platformPath, 'iphone', 'Titanium.xcodeproj', 'project.xcworkspace', 'contents.xcworkspacedata'),
@@ -6363,8 +6431,8 @@ class iOSBuilder extends Builder {
 			'-76':          { height: 76,   width: 76,   scale: 1, idioms: [ 'ipad' ], required: true },
 			'-76@2x':       { height: 76,   width: 76,   scale: 2, idioms: [ 'ipad' ], required: true },
 			'-83.5@2x':     { height: 83.5, width: 83.5, scale: 2, idioms: [ 'ipad' ], minXcodeVer: '7.2' },
-			'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
-			'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], required: true, minXcodeVer: '16.0' },
+			'-Dark':        { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], platform: 'ios', appearance: 'dark', minXcodeVer: '16.0' },
+			'-Tinted':      { height: 1024, width: 1024, scale: 1, idioms: [ 'universal' ], platform: 'ios', appearance: 'tinted', minXcodeVer: '16.0' },
 			'-Marketing':   { height: 1024, width: 1024, scale: 1, idioms: [ 'ios-marketing' ], required: true, minXcodeVer: '9.0' }
 		};
 		// Add macOS icons if target is macOS
@@ -6460,42 +6528,31 @@ class iOSBuilder extends Builder {
 
 			let flatten = false;
 			if (pngInfo.alpha) {
-				if (defaultIcon && !defaultIconHasAlpha) {
-					if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
-						// Do nothing
-					} else {
-						this.logger.warn(`Skipping ${
-							info.src.replace(this.projectDir + '/', '')
-						} because it has an alpha channel and generating one from ${
-							defaultIcon.replace(this.projectDir + '/', '')
-						}`);
-						return;
-					}
-				}
-
-				if (filename === 'DefaultIcon-Dark.png' || filename === 'DefaultIcon-Tinted.png') {
-					this.logger.warn(`${
+				if (meta.appearance) {
+					// the dark and tinted appearances rely on transparency: the system draws the
+					// background behind them, so the alpha channel must survive
+					this.logger.debug(`${
 						info.src.replace(this.projectDir + '/', '')
-					} contains an alpha channel and will NOT BE flattened against a white background`);
-					flatten = false;
+					} contains an alpha channel, which is kept for the ${meta.appearance} appearance`);
+				} else if (defaultIcon && !defaultIconHasAlpha) {
+					this.logger.warn(`Skipping ${
+						info.src.replace(this.projectDir + '/', '')
+					} because it has an alpha channel and generating one from ${
+						defaultIcon.replace(this.projectDir + '/', '')
+					}`);
+					return;
 				} else {
 					this.logger.warn(`${
 						info.src.replace(this.projectDir + '/', '')
 					} contains an alpha channel and will be flattened against a white background`);
 					flatten = true;
+					flattenIcons.push(info);
 				}
-
-				flattenIcons.push(info);
 			}
 
 			// inject images into the app icon set
-			meta.idioms.forEach(function (idiom) {
-				appIconSet.images.push({
-					size:     meta.width + 'x' + meta.height,
-					idiom:    idiom,
-					filename: filename,
-					scale:    meta.scale + 'x'
-				});
+			meta.idioms.forEach(idiom => {
+				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
 			});
 
 			delete lookup[info.tag];
@@ -6510,6 +6567,8 @@ class iOSBuilder extends Builder {
 				resourcesToCopy.set(filename, info);
 			}
 		});
+
+		await this.processAppIconAppearances(lookup, appIconSetDir, appIconSet, resourcesToCopy);
 
 		let missingIcons = [];
 		missingIcons = missingIcons.concat(await this.writeAppIconSet(lookup, appIconSetDir, appIconSet, defaultIconChanged));
@@ -6872,6 +6931,106 @@ class iOSBuilder extends Builder {
 	}
 
 	/**
+	 * Builds one entry of an app icon set `Contents.json`.
+	 * @param {object} meta icon metadata from the lookup table
+	 * @param {string} idiom device idiom the entry is for
+	 * @param {string} filename name of the icon file inside the app icon set
+	 * @returns {object} the `Contents.json` image entry
+	 */
+	appIconSetImage(meta, idiom, filename) {
+		const image = {
+			size:     meta.width + 'x' + meta.height,
+			idiom:    idiom,
+			filename: filename,
+			scale:    meta.scale + 'x'
+		};
+		if (meta.platform) {
+			image.platform = meta.platform;
+		}
+		if (meta.appearance) {
+			// without this Xcode lists the icon as an "unassigned child" and ignores it
+			image.appearances = [ {
+				appearance: 'luminosity',
+				value: meta.appearance
+			} ];
+		}
+		return image;
+	}
+
+	/**
+	 * Resolves the app icons that carry an appearance (dark, tinted) and are still missing after
+	 * the per-density icons in `Resources` were matched. They come from `DefaultIcon-ios-Dark.png`,
+	 * `DefaultIcon-Dark.png`, `DefaultIcon-ios-Tinted.png` or `DefaultIcon-Tinted.png` in the
+	 * project root. They are never resized from the default icon: iOS already falls back to the
+	 * light icon when a variant is absent, and the variants need their transparency, so an icon
+	 * nobody drew is left out of the app icon set instead.
+	 * @param {object} lookup icons we don't have yet (entries that get resolved are removed)
+	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
+	 * @param {object} appIconSet app icon set we're building/writing (we will modify this)
+	 * @param {Map.<string,FileInfo>} resourcesToCopy plain files to handle (we will modify this)
+	 * @returns {Promise<void>}
+	 */
+	async processAppIconAppearances(lookup, appIconSetDir, appIconSet, resourcesToCopy) {
+		const tags = Object.keys(lookup).filter(tag => lookup[tag].appearance);
+		await Promise.all(tags.map(async tag => {
+			const meta = lookup[tag];
+			const candidates = [
+				path.join(this.projectDir, `DefaultIcon-ios${tag}.png`),
+				path.join(this.projectDir, `DefaultIcon${tag}.png`)
+			];
+			const src = candidates.find(file => fs.existsSync(file));
+
+			// the icon is left out either way, so the caller must not try to generate it
+			delete lookup[tag];
+
+			if (!src) {
+				this.logger.debug(`No ${meta.appearance} app icon found, iOS will use the light app icon (create ${
+					candidates[1].replace(this.projectDir + '/', '').cyan
+				} to supply one)`);
+				return;
+			}
+
+			const relSrc = src.replace(this.projectDir + '/', '');
+			const [ { contents, pngInfo }, stat ] = await Promise.all([ this.readPngInfo(src), fs.stat(src) ]);
+			const size = meta.width * meta.scale;
+			if (pngInfo.width !== size || pngInfo.height !== size) {
+				this.logger.warn(`Expected ${meta.appearance} app icon ${relSrc} to be ${size}x${size}, but was ${
+					pngInfo.width}x${pngInfo.height}, skipping`);
+				return;
+			}
+
+			const filename = this.tiapp.icon.replace(/\.png$/, '') + tag + '.png';
+			const dest = path.join(appIconSetDir, filename);
+			this.logger.debug(`Found valid ${meta.appearance} app icon ${relSrc.cyan} (${pngInfo.width}x${pngInfo.height})`);
+
+			meta.idioms.forEach(idiom => {
+				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
+			});
+
+			// Editing the variant in place leaves Contents.json untouched and the copy task only
+			// forces an asset catalog rebuild for images when app thinning is on, so track the
+			// source in the build manifest ourselves or the installed app keeps the old icon
+			const hash = this.hash(contents);
+			const mtime = this.serializeMtime(stat);
+			const prev = this.previousBuildManifest.files && this.previousBuildManifest.files[relSrc];
+			if (!prev || prev.hash !== hash || prev.mtime !== mtime || prev.size !== stat.size || !(await fs.pathExists(dest))) {
+				if (!this.forceRebuild) {
+					this.logger.info(`Forcing rebuild: ${relSrc} changed since last build`);
+					this.forceRebuild = true;
+				}
+			}
+			this.currentBuildManifest.files[relSrc] = { hash, mtime, size: stat.size };
+
+			resourcesToCopy.set(filename, {
+				name: filename,
+				src,
+				dest,
+				contents
+			});
+		}));
+	}
+
+	/**
 	 * write the app icon set, and gather up missing icons we should try to generate
 	 * @param {object} lookup icons we don't have
 	 * @param {string} appIconSetDir filepath to dir we're writing our app icon set
@@ -6914,13 +7073,8 @@ class iOSBuilder extends Builder {
 			this.unmarkBuildDirFile(dest);
 
 			// inject images into the app icon set
-			meta.idioms.forEach(function (idiom) {
-				appIconSet.images.push({
-					size:     meta.width + 'x' + meta.height,
-					idiom:    idiom,
-					filename: filename,
-					scale:    meta.scale + 'x'
-				});
+			meta.idioms.forEach(idiom => {
+				appIconSet.images.push(this.appIconSetImage(meta, idiom, filename));
 			});
 
 			// check if the icon was previously resized

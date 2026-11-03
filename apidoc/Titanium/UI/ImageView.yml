@@ -220,6 +220,11 @@ properties:
         For Android, if there is a redirect and change in protocol, it will not follow. For example,
         from http to https and vice versa. See [Java Bug Database](http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4620571)
         for more information.
+
+        On Android, if a drawable resource with the same base name exists (for example via
+        `platform/android/res/drawable*` or an `images/res-*` folder), it always takes precedence
+        over a plain image asset of that name. To support dark mode, provide both the default and
+        the `-night` qualified variant as drawable resources; a plain asset is not used as fallback.
     type: [ String, Titanium.Blob, Titanium.Filesystem.File ]
 
   - name: imageTouchFeedback
