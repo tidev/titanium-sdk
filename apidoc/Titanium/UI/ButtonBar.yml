@@ -94,6 +94,14 @@ properties:
     since: "9.0.0"
     osver: {ios: {min: "13.0"}}
 
+  - name: font
+    summary: Font to use for the button labels.
+    description: |
+        For information about font values, see the "Fonts" section of <Titanium.UI>.
+    type: Font
+    platforms: [iphone, ipad, android, macos]
+    since: 14.0.0
+
 examples:
   - title: Simple 3 button button bar
     example: |
