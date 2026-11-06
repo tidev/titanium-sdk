@@ -13,9 +13,11 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import androidx.appcompat.widget.AppCompatToggleButton;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import org.appcelerator.kroll.KrollDict;
@@ -67,7 +69,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_THUMB_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_ON_THUMB_COLOR)) {
 			CompoundButton currentButton = (CompoundButton) getNativeView();
-			if (currentButton instanceof SwitchMaterial) {
+			if (currentButton instanceof SwitchCompat) {
 
 				int colActive = d.containsKeyAndNotNull(TiC.PROPERTY_ON_THUMB_COLOR)
 					? TiConvert.toColor(d, TiC.PROPERTY_ON_THUMB_COLOR)
@@ -88,14 +90,14 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 						colNormal
 					}
 				);
-				((SwitchMaterial) currentButton).setThumbTintList(trackStates);
+				((SwitchCompat) currentButton).setThumbTintList(trackStates);
 			}
 		}
 
 		if (d.containsKeyAndNotNull(TiC.PROPERTY_TINT_COLOR)
 			|| d.containsKeyAndNotNull(TiC.PROPERTY_ON_TINT_COLOR)) {
 			CompoundButton currentButton = (CompoundButton) getNativeView();
-			if (currentButton instanceof SwitchMaterial) {
+			if (currentButton instanceof SwitchCompat) {
 
 				int colActive = d.containsKeyAndNotNull(TiC.PROPERTY_ON_TINT_COLOR)
 					? TiConvert.toColor(d, TiC.PROPERTY_ON_TINT_COLOR)
@@ -116,7 +118,7 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 						colNormal
 					}
 				);
-				((SwitchMaterial) currentButton).setTrackTintList(trackStates);
+				((SwitchCompat) currentButton).setTrackTintList(trackStates);
 			}
 		}
 
@@ -133,22 +135,22 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 	protected void updateButton(CompoundButton cb, KrollDict d)
 	{
 		if (d.containsKey(TiC.PROPERTY_TITLE)) {
-			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip) || (cb instanceof SwitchMaterial)) {
+			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip) || (cb instanceof SwitchCompat)) {
 				cb.setText(TiConvert.toString(d, TiC.PROPERTY_TITLE));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_OFF)) {
 			if (cb instanceof AppCompatToggleButton) {
 				((AppCompatToggleButton) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
-			} else if (cb instanceof SwitchMaterial) {
-				((SwitchMaterial) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
+			} else if (cb instanceof SwitchCompat) {
+				((SwitchCompat) cb).setTextOff(TiConvert.toString(d, TiC.PROPERTY_TITLE_OFF));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_TITLE_ON)) {
 			if (cb instanceof AppCompatToggleButton) {
 				((AppCompatToggleButton) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
-			} else if (cb instanceof SwitchMaterial) {
-				((SwitchMaterial) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
+			} else if (cb instanceof SwitchCompat) {
+				((SwitchCompat) cb).setTextOn(TiConvert.toString(d, TiC.PROPERTY_TITLE_ON));
 			}
 		}
 		if (d.containsKey(TiC.PROPERTY_VALUE)) {
@@ -182,20 +184,20 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 		if (key.equals(TiC.PROPERTY_STYLE) && newValue != null) {
 			setStyle(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_TITLE)) {
-			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip) || (cb instanceof SwitchMaterial)) {
+			if ((cb instanceof MaterialCheckBox) || (cb instanceof Chip) || (cb instanceof SwitchCompat)) {
 				cb.setText(TiConvert.toString(newValue));
 			}
 		} else if (key.equals(TiC.PROPERTY_TITLE_OFF)) {
 			if (cb instanceof AppCompatToggleButton) {
 				((AppCompatToggleButton) cb).setTextOff((String) newValue);
-			} else if (cb instanceof SwitchMaterial) {
-				((SwitchMaterial) cb).setTextOff((String) newValue);
+			} else if (cb instanceof SwitchCompat) {
+				((SwitchCompat) cb).setTextOff((String) newValue);
 			}
 		} else if (key.equals(TiC.PROPERTY_TITLE_ON)) {
 			if (cb instanceof AppCompatToggleButton) {
 				((AppCompatToggleButton) cb).setTextOn((String) newValue);
-			} else if (cb instanceof SwitchMaterial) {
-				((SwitchMaterial) cb).setTextOn((String) newValue);
+			} else if (cb instanceof SwitchCompat) {
+				((SwitchCompat) cb).setTextOn((String) newValue);
 			}
 		} else if (key.equals(TiC.PROPERTY_VALUE)) {
 			cb.setChecked(TiConvert.toBoolean(newValue));
@@ -256,8 +258,14 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 				break;
 
 			case UIModule.SWITCH_STYLE_SLIDER:
-				if (!(currentButton instanceof SwitchMaterial)) {
+				if (hasMaterial3SwitchTheme(activity)) {
+					if (!(currentButton instanceof MaterialSwitch)) {
+						button = new MaterialSwitch(activity);
+					}
+				} else if (!(currentButton instanceof SwitchMaterial)) {
 					button = new SwitchMaterial(activity);
+				}
+				if (button != null) {
 					button.setMinimumHeight(0);
 					button.setMinHeight(0);
 				}
@@ -281,5 +289,12 @@ public class TiUISwitch extends TiUIView implements OnCheckedChangeListener
 			button.addOnLayoutChangeListener(this.layoutListener);
 			button.setOnCheckedChangeListener(this);
 		}
+	}
+
+	private boolean hasMaterial3SwitchTheme(Activity activity)
+	{
+		// The Material 3 "MaterialSwitch" widget requires a Material 3 theme defining "materialSwitchStyle".
+		// Material 2 themes (such as "Theme.Titanium.DayNight") do not define it and must use "SwitchMaterial".
+		return TiUIHelper.isUsingMaterial3Theme(activity);
 	}
 }

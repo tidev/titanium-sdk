@@ -18,17 +18,18 @@ description: |
 
     On Android, both `min` and `max` must be specified for the slider to work properly.
 
-    Earlier versions of the Titanium SDK implicitly enforced that both the [leftTrackImage](Titanium.UI.Slider.leftTrackImage) and
-    [rightTrackImage](Titanium.UI.Slider.rightTrackImage) properties be specified before the properties would be honored. Beginning with
-    Titanium SDK 4.0.0 this limitation has been removed. However it is recommended that either both or neither be specified.
+    As of Titanium SDK 14.0.0, the Android slider is implemented with the Material
+    [Slider](https://developer.android.com/reference/com/google/android/material/slider/Slider) widget,
+    which follows the app theme (Material 3 by default). The
+    [leftTrackImage](Titanium.UI.Slider.leftTrackImage) and [rightTrackImage](Titanium.UI.Slider.rightTrackImage)
+    properties are no longer supported on Android and will be ignored. Use
+    [tintColor](Titanium.UI.Slider.tintColor) and [trackTintColor](Titanium.UI.Slider.trackTintColor)
+    to color the active and inactive parts of the track instead.
 
-    To style different parts of the Slider you can set these properties in a custom Android theme:
+    To style the Slider you can also set the `sliderStyle` attribute in a custom Android theme:
     ``` xml
-      <item name="android:progressBackgroundTint">#f4511e</item>
-      <item name="android:progressTint">#388e3c</item>
-      <item name="android:thumbTint">#c51162</item>
+      <item name="sliderStyle">@style/MyCustomSliderStyle</item>
     ```
-    You can also use `@android:color/transparent` to remove the tint.
 
 extends: Titanium.UI.View
 excludes:
@@ -237,7 +238,8 @@ properties:
   - name: leftTrackImage
     summary: Image URL of the slider left track.
     description: |
-        See introduction of the <Titanium.UI.Slider> component for implementation specific information on Android Platform.
+        As of Titanium SDK 14.0.0, this property is no longer supported on Android and will be
+        ignored. Use [tintColor](Titanium.UI.Slider.tintColor) instead.
     type: String
     platforms: [android, iphone, ipad, macos]
 
@@ -332,7 +334,8 @@ properties:
   - name: rightTrackImage
     summary: Image URL of the slider right track.
     description: |
-        See introduction of the <Titanium.UI.Slider> component for implementation specific information on Android Platform.
+        As of Titanium SDK 14.0.0, this property is no longer supported on Android and will be
+        ignored. Use [trackTintColor](Titanium.UI.Slider.trackTintColor) instead.
     type: String
     platforms: [android, iphone, ipad, macos]
 
@@ -388,6 +391,9 @@ properties:
     type: Boolean
     default: false
     since: 6.2.0
+    deprecated:
+        since: "14.0.0"
+        notes: No longer supported by the Material slider widget. This property will be ignored.
     platforms: [android]
 
   - name: thumbImage
@@ -396,6 +402,9 @@ properties:
         The thumb image can be specified as a URL.
 
         Support for using <Titanium.Blob> for this property is only available on iOS.
+
+        This property is deprecated on Android as of Titanium SDK 14.0.0. It is still applied
+        as a custom thumb drawable, but may be removed in a future release.
     type: [String, Titanium.Blob]
     platforms: [android, iphone, ipad, macos]
 

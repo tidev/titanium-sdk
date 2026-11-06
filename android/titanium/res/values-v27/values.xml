@@ -18,4 +18,42 @@
 		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.ActionBar</item>
 		<item name="titaniumIsSolidTheme">true</item>
 	</style>
+
+	<style name="Theme.Titanium.Material3.Light.Solid" parent="Theme.Titanium.Material3.Light">
+		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
+		<item name="android:statusBarColor">?android:attr/colorBackground</item>
+		<item name="android:windowLightNavigationBar">true</item>
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="actionBarStyle">@style/Widget.Titanium.Material3.Light.ActionBar.Solid</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.Material3.ActionBar</item>
+		<item name="titaniumIsSolidTheme">true</item>
+	</style>
+
+	<style name="Base.Theme.Titanium.Material3.Dark" parent="Theme.Material3.Dark">
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLightStatusBar">false</item>
+	</style>
+	<style name="Base.Theme.Titanium.Material3.Light" parent="Theme.Material3.Light">
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLightStatusBar">false</item>
+	</style>
+
+	<style name="Theme.Titanium.Material3.DynamicColors.Light.Solid" parent="Theme.Titanium.Material3.DynamicColors.Light">
+		<item name="android:navigationBarColor">?android:attr/colorBackground</item>
+		<item name="android:statusBarColor">?android:attr/colorBackground</item>
+		<item name="android:windowLightNavigationBar">true</item>
+		<item name="android:windowLightStatusBar">true</item>
+		<item name="actionBarStyle">@style/Widget.Titanium.Material3.Light.ActionBar.Solid</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.Material3.ActionBar</item>
+		<item name="titaniumIsSolidTheme">true</item>
+	</style>
+
+	<style name="Base.Theme.Titanium.Material3.DynamicColors.Dark" parent="Theme.Material3.DynamicColors.Dark">
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLightStatusBar">false</item>
+	</style>
+	<style name="Base.Theme.Titanium.Material3.DynamicColors.Light" parent="Theme.Material3.DynamicColors.Light">
+		<item name="android:windowLightNavigationBar">false</item>
+		<item name="android:windowLightStatusBar">false</item>
+	</style>
 </resources>
