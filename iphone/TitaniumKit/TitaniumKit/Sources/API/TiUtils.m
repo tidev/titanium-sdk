@@ -1783,7 +1783,6 @@ If the new path starts with / and the base URL is app://..., we have to massage 
 
 + (CGRect)frameForController:(UIViewController *)theController
 {
-  CGRect mainScreen = UIScreen.mainScreen.bounds;
   UIWindow *sceneWindow = nil;
   if ([theController isViewLoaded]) {
     sceneWindow = theController.view.window;
@@ -1791,13 +1790,12 @@ If the new path starts with / and the base URL is app://..., we have to massage 
   if (sceneWindow == nil) {
     sceneWindow = UIApplication.sharedApplication.keyWindow;
   }
-  CGRect rect = sceneWindow.frame;
-  NSUInteger edges = [theController edgesForExtendedLayout];
-  // Check if I cover status bar
-  if (((edges & UIRectEdgeTop) != 0)) {
-    return mainScreen;
+  // UIScreen.mainScreen does not follow the scene size (e.g. on the iPhone Duo it stays
+  // at the letterboxed size after rotating), so size the controller to its window.
+  if (sceneWindow != nil) {
+    return sceneWindow.bounds;
   }
-  return rect;
+  return UIScreen.mainScreen.bounds;
 }
 
 + (void)applyColor:(TiColor *)color toNavigationController:(UINavigationController *)navController

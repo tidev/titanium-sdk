@@ -92,7 +92,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
 - (void)didOrientNotify:(NSNotification *)notification;
 - (void)keyboardWillChangeFrame:(NSNotification *)notification;
 - (void)keyboardDidChangeFrame:(NSNotification *)notification;
-- (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification;
 @end
 
 @implementation TiRootViewController
@@ -155,7 +154,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
     [nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
     [nc addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     [nc addObserver:self selector:@selector(keyboardDidChangeFrame:) name:UIKeyboardDidChangeFrameNotification object:nil];
-    [nc addObserver:self selector:@selector(adjustFrameForUpSideDownOrientation:) name:UIApplicationDidChangeStatusBarFrameNotification object:nil];
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
   }
   return self;
@@ -1036,39 +1034,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   return TI_ORIENTATION_ALLOWED([self getFlags:check], toInterfaceOrientation) ? YES : NO;
 }
 
-- (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
-{
-  if ((![TiUtils isIPad]) && ([TiUtils interfaceOrientationForScene:self.view.window.windowScene] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = self.view.window.windowScene.statusBarManager.statusBarFrame;
-    if (statusBarFrame.size.height == 0) {
-      return;
-    }
-
-    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    CGRect viewBounds = [[self view] bounds];
-
-    // Need to do this to force navigation bar to draw correctly on iOS 7
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
-    if (statusBarFrame.size.height > 20) {
-      if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
-        CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height - statusBarFrame.size.height);
-        CGPoint newCenter = CGPointMake(mainScreenBounds.size.width / 2, (mainScreenBounds.size.height - statusBarFrame.size.height) / 2);
-        [[self view] setBounds:newBounds];
-        [[self view] setCenter:newCenter];
-        [[self view] setNeedsLayout];
-      }
-    } else {
-      if (viewBounds.size.height != mainScreenBounds.size.height) {
-        CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height);
-        CGPoint newCenter = CGPointMake(mainScreenBounds.size.width / 2, mainScreenBounds.size.height / 2);
-        [[self view] setBounds:newBounds];
-        [[self view] setCenter:newCenter];
-        [[self view] setNeedsLayout];
-      }
-    }
-  }
-}
-
 #ifdef DEVELOPER
 - (void)viewWillLayoutSubviews
 {
@@ -1096,7 +1061,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   }
   forceLayout = NO;
   [super viewDidLayoutSubviews];
-  [self adjustFrameForUpSideDownOrientation:nil];
 }
 
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
