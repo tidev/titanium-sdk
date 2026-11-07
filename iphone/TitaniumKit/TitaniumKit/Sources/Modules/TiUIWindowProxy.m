@@ -119,7 +119,11 @@
 
 - (void)_destroy
 {
-  if (!closing && opened) {
+  // Only the first call, from the context shutdown, may still close the window. The root window
+  // of a tab refuses to close there, so it is still "opened" when it is finally freed with the
+  // JS VM, long after its tab and controller are gone. The second call from dealloc must not
+  // touch them anymore.
+  if (!closing && opened && ![self destroyed]) {
     TiThreadPerformOnMainThread(
         ^{
           [self close:nil];
