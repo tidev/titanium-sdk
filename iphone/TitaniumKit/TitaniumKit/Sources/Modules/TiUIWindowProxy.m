@@ -119,7 +119,11 @@
 
 - (void)_destroy
 {
-  if (!closing && opened) {
+  // Only the first call, from the context shutdown, may still close the window. The root window
+  // of a tab refuses to close there, so it is still "opened" when it is finally freed with the
+  // JS VM, long after its tab and controller are gone. The second call from dealloc must not
+  // touch them anymore.
+  if (!closing && opened && ![self destroyed]) {
     TiThreadPerformOnMainThread(
         ^{
           [self close:nil];
@@ -1303,32 +1307,16 @@
   return safeAreaInsetsChanged;
 }
 
+// The horizontal insets used to be skipped in portrait, where phones report none. The vertical tab bar of the
+// iPhone Duo is reported as a horizontal inset in portrait too, so the insets are applied as UIKit reports them.
 - (UIEdgeInsets)tabGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
-  UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
-  if (!UIInterfaceOrientationIsPortrait(orientation)) {
-    edgeInsets.left = safeAreaInset.left;
-    edgeInsets.right = safeAreaInset.right;
-  }
-
-  edgeInsets.top = safeAreaInset.top;
-  edgeInsets.bottom = safeAreaInset.bottom;
-
-  return edgeInsets;
+  return [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
 }
 
 - (UIEdgeInsets)navigationGroupEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
 {
-  UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-  UIInterfaceOrientation orientation = [TiUtils interfaceOrientationForScene:[self owningInstance].window.windowScene];
-  if (!UIInterfaceOrientationIsPortrait(orientation)) {
-    edgeInsets.left = safeAreaInset.left;
-    edgeInsets.right = safeAreaInset.right;
-  }
-  edgeInsets.top = safeAreaInset.top;
-  edgeInsets.bottom = safeAreaInset.bottom;
-  return edgeInsets;
+  return [self defaultEdgeInsetsForSafeAreaInset:safeAreaInset];
 }
 
 - (UIEdgeInsets)defaultEdgeInsetsForSafeAreaInset:(UIEdgeInsets)safeAreaInset
