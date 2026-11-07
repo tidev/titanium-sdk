@@ -19,6 +19,7 @@ import appc from 'node-appc';
 import async from 'async';
 import { Builder } from '../../../cli/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
+import { validateKeystorePath } from '../lib/keystore-path.js';
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { ProcessDrawablesTask } from '../lib/process-drawables-task.js';
 import { ProcessSplashesTask } from '../lib/process-splashes-task.js';
@@ -660,18 +661,7 @@ class AndroidBuilder extends Builder {
 									validate: _t.conf.options.keystore.validate.bind(_t)
 								}));
 							},
-							validate: function (keystoreFile, callback) {
-								if (!keystoreFile) {
-									callback(new Error('Please specify the path to your keystore file'));
-								} else {
-									keystoreFile = afs.resolvePath(keystoreFile);
-									if (!fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
-										callback(new Error('Invalid keystore file'));
-									} else {
-										callback(null, keystoreFile);
-									}
-								}
-							}
+							validate: validateKeystorePath
 						},
 						'output-dir': {
 							abbr: 'O',
