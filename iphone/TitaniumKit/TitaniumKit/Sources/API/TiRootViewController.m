@@ -1215,9 +1215,11 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
     return;
   }
 
-  // Some windowing modes, e.g. the iPhone Duo, never allow programmatic orientation changes. The system
-  // owns the orientation there, so the layout follows it and no further geometry requests are made.
-  if (geometryRequestsUnsupported) {
+  // Some windowing modes, e.g. the iPhone Duo, refuse programmatic orientation changes. The system owns
+  // the orientation there, so the layout follows it. The refusal is remembered for this orientation only
+  // and forgotten with the next size transition (rotation, fold, split screen), so a transient denial
+  // on a regular iPhone does not disable forced orientations for the rest of the session.
+  if (deniedGeometryTarget == target) {
     [self resetTransformAndForceLayout:NO];
     return;
   }
@@ -1236,8 +1238,8 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
                                  errorHandler:^(NSError *error) {
                                    // The iPhone Duo answers with UISceneErrorCodeGeometryRequestDenied (101)
                                    if ([error.domain isEqualToString:UISceneErrorDomain] && (error.code == UISceneErrorCodeGeometryRequestUnsupported || error.code == UISceneErrorCodeGeometryRequestDenied)) {
-                                     DebugLog(@"[WARN] The windowing mode does not allow programmatic orientation changes, leaving the orientation to the system from now on: %@", error.localizedDescription);
-                                     blockSelf->geometryRequestsUnsupported = YES;
+                                     DebugLog(@"[WARN] The windowing mode does not allow a programmatic change to orientation %d, leaving the orientation to the system until the next size transition: %@", target, error.localizedDescription);
+                                     blockSelf->deniedGeometryTarget = target;
                                      [blockSelf resetTransformAndForceLayout:NO];
                                      return;
                                    }
@@ -1528,6 +1530,9 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
+  // A new size may come with a windowing mode that allows geometry requests again (or was a transition
+  // during which a request was denied), so forced orientations are retried after it.
+  deniedGeometryTarget = UIInterfaceOrientationUnknown;
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
