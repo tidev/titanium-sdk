@@ -43,6 +43,7 @@
   NSMutableArray *containedWindows;
   NSMutableArray *modalWindows;
   BOOL forcingRotation;
+  BOOL geometryRequestsUnsupported;
   BOOL statusBarInitiallyHidden;
   BOOL viewControllerControlsStatusBar;
   UIStatusBarStyle defaultStatusBarStyle;
