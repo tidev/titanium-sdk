@@ -68,6 +68,11 @@ static NSArray *touchEventsArray;
     return [result autorelease];
   }
 
+  // The queue is released in _destroy, the proxy then has no children anymore
+  if (childrenQueue == NULL) {
+    return [NSMutableArray array];
+  }
+
   __block NSArray *copy = nil;
   dispatch_sync(childrenQueue, ^{
     copy = [children mutableCopy];
@@ -208,6 +213,11 @@ static NSArray *touchEventsArray;
     return;
   }
 
+  if (childrenQueue == NULL) {
+    DeveloperLog(@"[WARN] Can not add a child to a destroyed view. Returning");
+    return;
+  }
+
   if (children == nil) {
     children = [[NSMutableArray alloc] init];
   }
@@ -323,6 +333,10 @@ static NSArray *touchEventsArray;
 
   ENSURE_SINGLE_ARG(arg, TiViewProxy);
 
+  if (childrenQueue == NULL) {
+    return; // destroyed, the children were released in _destroy
+  }
+
   __block NSMutableArray *childrenCopy = nil;
   dispatch_barrier_sync(childrenQueue, ^{
     childrenCopy = [children mutableCopy];
@@ -354,6 +368,11 @@ static NSArray *touchEventsArray;
   }
 
   ENSURE_UI_THREAD_1_ARG(arg);
+  // A destroyed proxy has no children and no queue anymore. List cells call this while they are
+  // deallocated, which can happen after the context shutdown destroyed the proxy.
+  if (childrenQueue == NULL) {
+    return;
+  }
   __block NSMutableArray *childrenCopy = nil;
   dispatch_barrier_sync(childrenQueue, ^{
     childrenCopy = [children mutableCopy];
@@ -1208,6 +1227,10 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     [self parentWillShow];
   }
 
+  if (childrenQueue == NULL) {
+    return; // destroyed
+  }
+
   __block NSArray *childrenSnapshot = nil;
   __block BOOL wasAlreadyOpened = NO;
   dispatch_sync(childrenQueue, ^{
@@ -1894,9 +1917,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   [self willEnqueueIfVisible];
   [parent contentsWillChange];
-  dispatch_sync(childrenQueue, ^{
-    [children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
-  });
+  if (childrenQueue != NULL) {
+    dispatch_sync(childrenQueue, ^{
+      [children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
+    });
+  }
 #endif
 }
 
@@ -1931,9 +1956,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   SET_AND_PERFORM(TiRefreshViewZIndex, );
   [parent contentsWillChange];
 
-  dispatch_sync(childrenQueue, ^{
-    [children makeObjectsPerformSelector:@selector(parentWillShow)];
-  });
+  if (childrenQueue != NULL) {
+    dispatch_sync(childrenQueue, ^{
+      [children makeObjectsPerformSelector:@selector(parentWillShow)];
+    });
+  }
 }
 
 - (void)willHide;
@@ -1943,9 +1970,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   [self willEnqueue];
 
-  dispatch_sync(childrenQueue, ^{
-    [children makeObjectsPerformSelector:@selector(parentWillHide)];
-  });
+  if (childrenQueue != NULL) {
+    dispatch_sync(childrenQueue, ^{
+      [children makeObjectsPerformSelector:@selector(parentWillHide)];
+    });
+  }
 }
 
 - (void)willChangeLayout
@@ -1954,9 +1983,11 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   [self willEnqueueIfVisible];
 
-  dispatch_sync(childrenQueue, ^{
-    [children makeObjectsPerformSelector:@selector(parentWillRelay)];
-  });
+  if (childrenQueue != NULL) {
+    dispatch_sync(childrenQueue, ^{
+      [children makeObjectsPerformSelector:@selector(parentWillRelay)];
+    });
+  }
 }
 
 - (BOOL)widthIsAutoSize
