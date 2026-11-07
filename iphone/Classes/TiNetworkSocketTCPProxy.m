@@ -14,6 +14,9 @@ static NSString *ARG_KEY = @"arg";
 
 @interface TiNetworkSocketTCPProxy (Private)
 - (void)cleanupSocket;
+- (void)shutdownSocket;
+- (void)releaseSocketResources;
+- (void)socketThreadDidEnd;
 - (void)setConnectedSocket:(AsyncSocket *)sock;
 - (void)startConnectingSocket;
 - (void)startListeningSocket;
@@ -61,12 +64,35 @@ static NSString *ARG_KEY = @"arg";
 
 - (void)_destroy
 {
-  internalState = SOCKET_CLOSED;
-  // Socket cleanup, if necessary
-  if ([socketThread isExecuting]) {
-    [self performSelector:@selector(cleanupSocket) onThread:socketThread withObject:nil waitUntilDone:YES];
+  // Never wait for the socket thread here: this runs on the main thread during a context shutdown, and the socket
+  // thread can be waiting for the main thread itself, e.g. while it releases a proxy. It cleans up and releases
+  // what it uses when it ends instead.
+  NSThread *thread = nil;
+  @synchronized(self) {
+    // A thread that has not cleared this pointer yet is still alive, the retain keeps it valid after it ends.
+    thread = [[socketThread retain] autorelease];
+    // Taking this lock also waits for an event in delivery, none starts after this (see _fireEventToListener).
+    destroying = YES;
+  }
+  if (thread != nil) {
+    @try {
+      [self performSelector:@selector(shutdownSocket) onThread:thread withObject:nil waitUntilDone:NO];
+    } @catch (NSException *exception) {
+      // The thread is ending on its own, e.g. after close(), which is all this request is for.
+      if (![exception.name isEqualToString:NSDestinationInvalidException]) {
+        @throw;
+      }
+    }
+  } else {
+    internalState = SOCKET_CLOSED;
+    [self releaseSocketResources];
   }
 
+  [super _destroy];
+}
+
+- (void)releaseSocketResources
+{
   RELEASE_TO_NIL(operationInfo);
   RELEASE_TO_NIL(acceptArgs);
   RELEASE_TO_NIL(socketError);
@@ -82,8 +108,42 @@ static NSString *ARG_KEY = @"arg";
   RELEASE_TO_NIL(readyCondition);
 
   RELEASE_TO_NIL(host);
+}
 
-  [super _destroy];
+- (void)socketThreadDidEnd
+{
+  BOOL release = NO;
+  @synchronized(self) {
+    // No longer send messages to this thread!
+    socketThread = nil;
+    release = destroying;
+  }
+  if (release) {
+    // A shutdown request can be dropped if the thread was already ending
+    [self cleanupSocket];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [self releaseSocketResources];
+    });
+  }
+}
+
+- (void)_fireEventToListener:(NSString *)type withObject:(id)obj listener:(KrollCallback *)listener thisObject:(TiProxy *)thisObject
+{
+  // On the main thread this runs the JS callback right away, which must not hold the lock
+  if ([NSThread isMainThread]) {
+    if (!destroying) {
+      [super _fireEventToListener:type withObject:obj listener:listener thisObject:thisObject];
+    }
+    return;
+  }
+
+  // The socket thread outlives _destroy, but not the context that the event is queued on: the lock keeps the context
+  // valid while the event is queued, which does not block on this thread.
+  @synchronized(self) {
+    if (!destroying) {
+      [super _fireEventToListener:type withObject:obj listener:listener thisObject:thisObject];
+    }
+  }
 }
 
 - (void)cleanupSocket
@@ -105,6 +165,13 @@ static NSString *ARG_KEY = @"arg";
   [socket setDelegate:nil];
 
   RELEASE_TO_NIL(socket);
+}
+
+- (void)shutdownSocket
+{
+  // Set first: disconnecting calls the delegate synchronously, and a destroyed proxy must not fire "closed"
+  internalState = SOCKET_CLOSED;
+  [self cleanupSocket];
 }
 
 - (void)setConnectedSocket:(AsyncSocket *)sock onThread:(NSThread *)thread
@@ -132,8 +199,7 @@ static NSString *ARG_KEY = @"arg";
       counter = 0;
     }
   }
-  // No longer send messages to this thread!
-  socketThread = nil;
+  [self socketThreadDidEnd];
 
   [pool release];
 }
@@ -172,7 +238,7 @@ static NSString *ARG_KEY = @"arg";
       [self _fireEventToListener:@"error" withObject:event listener:error thisObject:self];
     }
 
-    socketThread = nil;
+    [self socketThreadDidEnd];
     [pool release];
     return;
   }
@@ -795,6 +861,11 @@ TYPESAFE_SETTER(setError, error, KrollCallback)
 // 'Read' can also lead to a writeStream/pump operation
 - (void)onSocket:(AsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
+  // The buffers created below belong to a context that is shutting down
+  if (destroying) {
+    return;
+  }
+
   // We do NOT SIGNAL I/O if dealing with a tagged operation. The reason why? Because toStream/pump need to keep streaming and pumping...
   // until the socket is closed, which fires the I/O condition signal.
 
