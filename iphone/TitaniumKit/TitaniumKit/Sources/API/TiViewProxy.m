@@ -213,11 +213,6 @@ static NSArray *touchEventsArray;
     return;
   }
 
-  if (childrenQueue == NULL) {
-    DeveloperLog(@"[WARN] Can not add a child to a destroyed view. Returning");
-    return;
-  }
-
   if (children == nil) {
     children = [[NSMutableArray alloc] init];
   }
@@ -332,10 +327,6 @@ static NSArray *touchEventsArray;
   }
 
   ENSURE_SINGLE_ARG(arg, TiViewProxy);
-
-  if (childrenQueue == NULL) {
-    return; // destroyed, the children were released in _destroy
-  }
 
   __block NSMutableArray *childrenCopy = nil;
   dispatch_barrier_sync(childrenQueue, ^{
@@ -1227,10 +1218,6 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
     [self parentWillShow];
   }
 
-  if (childrenQueue == NULL) {
-    return; // destroyed
-  }
-
   __block NSArray *childrenSnapshot = nil;
   __block BOOL wasAlreadyOpened = NO;
   dispatch_sync(childrenQueue, ^{
@@ -1917,11 +1904,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   [self willEnqueueIfVisible];
   [parent contentsWillChange];
-  if (childrenQueue != NULL) {
-    dispatch_sync(childrenQueue, ^{
-      [children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
-    });
-  }
+  dispatch_sync(childrenQueue, ^{
+    [children makeObjectsPerformSelector:@selector(parentSizeWillChange)];
+  });
 #endif
 }
 
@@ -1956,11 +1941,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
   SET_AND_PERFORM(TiRefreshViewZIndex, );
   [parent contentsWillChange];
 
-  if (childrenQueue != NULL) {
-    dispatch_sync(childrenQueue, ^{
-      [children makeObjectsPerformSelector:@selector(parentWillShow)];
-    });
-  }
+  dispatch_sync(childrenQueue, ^{
+    [children makeObjectsPerformSelector:@selector(parentWillShow)];
+  });
 }
 
 - (void)willHide;
@@ -1970,11 +1953,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   [self willEnqueue];
 
-  if (childrenQueue != NULL) {
-    dispatch_sync(childrenQueue, ^{
-      [children makeObjectsPerformSelector:@selector(parentWillHide)];
-    });
-  }
+  dispatch_sync(childrenQueue, ^{
+    [children makeObjectsPerformSelector:@selector(parentWillHide)];
+  });
 }
 
 - (void)willChangeLayout
@@ -1983,11 +1964,9 @@ LAYOUTFLAGS_SETTER(setHorizontalWrap, horizontalWrap, horizontalWrap, [self will
 
   [self willEnqueueIfVisible];
 
-  if (childrenQueue != NULL) {
-    dispatch_sync(childrenQueue, ^{
-      [children makeObjectsPerformSelector:@selector(parentWillRelay)];
-    });
-  }
+  dispatch_sync(childrenQueue, ^{
+    [children makeObjectsPerformSelector:@selector(parentWillRelay)];
+  });
 }
 
 - (BOOL)widthIsAutoSize
