@@ -68,6 +68,11 @@ static NSArray *touchEventsArray;
     return [result autorelease];
   }
 
+  // The queue is released in _destroy, the proxy then has no children anymore
+  if (childrenQueue == NULL) {
+    return [NSMutableArray array];
+  }
+
   __block NSArray *copy = nil;
   dispatch_sync(childrenQueue, ^{
     copy = [children mutableCopy];
@@ -354,6 +359,11 @@ static NSArray *touchEventsArray;
   }
 
   ENSURE_UI_THREAD_1_ARG(arg);
+  // A destroyed proxy has no children and no queue anymore. List cells call this while they are
+  // deallocated, which can happen after the context shutdown destroyed the proxy.
+  if (childrenQueue == NULL) {
+    return;
+  }
   __block NSMutableArray *childrenCopy = nil;
   dispatch_barrier_sync(childrenQueue, ^{
     childrenCopy = [children mutableCopy];
