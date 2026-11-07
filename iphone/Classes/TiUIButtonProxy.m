@@ -15,6 +15,10 @@
 
 - (void)_destroy
 {
+  // The bar button item can outlive the proxy, e.g. as a toolbar item of a window that is not
+  // focused: it is only replaced once the window appears again. A proxy without a view never
+  // detaches it in detachView, so do it here to avoid a dangling proxy pointer.
+  [button detachProxy];
   RELEASE_TO_NIL(button);
   toolbar = nil;
   [super _destroy];
