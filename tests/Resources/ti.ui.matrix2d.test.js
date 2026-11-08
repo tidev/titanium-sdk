@@ -79,6 +79,62 @@ describe('Titanium.UI.Matrix2D', function () {
 		}
 	});
 
+	describe('rotation animations', function () {
+		let win;
+		afterEach(function () {
+			if (win) {
+				win.close();
+				win = null;
+			}
+		});
+
+		[
+			{ name: 'full turns', autoreverse: false, combined: false },
+			{ name: 'full turns with autoreverse', autoreverse: true, combined: false },
+			{ name: 'full turns with scale and translation', autoreverse: false, combined: true }
+		].forEach(function (test) {
+			it.ios(test.name + ' complete once after the delay and repeats', function (finish) {
+				this.timeout(5000);
+				win = Ti.UI.createWindow();
+				const view = Ti.UI.createView({ width: 100, height: 100, backgroundColor: 'red' });
+				win.add(view);
+				win.addEventListener('open', function () {
+					let transform = Ti.UI.createMatrix2D().rotate(0, 360);
+					if (test.combined) {
+						transform = transform.scale(2).translate(100, 0);
+					}
+					const animation = Ti.UI.createAnimation({
+						transform,
+						duration: 300,
+						delay: 100,
+						repeat: 2,
+						autoreverse: test.autoreverse,
+						curve: Ti.UI.ANIMATION_CURVE_LINEAR
+					});
+					let completions = 0;
+					animation.addEventListener('complete', function () {
+						completions++;
+					});
+					const started = Date.now();
+					view.animate(animation, function () {
+						try {
+							should(completions).eql(1);
+							should(Date.now() - started).be.above(test.autoreverse ? 1200 : 600);
+							if (test.combined) {
+								should(view.transform.a).be.approximately(2, 0.0001);
+								should(view.transform.tx).be.approximately(200, 0.0001);
+							}
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				});
+				win.open();
+			});
+		});
+	});
+
 	it('#scale()', function () {
 		var matrix1 = Ti.UI.createMatrix2D();
 		should(matrix1.scale(50, 50)).be.an.Object();

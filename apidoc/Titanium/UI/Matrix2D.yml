@@ -118,6 +118,9 @@ methods:
         starting angle. In both cases the object can be used with the
         <Titanium.UI.Animation.transform> property to specify a rotation animation that follows
         the full angular path, for example `rotate(0, 360)` for a complete clockwise revolution.
+
+        On iOS, animations using this overload use <Titanium.UI.Animation.curve> for timing.
+        Spring animation properties (`dampingRatio`, `springVelocity`, and `bounce`) are ignored.
     returns:
         type: Titanium.UI.Matrix2D
     parameters:
