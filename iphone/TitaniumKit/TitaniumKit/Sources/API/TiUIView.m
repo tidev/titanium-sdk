@@ -720,6 +720,10 @@ DEFINE_EXCEPTIONS
   CAShapeLayer *layer = [self borderLayer];
   if (layer != self.layer) {
     layer.lineDashPattern = [self borderDashPattern];
+    // The layer may have just been created outside of a layout pass (e.g. a single border radius
+    // so far), so give it its path and frame right away instead of waiting for checkBounds.
+    layer.path = [self bezierPathOfView].CGPath;
+    layer.frame = self.bounds;
   }
   [self updateClipping];
 }
