@@ -303,7 +303,6 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     // this same, already-handled notification again. When no callback is registered yet (cold
     // start), this block does not run, leaving the cache intact for registerForPushNotifications
     // to deliver once JS registers.
-    NSLog(@"[DEBUG] didReceiveRemoteNotification: live delivery with active callback, clearing cache");
     [[TiApp app] clearRemoteNotification];
   }
 }

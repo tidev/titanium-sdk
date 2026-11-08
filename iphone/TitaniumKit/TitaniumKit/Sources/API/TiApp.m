@@ -366,6 +366,12 @@ extern void UIColorFlushCache(void);
 - (void)clearRemoteNotification
 {
   RELEASE_TO_NIL(remoteNotification);
+
+  // Clear the app delegate's cache too, matching the remoteNotification getter's fallback.
+  TiApp *application = [TiApp applicationInstance];
+  if (application != nil && application != self) {
+    [application clearRemoteNotification];
+  }
 }
 
 - (BOOL)application:(UIApplication *)application shouldAllowExtensionPointIdentifier:(UIApplicationExtensionPointIdentifier)extensionPointIdentifier
