@@ -14,6 +14,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Outline;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
@@ -38,6 +39,7 @@ public class TiBorderWrapperView extends FrameLayout
 	private int backgroundColor = Color.TRANSPARENT;
 	private final float[] radius = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	private float borderWidth = 0;
+	private float[] dashIntervals;
 	private int alpha = -1;
 	private Paint paint;
 	private Rect bounds;
@@ -67,6 +69,7 @@ public class TiBorderWrapperView extends FrameLayout
 		this.color = Color.TRANSPARENT;
 		this.backgroundColor = Color.TRANSPARENT;
 		this.borderWidth = 0;
+		this.dashIntervals = null;
 		this.alpha = -1;
 
 		for (int i = 0; i < this.radius.length; i++) {
@@ -91,7 +94,34 @@ public class TiBorderWrapperView extends FrameLayout
 		}
 
 		Path outerPath = new Path();
-		if (hasRadius()) {
+		if (dashIntervals != null && padding > 0) {
+			// Dashed border: stroke a path centered within the border width instead of filling a ring.
+			float inset = padding / 2f;
+			RectF strokeRect =
+				new RectF(bounds.left + inset, bounds.top + inset, bounds.right - inset, bounds.bottom - inset);
+			Path strokePath = new Path();
+			Path innerPath = new Path();
+			if (hasRadius()) {
+				float[] strokeRadius = new float[this.radius.length];
+				float[] innerRadius = new float[this.radius.length];
+				for (int i = 0; i < this.radius.length; i++) {
+					strokeRadius[i] = Math.max(this.radius[i] - inset, 0);
+					innerRadius[i] = Math.max(this.radius[i] - padding, 0);
+				}
+				strokePath.addRoundRect(strokeRect, strokeRadius, Direction.CW);
+				innerPath.addRoundRect(innerRect, innerRadius, Direction.CW);
+			} else {
+				strokePath.addRect(strokeRect, Direction.CW);
+				innerPath.addRect(innerRect, Direction.CW);
+			}
+			paint.setStyle(Paint.Style.STROKE);
+			paint.setStrokeWidth(padding);
+			paint.setPathEffect(new DashPathEffect(dashIntervals, 0));
+			canvas.drawPath(strokePath, paint);
+			paint.setPathEffect(null);
+			paint.setStyle(Paint.Style.FILL);
+			canvas.clipPath(innerPath);
+		} else if (hasRadius()) {
 			float[] innerRadius = new float[this.radius.length];
 			for (int i = 0; i < this.radius.length; i++) {
 				innerRadius[i] = this.radius[i] - padding;
@@ -241,6 +271,32 @@ public class TiBorderWrapperView extends FrameLayout
 	public void setBorderWidth(float borderWidth)
 	{
 		this.borderWidth = borderWidth;
+	}
+
+	/**
+	 * Sets the dash pattern of the border as alternating dash and gap lengths, or null for a solid border.
+	 * @param obj An array of lengths (numbers or dimension strings).
+	 */
+	public void setDashPattern(Object obj)
+	{
+		this.dashIntervals = null;
+		if (!(obj instanceof Object[]) || ((Object[]) obj).length == 0) {
+			return;
+		}
+
+		// DashPathEffect requires an even number of intervals, so odd patterns are repeated like in CSS.
+		final Object[] lengths = (Object[]) obj;
+		final float[] intervals = new float[(lengths.length % 2 == 0) ? lengths.length : lengths.length * 2];
+		for (int i = 0; i < intervals.length; i++) {
+			final TiDimension dimension =
+				TiConvert.toTiDimension(lengths[i % lengths.length], TiDimension.TYPE_WIDTH);
+			if (dimension != null) {
+				intervals[i] = Math.max((float) dimension.getPixels(this), 0);
+			} else {
+				Log.w(TAG, "Invalid value specified for borderDashPattern[" + i + "].");
+			}
+		}
+		this.dashIntervals = intervals;
 	}
 
 	@Override

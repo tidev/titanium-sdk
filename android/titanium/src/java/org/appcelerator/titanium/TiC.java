@@ -321,6 +321,7 @@ public class TiC
 	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 	public static final String PROPERTY_BLOCKED_URLS = "blockedURLs";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
+	public static final String PROPERTY_BORDER_DASH_PATTERN = "borderDashPattern";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
 	public static final String PROPERTY_BORDER_STYLE = "borderStyle";
