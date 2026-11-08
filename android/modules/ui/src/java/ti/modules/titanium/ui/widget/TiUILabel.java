@@ -21,6 +21,7 @@ import org.appcelerator.titanium.view.TiUIView;
 
 import ti.modules.titanium.ui.UIModule;
 import ti.modules.titanium.ui.AttributedStringProxy;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.Html;
@@ -53,6 +54,7 @@ public class TiUILabel extends TiUIView
 	private static final int TEXT_FILTER_LOWERCASE = 2;
 
 	private int defaultColor;
+	private ColorStateList defaultLinkColor;
 	private TruncateAt ellipsize = TruncateAt.END;
 	private float shadowRadius = DEFAULT_SHADOW_RADIUS;
 	private float shadowX = 0f;
@@ -223,7 +225,41 @@ public class TiUILabel extends TiUIView
 		TiUIHelper.styleText(tv, null);
 		this.unscaledFontSizeInPixels = tv.getTextSize();
 		this.defaultColor = tv.getCurrentTextColor();
+		this.defaultLinkColor = tv.getLinkTextColors();
 		setNativeView(tv);
+	}
+
+	/**
+	 * Applies the "padding" property to the given text view.
+	 * @param textView The label's text view. Cannot be null.
+	 * @param value A dictionary with optional "left", "right", "top", and "bottom" keys. Null resets padding to zero.
+	 */
+	private void setTextPadding(@NonNull MaterialTextView textView, Object value)
+	{
+		int left = 0;
+		int right = 0;
+		int top = 0;
+		int bottom = 0;
+		if (value instanceof HashMap) {
+			HashMap dict = (HashMap) value;
+			left = toPaddingPixels(textView, dict.get(TiC.PROPERTY_LEFT), TiDimension.TYPE_LEFT);
+			right = toPaddingPixels(textView, dict.get(TiC.PROPERTY_RIGHT), TiDimension.TYPE_RIGHT);
+			top = toPaddingPixels(textView, dict.get(TiC.PROPERTY_TOP), TiDimension.TYPE_TOP);
+			bottom = toPaddingPixels(textView, dict.get(TiC.PROPERTY_BOTTOM), TiDimension.TYPE_BOTTOM);
+		}
+		textView.setPadding(left, top, right, bottom);
+	}
+
+	private static int toPaddingPixels(@NonNull MaterialTextView textView, Object value, int dimensionType)
+	{
+		if (value == null) {
+			return 0;
+		}
+		TiDimension dimension = TiConvert.toTiDimension(TiConvert.toString(value), dimensionType);
+		if (dimension == null) {
+			return 0;
+		}
+		return Math.max(dimension.getAsPixels(textView), 0);
 	}
 
 	/**
@@ -380,6 +416,10 @@ public class TiUILabel extends TiUIView
 			tv.setIncludeFontPadding(TiConvert.toBoolean(d, TiC.PROPERTY_INCLUDE_FONT_PADDING, true));
 		}
 
+		if (d.containsKey(TiC.PROPERTY_PADDING)) {
+			setTextPadding(tv, d.get(TiC.PROPERTY_PADDING));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_MINIMUM_FONT_SIZE)) {
 			setMinimumFontSize(TiConvert.toString(d, TiC.PROPERTY_MINIMUM_FONT_SIZE));
 		}
@@ -492,6 +532,10 @@ public class TiUILabel extends TiUIView
 			}
 		}
 
+		if (d.containsKey(TiC.PROPERTY_LINK_COLOR)) {
+			setLinkColor(tv, d.get(TiC.PROPERTY_LINK_COLOR));
+		}
+
 		if (d.containsKey(TiC.PROPERTY_TEXT_TRANSFORM)) {
 			String transformName = TiConvert.toString(d, TiC.PROPERTY_TEXT_TRANSFORM);
 			if (transformName.equals("uppercase")) {
@@ -502,6 +546,7 @@ public class TiUILabel extends TiUIView
 				textFilter = TEXT_FILTER_DEFAULT;
 			}
 		}
+
 		// This needs to be the last operation.
 		updateLabelText();
 		tv.invalidate();
@@ -534,12 +579,17 @@ public class TiUILabel extends TiUIView
 			}
 		} else if (key.equals(TiC.PROPERTY_INCLUDE_FONT_PADDING)) {
 			tv.setIncludeFontPadding(TiConvert.toBoolean(newValue, true));
+		} else if (key.equals(TiC.PROPERTY_PADDING)) {
+			setTextPadding(tv, newValue);
+			tv.requestLayout();
 		} else if (key.equals(TiC.PROPERTY_COLOR)) {
 			if (newValue == null) {
 				tv.setTextColor(defaultColor);
 			} else {
 				tv.setTextColor(TiConvert.toColor(newValue, proxy.getActivity()));
 			}
+		} else if (key.equals(TiC.PROPERTY_LINK_COLOR)) {
+			setLinkColor(tv, newValue);
 		} else if (key.equals(TiC.PROPERTY_HIGHLIGHTED_COLOR)) {
 			// TODO: reset to default value when property is null
 			tv.setHighlightColor(TiConvert.toColor(newValue, proxy.getActivity()));
@@ -734,6 +784,20 @@ public class TiUILabel extends TiUIView
 	{
 		MaterialTextView tv = (MaterialTextView) getNativeView();
 		return tv.getCurrentTextColor();
+	}
+
+	/**
+	 * Applies the "linkColor" property to the given text view.
+	 * @param tv The label's text view.
+	 * @param value The color value, or null to restore the theme's default link color.
+	 */
+	private void setLinkColor(MaterialTextView tv, Object value)
+	{
+		if (value == null) {
+			tv.setLinkTextColor(this.defaultLinkColor);
+		} else {
+			tv.setLinkTextColor(TiConvert.toColor(value, proxy.getActivity()));
+		}
 	}
 
 	/**

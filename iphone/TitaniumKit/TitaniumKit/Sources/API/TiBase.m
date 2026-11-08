@@ -112,9 +112,16 @@ NSString *const kTiRemoteExtentionWillExpire = @"remoteextentionwillexpire";
 NSString *const kTiUserNotificationSettingsNotification = @"TiUserNotificationSettingsNotification";
 NSString *const kTiWatchKitExtensionRequest = @"TiWatchKitExtensionRequest";
 NSString *const kTiContinueActivity = @"TiContinueActivity";
+NSString *const kTiSceneDismissNotification = @"TiSceneDismiss";
+NSString *const kTiSceneWillConnectNotification = @"TiSceneWillConnect";
+NSString *const kTiSceneDidBecomeActiveNotification = @"TiSceneDidBecomeActive";
+NSString *const kTiSceneWillResignActiveNotification = @"TiSceneWillResignActive";
+NSString *const kTiSceneDidEnterBackgroundNotification = @"TiSceneDidEnterBackground";
+NSString *const kTiSceneWillEnterForegroundNotification = @"TiSceneWillEnterForeground";
 NSString *const kTiApplicationShortcut = @"TiApplicationShortcut";
 NSString *const kTiApplicationLaunchedFromURL = @"TiApplicationLaunchedFromURL";
 NSString *const kTiTraitCollectionChanged = @"TiTraitCollectionChanged";
+NSString *const kTiHingeChanged = @"TiHingeChanged";
 
 #ifndef TI_USE_AUTOLAYOUT
 NSString *const kTiBehaviorSize = @"SIZE";

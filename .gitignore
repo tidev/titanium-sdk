@@ -61,3 +61,9 @@ junit_report.xml
 
 # VS Code History Extension
 .history
+
+# Local plans and analysis docs (not for upstream)
+docs/plans/ios-warnings-fix-plan.md
+docs/plans/ios-deprecated-api-modernization.md
+docs/plans/2026-02-22-kroll-locking-modernization-design.md
+docs/analysis/ios-multiscene-pr-14195.md

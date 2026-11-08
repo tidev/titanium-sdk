@@ -47,7 +47,7 @@ GETTER_IMPL(NSNumber *, dpi, Dpi);
 // TODO Remove? Not in our docs!
 - (BOOL)isUIPortrait
 {
-  UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientation];
   return UIInterfaceOrientationIsPortrait(orientation);
 }
 

@@ -253,6 +253,39 @@ describe('Titanium.UI', function () {
 		}
 	});
 
+	// The getter returns the expected value whether or not the activity was torn down,
+	// so this watches onDestroy, which TiBaseActivity dispatches to the proxy synchronously.
+	it.android('.overrideUserInterfaceStyle does not recreate the activity when the theme does not change', function (finish) {
+		const activity = Ti.Android.currentActivity;
+		const systemStyle = Ti.UI.userInterfaceStyle;
+		let done = false;
+
+		activity.onDestroy = () => {
+			activity.onDestroy = null;
+			done = true;
+			finish(new Error('Activity was recreated'));
+		};
+
+		// None of these change the theme on screen: the default, the style the system
+		// already shows, and the default again.
+		Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED;
+		Ti.UI.overrideUserInterfaceStyle = systemStyle;
+		Ti.UI.overrideUserInterfaceStyle = Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED;
+
+		setTimeout(function () {
+			if (done) {
+				return;
+			}
+			activity.onDestroy = null;
+			try {
+				should(Ti.UI.overrideUserInterfaceStyle).eql(Ti.UI.USER_INTERFACE_STYLE_UNSPECIFIED);
+				finish();
+			} catch (err) {
+				finish(err);
+			}
+		}, 1000);
+	});
+
 	describe('Semantic Colors', () => {
 		const isIOS13Plus = OS_IOS && (OS_VERSION_MAJOR >= 13);
 

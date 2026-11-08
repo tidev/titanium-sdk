@@ -10,14 +10,16 @@ import ti from 'node-titanium-sdk';
 import fs from 'fs-extra';
 import path from 'node:path';
 import sprintf from 'sprintf';
-import async from 'async';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import fields from 'fields';
 import { fileURLToPath } from 'node:url';
+import { validateModuleManifest } from '../lib/validate-module-manifest.js';
+import { validatePlatformOptions } from '../lib/validate-platform-options.js';
+import { loadPlugins } from '../lib/load-plugins.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-export const cliVersion = '>=3.2.1';
+export const cliVersion = '>=9.1.0';
 export const desc = 'removes previous build directories';
 
 export function config(logger, config, cli) {
@@ -173,24 +175,12 @@ export function config(logger, config, cli) {
 	};
 }
 
-export function validate(logger, config, cli) {
+export async function validate(logger, config, cli) {
 	// Determine if the project is an app or a module, run appropriate clean command
 	if (cli.argv.type === 'module') {
-
-		// make sure the module manifest is sane
-		ti.validateModuleManifest(logger, cli, cli.manifest);
-
-		return function (finished) {
-			logger.log.init(function () {
-				const result = ti.validatePlatformOptions(logger, config, cli, 'cleanModule');
-				if (result && typeof result === 'function') {
-					result(finished);
-				} else {
-					finished(result);
-				}
-			});
-		};
-
+		validateModuleManifest(logger, cli, cli.manifest);
+		await logger.log.init();
+		await validatePlatformOptions(logger, config, cli, 'cleanModule');
 	} else {
 		let platforms = cli.argv.platforms || cli.argv.platform;
 		if (platforms) {
@@ -217,23 +207,11 @@ export function validate(logger, config, cli) {
 
 		ti.validateProjectDir(logger, cli, cli.argv, 'project-dir');
 
-		return function (finished) {
-			ti.loadPlugins(logger, config, cli, cli.argv['project-dir'], function () {
-				finished();
-			});
-		};
+		await loadPlugins(logger, config, cli);
 	}
 }
 
-export function run(logger, config, cli) {
-	function done(err) {
-		if (err) {
-			logger.error(`Failed to clean project in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
-		} else {
-			logger.info(`Project cleaned successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
-		}
-	}
-
+export async function run(logger, config, cli) {
 	if (cli.argv.type === 'module') {
 		// TODO Iterate over platforms? For multi-platform modules we should handle this...
 		const platform = ti.resolvePlatform(cli.argv.platform);
@@ -246,103 +224,88 @@ export function run(logger, config, cli) {
 
 		// Now wrap the actual cleaning of the module (specific to a given platform),
 		// in hooks so a module itself could potentially do additional cleanup itself
-		cli.emit('clean.module.pre', function () {
-			cli.emit('clean.module.' + platform + '.pre', async function () {
+		await cli.emit('clean.module.pre');
+		await cli.emit(`clean.module.${platform}.pre`);
 
-				// Do the actual cleaning per-sdk _cleanModule command
-				const { run } = await import(cleanModule);
-				run(logger, config, cli, function (err) { // eslint-disable-line security/detect-non-literal-require
-					const delta = appc.time.prettyDiff(cli.startTime, Date.now());
-					if (err) {
-						logger.error(`An error occurred during clean after ${delta}`);
-						if (err instanceof appc.exception) {
-							err.dump(logger.error);
-						} else if (err !== true) {
-							(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
-								logger.error(msg);
-							});
-						}
-						logger.log();
-						logger.log.end();
-						process.exit(1);
-					} else {
-						logger.log.end();
-					}
-
-					cli.emit('clean.module.' + platform + '.post', function () {
-						cli.emit('clean.module.post', function () {
-							done();
-						});
-					});
-				});
+		// Do the actual cleaning per-sdk _cleanModule command
+		const { run: cleanModule2 } = await import(cleanModule);
+		try {
+			await new Promise((resolve, reject) => {
+				cleanModule2(logger, config, cli, err => err ? reject(err) : resolve());
 			});
-		});
+		} catch (err) {
+			const delta = appc.time.prettyDiff(cli.startTime, Date.now());
+			logger.error(`An error occurred during clean after ${delta}`);
+			if (err instanceof appc.exception) {
+				err.dump(logger.error);
+			} else if (err !== true) {
+				(err.message || err.toString()).trim().split('\n').forEach(function (msg) {
+					logger.error(msg);
+				});
+			}
+			logger.log();
+			logger.log.end();
+			process.exit(1);
+		}
+		logger.log.end();
+
+		await cli.emit(`clean.module.${platform}.post`);
+		await cli.emit('clean.module.post');
 	} else {
 		const buildDir = path.join(cli.argv['project-dir'], 'build');
 
 		if (cli.argv.platforms) {
-			async.series(cli.argv.platforms.map(function (platform) {
-				return function (next) {
-					// scan platform SDK specific clean hooks
-					cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
-					cli.emit('clean.pre', function () {
-						cli.emit('clean.' + platform + '.pre', function () {
-							var dir = path.join(buildDir, platform);
-							if (appc.fs.exists(dir)) {
-								logger.debug(`Deleting ${dir.cyan}`);
-								fs.removeSync(dir);
-							} else {
-								logger.debug(`Directory does not exist ${dir.cyan}`);
-							}
-							dir = path.join(buildDir, 'build_' + platform + '.log');
-							if (appc.fs.exists(dir)) {
-								logger.debug(`Deleting ${dir.cyan}`);
-								fs.unlinkSync(dir);
-							} else {
-								logger.debug(`Build log does not exist ${dir.cyan}`);
-							}
-							cli.emit('clean.' + platform + '.post', function () {
-								cli.emit('clean.post', function () {
-									next();
-								});
-							});
-						});
-					});
-				};
-			}), done);
+			for (const platform of cli.argv.platforms) {
+				// scan platform SDK specific clean hooks
+				await cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
+
+				await cli.emit('clean.pre');
+				await cli.emit(`clean.${platform}.pre`);
+
+				let dir = path.join(buildDir, platform);
+				if (appc.fs.exists(dir)) {
+					logger.debug(`Deleting ${dir.cyan}`);
+					fs.removeSync(dir);
+				} else {
+					logger.debug(`Directory does not exist ${dir.cyan}`);
+				}
+
+				dir = path.join(buildDir, `build_${platform}.log`);
+				if (appc.fs.exists(dir)) {
+					logger.debug(`Deleting ${dir.cyan}`);
+					fs.unlinkSync(dir);
+				} else {
+					logger.debug(`Build log does not exist ${dir.cyan}`);
+				}
+
+				await cli.emit(`clean.${platform}.post`);
+				await cli.emit('clean.post');
+			}
 		} else if (appc.fs.exists(buildDir)) {
 			logger.debug('Deleting all platform build directories');
 
 			// scan platform SDK specific clean hooks
-			if (ti.targetPlatforms) {
-				ti.targetPlatforms.forEach(function (platform) {
-					cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
-				});
+			for (const platform of ti.targetPlatforms || []) {
+				await cli.scanHooks(path.join(__dirname, '..', '..', platform, 'cli', 'hooks'));
 			}
 
-			cli.emit('clean.pre', function () {
-				async.series(fs.readdirSync(buildDir).map(function (dir) {
-					return function (next) {
-						var file = path.join(buildDir, dir);
-						cli.emit('clean.' + dir + '.pre', function () {
-							logger.debug(`Deleting ${file.cyan}`);
-							fs.removeSync(file);
-							cli.emit('clean.' + dir + '.post', function () {
-								next();
-							});
-						});
-					};
-				}), function () {
-					cli.emit('clean.post', function () {
-						done();
-					});
-				});
-			});
+			await cli.emit('clean.pre');
+
+			for (const name of fs.readdirSync(buildDir)) {
+				const file = path.join(buildDir, name);
+				await cli.emit(`clean.${name}.pre`);
+				logger.debug(`Deleting ${file.cyan}`);
+				fs.removeSync(file);
+				await cli.emit(`clean.${name}.post`);
+			}
+
+			await cli.emit('clean.post');
 		} else {
 			logger.debug(`Directory does not exist ${buildDir.cyan}`);
-			done();
 		}
 	}
+
+	logger.info(`Project cleaned successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
 }
 
 /**
@@ -407,7 +370,7 @@ function patchLogger(logger, cli) {
 		logger.padLevels = padLevels;
 	};
 
-	logger.log.init = function (callback) {
+	logger.log.init = async () => {
 		var platform = ti.resolvePlatform(cli.argv.platform),
 			buildDir = path.join(cli.argv['project-dir'], 'build');
 
@@ -430,37 +393,35 @@ function patchLogger(logger, cli) {
 			return appc.string.rpad(s, 27);
 		}
 
-		cli.env.getOSInfo(function (osInfo) {
-			logger.log([
-				new Date().toLocaleString(),
-				'',
-				styleHeading('Operating System'),
-				'  ' + rpad('Name')            + ' = ' + styleValue(osInfo.os),
-				'  ' + rpad('Version')         + ' = ' + styleValue(osInfo.osver),
-				'  ' + rpad('Architecture')    + ' = ' + styleValue(osInfo.ostype),
-				'  ' + rpad('# CPUs')          + ' = ' + styleValue(osInfo.oscpu),
-				'  ' + rpad('Memory')          + ' = ' + styleValue((osInfo.memory / 1024 / 1024 / 1024).toFixed(1) + 'GB'),
-				'',
-				styleHeading('Node.js'),
-				'  ' + rpad('Node.js Version') + ' = ' + styleValue(osInfo.node),
-				'  ' + rpad('npm Version')     + ' = ' + styleValue(osInfo.npm),
-				'',
-				styleHeading('Titanium CLI'),
-				'  ' + rpad('CLI Version')     + ' = ' + styleValue(cli.version),
-				'',
-				styleHeading('Titanium SDK'),
-				'  ' + rpad('SDK Version')     + ' = ' + styleValue(cli.argv.sdk),
-				'  ' + rpad('SDK Path')        + ' = ' + styleValue(cli.sdk.path),
-				'  ' + rpad('Target Platform') + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
-				'',
-				styleHeading('Command'),
-				'  ' + styleValue(process.argv.join(' ')),
-				''
-			].join('\n'));
+		const osInfo = await cli.env.getOSInfo();
+		logger.log([
+			new Date().toLocaleString(),
+			'',
+			styleHeading('Operating System'),
+			'  ' + rpad('Name')            + ' = ' + styleValue(osInfo.os),
+			'  ' + rpad('Version')         + ' = ' + styleValue(osInfo.osver),
+			'  ' + rpad('Architecture')    + ' = ' + styleValue(osInfo.ostype),
+			'  ' + rpad('# CPUs')          + ' = ' + styleValue(osInfo.oscpu),
+			'  ' + rpad('Memory')          + ' = ' + styleValue((osInfo.memory / 1024 / 1024 / 1024).toFixed(1) + 'GB'),
+			'',
+			styleHeading('Node.js'),
+			'  ' + rpad('Node.js Version') + ' = ' + styleValue(osInfo.node),
+			'  ' + rpad('npm Version')     + ' = ' + styleValue(osInfo.npm),
+			'',
+			styleHeading('Titanium CLI'),
+			'  ' + rpad('CLI Version')     + ' = ' + styleValue(cli.version),
+			'',
+			styleHeading('Titanium SDK'),
+			'  ' + rpad('SDK Version')     + ' = ' + styleValue(cli.argv.sdk),
+			'  ' + rpad('SDK Path')        + ' = ' + styleValue(cli.sdk.path),
+			'  ' + rpad('Target Platform') + ' = ' + styleValue(ti.resolvePlatform(cli.argv.platform)),
+			'',
+			styleHeading('Command'),
+			'  ' + styleValue(process.argv.join(' ')),
+			''
+		].join('\n'));
 
-			logger.log.flush();
-			callback();
-		});
+		logger.log.flush();
 	};
 
 	logger.log.flush = function () {

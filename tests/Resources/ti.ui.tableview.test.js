@@ -42,6 +42,37 @@ describe('Titanium.UI.TableView', function () {
 		should(tableView.apiName).be.eql('Ti.UI.TableView');
 	});
 
+	it('contentOffset', function (finish) {
+		const tableView = Ti.UI.createTableView({
+			data: Array.from({ length: 100 }, (_, i) => ({ title: `Row ${i}` }))
+		});
+		win = Ti.UI.createWindow();
+		win.addEventListener('open', () => {
+			try {
+				should(tableView.contentOffset).be.an.Object();
+				should(tableView.contentOffset.x).be.a.Number();
+				should(tableView.contentOffset.y).be.a.Number();
+				should(tableView.contentOffset.x).eql(0);
+				should(tableView.contentOffset.y).eql(0);
+			} catch (err) {
+				return finish(err);
+			}
+			tableView.setContentOffset({ x: 0, y: 150 }, { animated: false });
+			setTimeout(() => {
+				try {
+					// The getter must report the offset in the same units as `setContentOffset()` and the `scroll` event.
+					should(tableView.contentOffset.x).eql(0);
+					should(tableView.contentOffset.y).be.approximately(150, 1);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			}, 500);
+		});
+		win.add(tableView);
+		win.open();
+	});
+
 	it('createTableView', () => {
 
 		// Validate createTableView()
@@ -1090,6 +1121,100 @@ describe('Titanium.UI.TableView', function () {
 		finish();
 	});
 
+	it.android('re-assign same rows and sections keeps proxies and click bubbling', finish => {
+		const rows = [
+			Ti.UI.createTableViewRow({ title: 'Row 0' }),
+			Ti.UI.createTableViewRow({ title: 'Row 1' })
+		];
+		const section = Ti.UI.createTableViewSection({ headerTitle: 'Section' });
+		section.add(Ti.UI.createTableViewRow({ title: 'Section row' }));
+		const tableView = Ti.UI.createTableView({ data: rows });
+		let clickCount = 0;
+
+		tableView.addEventListener('click', () => {
+			clickCount++;
+		});
+
+		win = Ti.UI.createWindow();
+		win.addEventListener('focus', () => {
+			try {
+				// Re-assigning the same rows must keep the row proxies, not clone them,
+				// otherwise their event listeners would be lost. (See issue #13508)
+				tableView.data = rows;
+				should(tableView.sections[0].rows[0]).be.equal(rows[0]);
+				should(tableView.sections[0].rows[1]).be.equal(rows[1]);
+				should(rows[0].parent).be.equal(tableView.sections[0]);
+
+				// A click on the row must still bubble up to the table.
+				rows[0].fireEvent('click', { bubbles: true });
+				should(clickCount).be.eql(1);
+
+				// Re-assigning the same section must keep its rows parented to the section.
+				tableView.data = [ section ];
+				tableView.data = [ section ];
+				should(tableView.sections[0]).be.equal(section);
+				should(section.parent).be.equal(tableView);
+				should(section.rows[0].parent).be.equal(section);
+
+				section.rows[0].fireEvent('click', { bubbles: true });
+				should(clickCount).be.eql(2);
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('.searchText', finish => {
+		// Set searchText in the creation dictionary together with data, so the
+		// filter has to survive whichever property is applied first.
+		const tableView = Ti.UI.createTableView({
+			data: [
+				{ title: 'Apple' },
+				{ title: 'Banana' },
+				{ title: 'Potatoes', filterAlwaysInclude: true }
+			],
+			searchText: 'an'
+		});
+
+		win = Ti.UI.createWindow({
+			backgroundColor: 'blue'
+		});
+		win.addEventListener('focus', () => {
+			try {
+				should(tableView.searchText).be.eql('an');
+
+				// Filtering must not alter the underlying data.
+				should(tableView.sectionCount).be.eql(1);
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Change the filter after the table is shown.
+				tableView.searchText = 'p';
+				should(tableView.searchText).be.eql('p');
+				should(tableView.sections[0].rowCount).be.eql(3);
+
+				// Data changes while filtering must be picked up without errors.
+				tableView.appendRow({ title: 'Pear' });
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				// An empty string clears the filter.
+				tableView.searchText = '';
+				should(tableView.searchText).be.eql('');
+				should(tableView.sections[0].rowCount).be.eql(4);
+
+				finish();
+			} catch (err) {
+				return finish(err);
+			}
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
 	it('scrollable', () => {
 		const tableView = Ti.UI.createTableView({ scrollable: false });
 
@@ -1475,6 +1600,38 @@ describe('Titanium.UI.TableView', function () {
 		row.addEventListener('postlayout', () => {
 			try {
 				should(row.rect.height).be.eql(150);
+			} catch (e) {
+				return finish(e);
+			}
+			finish();
+		});
+
+		win.add(tableView);
+		win.open();
+	});
+
+	it('row with height 0 takes no space', function (finish) {
+		if (isCI && utilities.isMacOS()) { // FIXME: see row#rect above
+			return finish();
+		}
+
+		win = Ti.UI.createWindow();
+
+		const tableView = Ti.UI.createTableView();
+		const hiddenRow = Ti.UI.createTableViewRow({ height: 0 });
+		hiddenRow.add(Ti.UI.createLabel({ text: 'hidden', left: 16 }));
+		const visibleRow = Ti.UI.createTableViewRow({ height: 40 });
+		visibleRow.add(Ti.UI.createLabel({ text: 'visible', left: 16 }));
+
+		tableView.data = [ hiddenRow, visibleRow ];
+
+		visibleRow.addEventListener('postlayout', function onPostLayout() {
+			visibleRow.removeEventListener('postlayout', onPostLayout);
+			try {
+				should(hiddenRow.rect.height).be.eql(0);
+				// The collapsed row must not push the next row down.
+				should(visibleRow.rect.y).be.eql(0);
+				should(visibleRow.rect.height).be.eql(40);
 			} catch (e) {
 				return finish(e);
 			}

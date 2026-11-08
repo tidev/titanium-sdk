@@ -134,7 +134,7 @@ properties:
         Indicates that the system should present the alert using the standard
         alert style.
     description: |
-        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        Use with <Titanium.UI.createAlertDialog> to specify
         the alert dialog severity on macOS Catalyst.
     type: Number
     since: "12.0.0"
@@ -146,7 +146,7 @@ properties:
         Indicates that the system should present the alert using the
         critical, or caution, style.
     description: |
-        Use with <Titanium.UI.iOS.createAlertDialog> to specify
+        Use with <Titanium.UI.createAlertDialog> to specify
         the alert dialog severity on macOS Catalyst.
     type: Number
     since: "12.0.0"
@@ -1351,6 +1351,70 @@ properties:
     since: "8.0.0"
     permission: read-only
 
+  - name: SPLIT_WINDOW_DISPLAY_MODE_AUTOMATIC
+    summary: Let the system choose the display mode of a split window that fits the available width.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>. This is the default.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_DISPLAY_MODE_SECONDARY_ONLY
+    summary: Show only the detail view of a split window and hide the master view.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_DISPLAY_MODE_ONE_BESIDE_SECONDARY
+    summary: Show the master view of a split window next to the detail view.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_DISPLAY_MODE_ONE_OVER_SECONDARY
+    summary: Show the master view of a split window as an overlay on top of the detail view.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.displayMode>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_AUTOMATIC
+    summary: Let the system choose how the master view and the detail view of a split window share the width.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>. This is the default.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_TILE
+    summary: Show the master view and the detail view of a split window side by side without overlap.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_OVERLAY
+    summary: Show the master view of a split window on top of the detail view, which keeps its full width.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
+  - name: SPLIT_WINDOW_SPLIT_BEHAVIOR_DISPLACE
+    summary: Show the master view of a split window next to the detail view, which keeps its width and moves aside.
+    description: |
+        Use with <Titanium.UI.iOS.SplitWindow.splitBehavior>.
+    type: Number
+    since: "14.0.0"
+    permission: read-only
+
   - name: TAB_GROUP_MINIMIZE_BEHAVIOR_AUTOMATIC
     summary: Automatically determine when the tab group minimizes.
     description: |
@@ -1389,6 +1453,116 @@ properties:
     type: Number
     osver: { ios: { min: "26.0" } }
     since: "13.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_VISIBILITY_PRIORITY_LOW
+    summary: The item is moved into the overflow menu first when the bar runs out of space.
+    description: |
+        Use with <Titanium.UI.Button.visibilityPriority>.
+        Items with a low priority are the first to collapse into the bar's overflow menu.
+    type: Number
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD
+    summary: The default priority of a bar item.
+    description: |
+        Use with <Titanium.UI.Button.visibilityPriority>.
+        Standard priority items collapse after low priority items and before high priority items.
+    type: Number
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_VISIBILITY_PRIORITY_HIGH
+    summary: The item stays visible as long as possible when the bar runs out of space.
+    description: |
+        Use with <Titanium.UI.Button.visibilityPriority>.
+        Items with a high priority are the last to collapse into the bar's overflow menu.
+    type: Number
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC
+    summary: The system decides if the item is shown in a horizontal or vertical bar.
+    description: |
+        Use with <Titanium.UI.Button.axisBehavior>.
+        This is the default behavior.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY
+    summary: The item is only shown in horizontal bars.
+    description: |
+        Use with <Titanium.UI.Button.axisBehavior>.
+        The item stays in the top or bottom bar, even if the system lays out the other items in a vertical bar (iPhone Duo).
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED
+    summary: The item prefers to be shown in a vertical bar.
+    description: |
+        Use with <Titanium.UI.Button.axisBehavior>.
+        The item is shown in the vertical bar whenever the system lays one out (iPhone Duo).
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_BEHAVIOR_AUTOMATIC
+    summary: The system decides if a vertical bar is used.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarBehavior>.
+        This is the default behavior.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_BEHAVIOR_DISABLED
+    summary: The vertical bar is disabled.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarBehavior>.
+        Bar items fall back to the horizontal top and bottom bars and the status bar returns to the horizontal axis.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC
+    summary: The system decides if the bar items or the tab bar compress first.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarCompressionBehavior>.
+        This is the default behavior.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_BAR_ITEMS
+    summary: The bar items compress before the tab bar does.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarCompressionBehavior>.
+        Use this if the tab bar should stay fully visible while the bar items collapse into the overflow menu.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+    permission: read-only
+
+  - name: VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR
+    summary: The tab bar compresses before the bar items do.
+    description: |
+        Use with <Titanium.UI.Window.verticalBarCompressionBehavior>.
+        Use this if the bar items should stay fully visible while the tab bar collapses.
+    type: Number
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
     permission: read-only
 
 ---
