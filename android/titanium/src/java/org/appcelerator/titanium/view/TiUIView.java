@@ -1565,6 +1565,9 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 				if (d.containsKey(TiC.PROPERTY_BORDER_RADIUS)) {
 					borderView.setRadius(d.get(TiC.PROPERTY_BORDER_RADIUS));
 				}
+				if (d.containsKey(TiC.PROPERTY_BORDER_DASH_PATTERN)) {
+					borderView.setDashPattern(d.get(TiC.PROPERTY_BORDER_DASH_PATTERN));
+				}
 
 				if (bgColor != null) {
 					borderView.setBgColor(bgColor);
@@ -1610,6 +1613,8 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			}
 		} else if (TiC.PROPERTY_BORDER_RADIUS.equals(property)) {
 			borderView.setRadius(value);
+		} else if (TiC.PROPERTY_BORDER_DASH_PATTERN.equals(property)) {
+			borderView.setDashPattern(value);
 		} else if (TiC.PROPERTY_BORDER_WIDTH.equals(property)) {
 			float width = 0;
 			TiDimension bwidth = TiConvert.toTiDimension(value, TiDimension.TYPE_WIDTH);
