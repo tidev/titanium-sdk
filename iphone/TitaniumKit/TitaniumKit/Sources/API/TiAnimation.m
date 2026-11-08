@@ -297,7 +297,7 @@ static CGAffineTransform TransformWithoutRotation(CGAffineTransform transform, C
 
   // Update the modified properties on the view!
   if (animatedViewProxy != nil) {
-    if (!isReverse && ![self isTransitionAnimation] && ![autoreverse boolValue] && properties != nil) {
+    if ([finished boolValue] && !isReverse && ![self isTransitionAnimation] && ![autoreverse boolValue] && properties != nil) {
       [animatedViewProxy applyProperties:properties];
     }
     // TODO: What about center?
@@ -437,6 +437,18 @@ static CGAffineTransform TransformWithoutRotation(CGAffineTransform transform, C
     UIViewAnimationOptions options = (UIViewAnimationOptionAllowUserInteraction); // Backwards compatible
     if (!resetState) {
       options = (options | UIViewAnimationOptionBeginFromCurrentState);
+    }
+    // UIKit does not replace explicitly keyed animations. Continue from the visible
+    // transform when a new transform animation interrupts a full rotation.
+    if ((transform != nil || rotation != nil) && [view_.layer animationForKey:@"TiRotationAnimation"] != nil) {
+      CALayer *presentationLayer = view_.layer.presentationLayer;
+      CGAffineTransform currentTransform = presentationLayer.affineTransform;
+      [view_.layer removeAnimationForKey:@"TiRotationAnimation"];
+      if (!resetState && presentationLayer != nil) {
+        [UIView performWithoutAnimation:^{
+          [view_ setTransform_:[[[Ti2DMatrix alloc] initWithMatrix:currentTransform] autorelease]];
+        }];
+      }
     }
     [view_ animationStarted];
     NSTimeInterval animationDuration = [self animationDuration];

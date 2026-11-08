@@ -88,6 +88,35 @@ describe('Titanium.UI.Matrix2D', function () {
 			}
 		});
 
+		it.ios('an ordinary transform interrupts a full-turn animation', function (finish) {
+			win = Ti.UI.createWindow();
+			const view = Ti.UI.createView({ width: 100, height: 100, backgroundColor: 'red' });
+			win.add(view);
+			win.addEventListener('open', function () {
+				let interrupted = false;
+				view.animate({
+					transform: Ti.UI.createMatrix2D().rotate(0, 360),
+					duration: 400,
+					repeat: 2,
+					autoreverse: true
+				}, function () {
+					interrupted = true;
+				});
+				setTimeout(function () {
+					view.animate({ transform: Ti.UI.createMatrix2D().rotate(90), duration: 100 }, function () {
+						try {
+							should(interrupted).be.true();
+							should(view.transform.b).be.approximately(1, 0.0001);
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				}, 50);
+			});
+			win.open();
+		});
+
 		[
 			{ name: 'full turns', autoreverse: false, combined: false },
 			{ name: 'full turns with autoreverse', autoreverse: true, combined: false },
