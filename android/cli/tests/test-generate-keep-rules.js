@@ -86,11 +86,43 @@ describe('generate-keep-rules', () => {
 		expect(result.content).to.contain('-keep class ti.modules.** { *; }');
 	});
 
-	it('generateResourceClassKeepRules()', () => {
-		const content = generateResourceClassKeepRules('com.example.app');
-		expect(content).to.contain('-keep class com.example.app.R { *; }');
-		expect(content).to.contain('-keep class com.example.app.R$* { <fields>; }');
-		expect(content).to.not.contain('**.R');
+	describe('generateResourceClassKeepRules()', () => {
+		const content = generateResourceClassKeepRules('com.example.app', [
+			'@color/accent',
+			'@color/accent',
+			'@dimen/margin.large',
+			'@string/app_name',
+			'@style/Theme.App',
+			'not a resource reference'
+		]);
+
+		it('only keeps the "R" class of the app', () => {
+			expect(content).to.contain('-keep class com.example.app.R { *; }');
+			expect(content).to.not.contain('**.R');
+		});
+
+		it('keeps all fields of resource types that are looked up by name in libraries', () => {
+			expect(content).to.match(/-keep class !com\.example\.app\.R\$[a-z]+,.*,com\.example\.app\.R\$\* \{ <fields>; \}/);
+			expect(content).to.not.contain('!com.example.app.R$string');
+			expect(content).to.not.contain('!com.example.app.R$style,');
+			expect(content).to.not.contain('int app_name;');
+			expect(content).to.not.contain('int Theme_App;');
+		});
+
+		it('only keeps the given resources of the narrowed resource types', () => {
+			expect(content).to.contain('!com.example.app.R$color');
+			expect(content).to.contain('!com.example.app.R$dimen');
+			expect(content).to.contain('!com.example.app.R$styleable');
+			expect(content).to.contain('-keep class com.example.app.R$color {\n\tint accent;\n}');
+			expect(content).to.contain('-keep class com.example.app.R$dimen {\n\tint margin_large;\n}');
+			expect(content).to.not.contain('-keep class com.example.app.R$styleable {');
+		});
+
+		it('handles a missing resource list', () => {
+			const emptyContent = generateResourceClassKeepRules('com.example.app');
+			expect(emptyContent).to.contain('-keep class com.example.app.R { *; }');
+			expect(emptyContent).to.not.contain('\tint ');
+		});
 	});
 
 	describe('stripUnusedApis', () => {

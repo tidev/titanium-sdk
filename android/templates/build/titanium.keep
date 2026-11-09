@@ -15,8 +15,9 @@
 -keepattributes Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
 
 # Titanium SDK core classes, including the kroll runtime which the native
-# runtime heavily resolves by name via JNI.
--keep class org.appcelerator.** { *; }
+# runtime heavily resolves by name via JNI. The "R" classes of the SDK are
+# excluded. The SDK's Java code references them directly and never by name.
+-keep class !org.appcelerator.**.R,!org.appcelerator.**.R$*,org.appcelerator.** { *; }
 -keep interface org.appcelerator.** { *; }
 
 # The kroll module/proxy binding classes under "ti.modules" and in native module
@@ -41,6 +42,8 @@
 # is kept via the generated "resources.keep" file in this folder. The "R"
 # classes of libraries and native modules are not kept. A native module that
 # reads its own "R" class by name must keep it in its "consumer-rules.pro" file.
+# For some resource types, such as "dimen" and "styleable", that file only keeps
+# the resources of the app, the Titanium SDK and the app's native modules.
 
 -dontwarn org.appcelerator.**
 -dontwarn ti.modules.**

@@ -74,6 +74,18 @@ description: |
          (such as Material or AppCompat) are removed from the app. The app's own resources are always
          kept since Titanium looks them up by name at runtime. Defaults to `true`.
 
+    Titanium looks up Android resources by name at runtime, for example via <Titanium.App.Android.R>.
+    With R8 code optimization enabled, all resources of the app, the Titanium SDK and the app's
+    native modules can be looked up by name. Resources of other libraries (such as Material or
+    AppCompat) can be looked up by name as well, except for the resource types `anim`, `animator`,
+    `bool`, `color`, `dimen`, `fraction`, `integer`, `interpolator` and `styleable`. To look up
+    such a library resource by name, add a keep rule for it to the app's
+    `platform/android/proguard.cfg` file:
+
+    ```
+    -keep class com.example.app.R$dimen { int design_fab_size_normal; }
+    ```
+
     #### Intents
 
     Intents are message objects that specify actions to perform which can start either activities,

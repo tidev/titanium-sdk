@@ -2557,9 +2557,11 @@ class AndroidBuilder extends Builder {
 		}
 
 		// Generate the "resources.keep" file, keeping the "R" class of the app which
-		// Titanium reads by name via reflection to look up resource IDs.
+		// Titanium reads by name via reflection to look up resource IDs. For some resource
+		// types it only keeps the resources of the app, the Titanium SDK and native modules.
 		const resourcesKeepFilePath = path.join(keepRulesDirPath, 'resources.keep');
-		await fs.writeFile(resourcesKeepFilePath, generateResourceClassKeepRules(this.appid));
+		const resourceEntries = await this.getTitaniumResourceEntries();
+		await fs.writeFile(resourcesKeepFilePath, generateResourceClassKeepRules(this.appid, resourceEntries));
 		this.unmarkBuildDirFile(resourcesKeepFilePath);
 
 		// Load the SDK's binding class information if unused API stripping is enabled.
@@ -2608,6 +2610,152 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
+	 * Fetches "@<type>/<name>" references to all resources under the given "res" directory.
+	 * @param {string} resDirPath Path to an Android "res" directory. Does not have to exist.
+	 * @param {string} [skipFileName] Name of a file to be ignored in all of its subdirectories.
+	 * @returns {Promise<string[]>} Array of resource references. Empty if none were found.
+	 */
+	async getResourceEntriesFromDir(resDirPath, skipFileName) {
+		const entries = [];
+		if (!(await fs.exists(resDirPath))) {
+			return entries;
+		}
+		for (const folderName of await fs.readdir(resDirPath)) {
+			const folderPath = path.join(resDirPath, folderName);
+			if (!(await fs.stat(folderPath)).isDirectory()) {
+				continue;
+			}
+			const resourceType = getResourceTypeFromFolderName(folderName);
+			if (!resourceType) {
+				continue;
+			}
+			for (const fileName of await fs.readdir(folderPath)) {
+				if (fileName === skipFileName) {
+					continue;
+				}
+				const filePath = path.join(folderPath, fileName);
+				if (!(await fs.stat(filePath)).isFile()) {
+					continue;
+				}
+				if (resourceType === 'values') {
+					if (fileName.toLowerCase().endsWith('.xml')) {
+						const fileContent = await fs.readFile(filePath);
+						entries.push(...getValuesResourceEntries(fileContent.toString()));
+					}
+				} else {
+					const entry = getFileResourceEntry(resourceType, fileName);
+					if (entry) {
+						entries.push(entry);
+					}
+				}
+			}
+		}
+		return entries;
+	}
+
+	/**
+	 * Fetches "@<type>/<name>" references to all resources bundled in the given AAR file.
+	 * These are the library's own resources, without the ones of its dependencies.
+	 * @param {string} aarFilePath Path to an Android library AAR file.
+	 * @returns {Promise<string[]>} Array of resource references. Empty if none were found.
+	 */
+	async getResourceEntriesFromAar(aarFilePath) {
+		const yauzl = await import('yauzl');
+		return new Promise((resolve, reject) => {
+			yauzl.open(aarFilePath, { lazyEntries: true }, (err, zipfile) => {
+				if (err) {
+					return reject(err);
+				}
+				const entries = [];
+				zipfile.once('error', reject);
+				zipfile.once('end', () => resolve(entries));
+				zipfile.on('entry', zipEntry => {
+					// Only handle "res/<folder>/<file>" entries.
+					const pathParts = zipEntry.fileName.split('/');
+					if ((pathParts.length !== 3) || (pathParts[0] !== 'res') || !pathParts[2]) {
+						zipfile.readEntry();
+						return;
+					}
+					const resourceType = getResourceTypeFromFolderName(pathParts[1]);
+					if (resourceType !== 'values') {
+						const entry = getFileResourceEntry(resourceType, pathParts[2]);
+						if (entry) {
+							entries.push(entry);
+						}
+						zipfile.readEntry();
+						return;
+					}
+					if (!pathParts[2].toLowerCase().endsWith('.xml')) {
+						zipfile.readEntry();
+						return;
+					}
+					zipfile.openReadStream(zipEntry, (err, readStream) => {
+						if (err) {
+							return reject(err);
+						}
+						const chunks = [];
+						readStream.once('error', reject);
+						readStream.on('data', chunk => chunks.push(chunk));
+						readStream.on('end', () => {
+							entries.push(...getValuesResourceEntries(Buffer.concat(chunks).toString('utf8')));
+							zipfile.readEntry();
+						});
+					});
+				});
+				zipfile.readEntry();
+			});
+		});
+	}
+
+	/**
+	 * Fetches "@<type>/<name>" references to the resources of the app, the Titanium SDK and
+	 * the app's native modules. Titanium and native modules look these up by name at runtime.
+	 * Does not include the resources of other libraries such as Material or AppCompat.
+	 *
+	 * Must be called after all "res" files have been generated/copied for the app project.
+	 * @returns {Promise<string[]>} Array of resource references. Can contain duplicates.
+	 */
+	async getTitaniumResourceEntries() {
+		// Fetch the resources of the app project.
+		const entries = await this.getResourceEntriesFromDir(this.buildAppMainResDir);
+
+		// Fetch the resources of the Titanium SDK library and of all native modules. A module
+		// provides them in its AAR files and/or in its "platform/android/res" directory.
+		const libraryDirPaths = [ path.join(this.platformPath, 'm2repository') ];
+		for (const module of (this.modules || [])) {
+			if (module.native) {
+				libraryDirPaths.push(module.modulePath);
+				entries.push(...await this.getResourceEntriesFromDir(path.join(module.modulePath, 'platform', 'android', 'res')));
+			}
+		}
+		const aarFilePaths = [];
+		const findAarFiles = async (dirPath) => {
+			if (!(await fs.exists(dirPath))) {
+				return;
+			}
+			for (const dirEntry of await fs.readdir(dirPath, { withFileTypes: true })) {
+				const entryPath = path.join(dirPath, dirEntry.name);
+				if (dirEntry.isDirectory()) {
+					await findAarFiles(entryPath);
+				} else if (dirEntry.isFile() && dirEntry.name.toLowerCase().endsWith('.aar')) {
+					aarFilePaths.push(entryPath);
+				}
+			}
+		};
+		for (const libraryDirPath of libraryDirPaths) {
+			await findAarFiles(libraryDirPath);
+		}
+		for (const aarFilePath of aarFilePaths) {
+			try {
+				entries.push(...await this.getResourceEntriesFromAar(aarFilePath));
+			} catch (err) {
+				this.logger.warn(`Unable to read the resources of "${aarFilePath}". Reason: ${err.message}`);
+			}
+		}
+		return entries;
+	}
+
+	/**
 	 * Generates a "res/raw/titanium_keep.xml" file listing all of the app's own resources
 	 * via the resource shrinker's "tools:keep" attribute, unless resource shrinking is
 	 * disabled via the "android.optimization.shrinkResources" tiapp property.
@@ -2627,39 +2775,7 @@ class AndroidBuilder extends Builder {
 
 		// Fetch "@<type>/<name>" references to all resources under the app's "res" directory.
 		const KEEP_FILE_NAME = 'titanium_keep.xml';
-		const entries = [];
-		if (await fs.exists(this.buildAppMainResDir)) {
-			for (const folderName of await fs.readdir(this.buildAppMainResDir)) {
-				const folderPath = path.join(this.buildAppMainResDir, folderName);
-				if (!(await fs.stat(folderPath)).isDirectory()) {
-					continue;
-				}
-				const resourceType = getResourceTypeFromFolderName(folderName);
-				if (!resourceType) {
-					continue;
-				}
-				for (const fileName of await fs.readdir(folderPath)) {
-					if (fileName === KEEP_FILE_NAME) {
-						continue;
-					}
-					const filePath = path.join(folderPath, fileName);
-					if (!(await fs.stat(filePath)).isFile()) {
-						continue;
-					}
-					if (resourceType === 'values') {
-						if (fileName.toLowerCase().endsWith('.xml')) {
-							const fileContent = await fs.readFile(filePath);
-							entries.push(...getValuesResourceEntries(fileContent.toString()));
-						}
-					} else {
-						const entry = getFileResourceEntry(resourceType, fileName);
-						if (entry) {
-							entries.push(entry);
-						}
-					}
-				}
-			}
-		}
+		const entries = await this.getResourceEntriesFromDir(this.buildAppMainResDir, KEEP_FILE_NAME);
 
 		// Generate the keep XML file under the "res/raw" directory.
 		const uniqueEntryCount = (new Set(entries)).size;
