@@ -284,6 +284,12 @@ public class ActivityProxy extends KrollProxy implements TiActivityResultHandler
 		return tiActivity.getWindowProxy();
 	}
 
+	/** Returns the ActionBarProxy if JS has accessed it. Does not create one. */
+	public ActionBarProxy peekActionBar()
+	{
+		return actionBarProxy;
+	}
+
 	@Kroll.getProperty
 	public ActionBarProxy getActionBar()
 	{

@@ -21,6 +21,7 @@ import { generateBindingsKeepRules } from '../lib/generate-keep-rules.js';
 import { generateKeepXmlContent, getFileResourceEntry, getResourceTypeFromFolderName, getValuesResourceEntries } from '../lib/generate-keep-xml.js';
 import { Builder } from '../../../cli/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
+import { validateKeystorePath } from '../lib/keystore-path.js';
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { ProcessDrawablesTask } from '../lib/process-drawables-task.js';
 import { ProcessSplashesTask } from '../lib/process-splashes-task.js';
@@ -76,6 +77,7 @@ class AndroidBuilder extends Builder {
 
 		this.targets = [ 'emulator', 'device', 'dist-playstore' ];
 		this.appName = null;
+		this.hasLauncherAlias = false;
 	}
 
 	config(logger, config, cli) {
@@ -661,18 +663,7 @@ class AndroidBuilder extends Builder {
 									validate: _t.conf.options.keystore.validate.bind(_t)
 								}));
 							},
-							validate: function (keystoreFile, callback) {
-								if (!keystoreFile) {
-									callback(new Error('Please specify the path to your keystore file'));
-								} else {
-									keystoreFile = afs.resolvePath(keystoreFile);
-									if (!fs.existsSync(keystoreFile) || !fs.statSync(keystoreFile).isFile()) {
-										callback(new Error('Invalid keystore file'));
-									} else {
-										callback(null, keystoreFile);
-									}
-								}
-							}
+							validate: validateKeystorePath
 						},
 						'output-dir': {
 							abbr: 'O',
@@ -964,13 +955,14 @@ class AndroidBuilder extends Builder {
 			this.shrinkResources = shrinkResourcesProp.value;
 		}
 
-		// Select the JavaScript asset encryption module. Apps can opt in to the
-		// open source 'ti.crypt' module via <encryption>ti.crypt</encryption> in
-		// the tiapp.xml, any other (or no) value falls back to 'ti.cloak'.
+		// Select the JavaScript asset encryption module. The open source 'ti.crypt'
+		// module is the default. Apps can opt in to the closed source 'ti.cloak'
+		// module via <encryption>ti.cloak</encryption> in the tiapp.xml, any other
+		// (or no) value falls back to 'ti.crypt'.
 		if (cli.tiapp.encryption && cli.tiapp.encryption !== 'ti.crypt' && cli.tiapp.encryption !== 'ti.cloak') {
-			logger.warn(`Unknown <encryption> value "${cli.tiapp.encryption}" in tiapp.xml, falling back to "ti.cloak"`);
+			logger.warn(`Unknown <encryption> value "${cli.tiapp.encryption}" in tiapp.xml, falling back to "ti.crypt"`);
 		}
-		this.encryptionModule = cli.tiapp.encryption === 'ti.crypt' ? 'ti.crypt' : 'ti.cloak';
+		this.encryptionModule = cli.tiapp.encryption === 'ti.cloak' ? 'ti.cloak' : 'ti.crypt';
 
 		if (cli.tiapp.properties['ti.android.compilejs']) {
 			logger.warn(`The ${
@@ -1114,6 +1106,9 @@ class AndroidBuilder extends Builder {
 			logger.error(`Malformed custom AndroidManifest.xml file: ${externalAndroidManifestFilePath}`);
 			process.exit(1);
 		}
+
+		// Only an enabled <activity-alias> with a MAIN/LAUNCHER filter can replace the launcher entry of the main activity.
+		this.hasLauncherAlias = !!this.customAndroidManifest && this.customAndroidManifest.hasEnabledLauncherAlias();
 
 		// validate the SDK levels
 		const usesSDK = this.customAndroidManifest ? this.customAndroidManifest.getUsesSdk() : null;
@@ -2321,6 +2316,7 @@ class AndroidBuilder extends Builder {
 		gradleProperties.push({ key: 'android.nonTransitiveRClass', value: 'false' });
 		gradleProperties.push({ key: 'org.gradle.jvmargs', value: `-Xmx${this.javacMaxMemory}` });
 		gradleProperties.push({ key: 'org.gradle.configuration-cache', value: 'true' });
+		gradleProperties.push({ key: 'org.gradle.daemon.idletimeout', value: '1800000' });
 		await gradlew.writeGradlePropertiesFile(gradleProperties);
 
 		// Copy optional "gradle.properties" file contents from Titanium project to the above generated file.
@@ -3870,7 +3866,8 @@ class AndroidBuilder extends Builder {
 		const neededSettings = {
 			queries: neededQueriesDictionary,
 			storagePermissionMaxSdkVersion: storagePermissionMaxSdkVersion,
-			usesPermissions: Object.keys(neededPermissionDictionary)
+			usesPermissions: Object.keys(neededPermissionDictionary),
+			skipLauncher: this.hasLauncherAlias
 		};
 		return neededSettings;
 	}
@@ -3965,7 +3962,8 @@ class AndroidBuilder extends Builder {
 			storagePermissionMaxSdkVersion: neededManifestSettings.storagePermissionMaxSdkVersion,
 			packageName: this.appid,
 			queries: neededManifestSettings.queries,
-			usesPermissions: neededManifestSettings.usesPermissions
+			usesPermissions: neededManifestSettings.usesPermissions,
+			skipLauncher: neededManifestSettings.skipLauncher
 		});
 		const mainManifest = AndroidManifest.fromXmlString(mainManifestContent);
 

@@ -843,7 +843,9 @@ jobject TypeConverter::jsValueToJavaObject(Isolate* isolate, JNIEnv *env, Local<
 
 			Local<Context> context = isolate->GetCurrentContext();
 			// Unwrap Hyperloop JS wrappers to get native Java proxy
-			Local<String> nativeString = STRING_NEW(isolate, "$native");
+			// Use the cached symbol instead of allocating a new string for every converted object.
+			Local<String> nativeString = Proxy::nativeSymbol.IsEmpty()
+				? NEW_SYMBOL(isolate, "$native") : Proxy::nativeSymbol.Get(isolate);
 			if (jsObject->HasOwnProperty(context, nativeString).FromMaybe(false)) {
 
 				TryCatch tryCatch(isolate);

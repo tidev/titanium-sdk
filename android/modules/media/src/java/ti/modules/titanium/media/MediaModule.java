@@ -79,6 +79,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 	protected static final String FOCUS_MODE_CONTINUOUS_PICTURE = "continuous-picture";
 	protected static final String PROP_AUTOHIDE = "autohide";
 	protected static final String PROP_AUTOSAVE = "saveToPhotoGallery";
+	protected static final String PROP_GALLERY_FOLDER = "galleryFolder";
 	protected static final String PROP_OVERLAY = "overlay";
 
 	@Kroll.constant
@@ -307,6 +308,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		final KrollFunction cancelCallback = (KrollFunction) cameraOptions.get(TiC.PROPERTY_CANCEL);
 		final KrollFunction errorCallback = (KrollFunction) cameraOptions.get(TiC.EVENT_ERROR);
 		final boolean saveToPhotoGallery = TiConvert.toBoolean(cameraOptions.get(PROP_AUTOSAVE), false);
+		final String galleryFolder = normalizeGalleryFolder(cameraOptions.get(PROP_GALLERY_FOLDER));
 		String[] mediaTypes = null;
 		String intentType = MediaStore.ACTION_IMAGE_CAPTURE;
 		int videoMaximumDuration = 0;
@@ -366,7 +368,13 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		}
 
 		// Create file URI for the camera to write the capture photo/video to.
-		final Uri mediaUri = createExternalMediaContentUri(isVideo, saveToPhotoGallery);
+		Uri createdUri = null;
+		try {
+			createdUri = createExternalMediaContentUri(isVideo, saveToPhotoGallery, galleryFolder);
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to create file for camera capture.", ex);
+		}
+		final Uri mediaUri = createdUri;
 		if (mediaUri == null) {
 			if (errorCallback != null) {
 				KrollDict response = new KrollDict();
@@ -521,6 +529,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		TiCameraActivity.errorCallback = errorCallback;
 		TiCameraActivity.androidbackCallback = androidbackCallback;
 		TiCameraActivity.saveToPhotoGallery = saveToPhotoGallery;
+		TiCameraActivity.galleryFolder = normalizeGalleryFolder(cameraOptions.get(PROP_GALLERY_FOLDER));
 		TiCameraActivity.autohide = autohide;
 		TiCameraActivity.overlayProxy = overLayProxy;
 		TiCameraActivity.whichCamera = whichCamera;
@@ -559,6 +568,7 @@ public class MediaModule extends KrollModule implements Handler.Callback
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOSAVE)) {
 			TiCameraXActivity.saveToPhotoGallery = cameraOptions.getBoolean(PROP_AUTOSAVE);
 		}
+		TiCameraXActivity.galleryFolder = normalizeGalleryFolder(cameraOptions.get(PROP_GALLERY_FOLDER));
 		if (cameraOptions.containsKeyAndNotNull(PROP_AUTOHIDE)) {
 			TiCameraXActivity.autohide = cameraOptions.getBoolean(PROP_AUTOHIDE);
 		}
@@ -967,17 +977,68 @@ public class MediaModule extends KrollModule implements Handler.Callback
 
 	public static Uri createExternalPictureContentUri(boolean isPublic)
 	{
+		return createExternalPictureContentUri(isPublic, null);
+	}
+
+	/**
+	 * Creates a new picture file and returns a "content://" URI to it.
+	 * @param isPublic Set true to create the file under the system's shared "Pictures" folder.
+	 * @param galleryFolder Optional sub-folder under "Pictures" to store the file in when "isPublic" is true.
+	 *                      Expected to be a value returned by normalizeGalleryFolder(). Can be null or empty.
+	 * @return Returns a "content://" URI to the newly created file. Returns null if failed.
+	 */
+	public static Uri createExternalPictureContentUri(boolean isPublic, String galleryFolder)
+	{
 		boolean isVideo = false;
-		return createExternalMediaContentUri(isVideo, isPublic);
+		return createExternalMediaContentUri(isVideo, isPublic, galleryFolder);
 	}
 
 	public static Uri createExternalVideoContentUri(boolean isPublic)
 	{
 		boolean isVideo = true;
-		return createExternalMediaContentUri(isVideo, isPublic);
+		return createExternalMediaContentUri(isVideo, isPublic, null);
 	}
 
-	private static Uri createExternalMediaContentUri(boolean isVideo, boolean isPublic)
+	/**
+	 * Validates the given "galleryFolder" camera option and returns a MediaStore-safe relative folder name.
+	 * Leading/trailing slashes and whitespace are removed and empty or "." and ".." path segments are rejected.
+	 * @param value The raw "galleryFolder" value given by JavaScript. Can be null.
+	 * @return Returns the normalized folder name. Returns an empty string if given value is null, empty, or invalid.
+	 */
+	public static String normalizeGalleryFolder(Object value)
+	{
+		if (value == null) {
+			return "";
+		}
+		String folder = TiConvert.toString(value, "").trim().replace('\\', '/');
+		folder = folder.replaceAll("^/+", "").replaceAll("/+$", "");
+		if (folder.isEmpty()) {
+			return "";
+		}
+		for (String segment : folder.split("/")) {
+			if (segment.isEmpty() || segment.equals(".") || segment.equals("..")) {
+				Log.w(TAG, "Ignoring invalid 'galleryFolder' value: " + value);
+				return "";
+			}
+		}
+		return folder;
+	}
+
+	/**
+	 * Returns the MediaStore "RELATIVE_PATH" value to store gallery photos under for the given folder.
+	 * @param galleryFolder Sub-folder name as returned by normalizeGalleryFolder(). Can be null or empty.
+	 * @return Returns a path such as "Pictures/MyApp". Returns null if given folder is empty or if
+	 *         the OS version does not support "RELATIVE_PATH" (Android 10 and higher only).
+	 */
+	public static String getPicturesRelativePath(String galleryFolder)
+	{
+		if ((Build.VERSION.SDK_INT < 29) || (galleryFolder == null) || galleryFolder.isEmpty()) {
+			return null;
+		}
+		return Environment.DIRECTORY_PICTURES + "/" + galleryFolder;
+	}
+
+	private static Uri createExternalMediaContentUri(boolean isVideo, boolean isPublic, String galleryFolder)
 	{
 		TiApplication app = TiApplication.getInstance();
 
@@ -1002,6 +1063,11 @@ public class MediaModule extends KrollModule implements Handler.Callback
 			if (isVideo) {
 				contentUri = contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
 			} else {
+				// Note: "RELATIVE_PATH" is only supported by the MediaStore on Android 10 and higher.
+				String relativePath = getPicturesRelativePath(galleryFolder);
+				if (relativePath != null) {
+					contentValues.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath);
+				}
 				contentUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
 			}
 		} else if (isVideo) {

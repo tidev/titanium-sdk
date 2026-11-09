@@ -643,16 +643,14 @@ public class TiBlob extends KrollProxy
 			return blobFromImage(imageCropped);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to crop the image. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to crop the image. Illegal Argument: " + e.getMessage(), e);
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to crop the image. Unknown exception: " + t.getMessage(), t);
-		} finally {
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 		return null;
 	}
@@ -758,16 +756,14 @@ public class TiBlob extends KrollProxy
 			return blobFromImage(imageResized);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to resize the image. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to resize the image. Illegal Argument: " + e.getMessage(), e);
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to resize the image. Unknown exception: " + t.getMessage(), t);
-		} finally {
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 		return null;
 	}
@@ -796,6 +792,9 @@ public class TiBlob extends KrollProxy
 			}
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the thumbnail image. Illegal Argument: " + e.getMessage(), e);
@@ -808,11 +807,6 @@ public class TiBlob extends KrollProxy
 				img = null;
 			}
 			bos = null;
-
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 
 		return result;
@@ -895,16 +889,14 @@ public class TiBlob extends KrollProxy
 
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to get the thumbnail image. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the thumbnail image. Illegal Argument: " + e.getMessage(), e);
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the thumbnail image. Unknown exception: " + t.getMessage(), t);
-		} finally {
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 		return null;
 	}
@@ -952,16 +944,14 @@ public class TiBlob extends KrollProxy
 			return blobFromImage(imageWithAlpha);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to get the image with alpha. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the image with alpha. Illegal Argument: " + e.getMessage(), e);
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the image with alpha. Unknown exception: " + t.getMessage(), t);
-		} finally {
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 		return null;
 	}
@@ -1015,16 +1005,14 @@ public class TiBlob extends KrollProxy
 			return blobFromImage(imageRoundedCorner);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to get the image with rounded corner. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the image with rounded corner. Illegal Argument: " + e.getMessage(), e);
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the image with rounded corner. Unknown exception: " + t.getMessage(), t);
-		} finally {
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 		return null;
 	}
@@ -1074,16 +1062,14 @@ public class TiBlob extends KrollProxy
 			return blobFromImage(imageWithBorder);
 		} catch (OutOfMemoryError e) {
 			TiBlobLruCache.getInstance().evictAll();
+			if (KrollRuntime.getInstance() != null) {
+				KrollRuntime.softGC();
+			}
 			Log.e(TAG, "Unable to get the image with transparent border. Not enough memory: " + e.getMessage(), e);
 		} catch (IllegalArgumentException e) {
 			Log.e(TAG, "Unable to get the image with transparent border. Illegal Argument: " + e.getMessage(), e);
 		} catch (Throwable t) {
 			Log.e(TAG, "Unable to get the image with transparent border. Unknown exception: " + t.getMessage(), t);
-		} finally {
-			// Perform soft garbage collection to reclaim memory.
-			if (KrollRuntime.getInstance() != null) {
-				KrollRuntime.softGC();
-			}
 		}
 		return null;
 	}

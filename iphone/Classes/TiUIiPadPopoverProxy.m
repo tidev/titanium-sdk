@@ -8,6 +8,7 @@
 
 #import "TiUIiPadPopoverProxy.h"
 #import <TitaniumKit/TiApp.h>
+#import <TitaniumKit/TiSceneRegistry.h>
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiWindowProxy.h>
 #import <libkern/OSAtomic.h>
@@ -169,7 +170,7 @@ static NSArray *popoverSequence;
   [contentViewProxy setProxyObserver:self];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+    UIView *topWindowView = [[[self owningInstance] controller] topWindowProxyView];
     if ([topWindowView isKindOfClass:[TiUIView class]]) {
       TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
       if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {
@@ -199,12 +200,12 @@ static NSArray *popoverSequence;
           theController.popoverPresentationController.backgroundColor = [[TiColor colorNamed:[self valueForKey:@"backgroundColor"]] _color];
         }
 
-        [TiApp.app.controller.topPresentedController presentViewController:theController
-                                                                  animated:animated
-                                                                completion:^{
-                                                                  popoverInitialized = YES;
-                                                                  [contentViewProxy windowDidOpen];
-                                                                }];
+        [[[[self owningInstance] controller] topPresentedController] presentViewController:theController
+                                                                                  animated:animated
+                                                                                completion:^{
+                                                                                  popoverInitialized = YES;
+                                                                                  [contentViewProxy windowDidOpen];
+                                                                                }];
       },
       YES);
 }
@@ -253,7 +254,7 @@ static NSArray *popoverSequence;
   [contentViewProxy windowDidClose];
 
   if ([contentViewProxy isKindOfClass:[TiWindowProxy class]]) {
-    UIView *topWindowView = [[[TiApp app] controller] topWindowProxyView];
+    UIView *topWindowView = [[[self owningInstance] controller] topWindowProxyView];
     if ([topWindowView isKindOfClass:[TiUIView class]]) {
       TiViewProxy *theProxy = (TiViewProxy *)[(TiUIView *)topWindowView proxy];
       if ([theProxy conformsToProtocol:@protocol(TiWindowProtocol)]) {

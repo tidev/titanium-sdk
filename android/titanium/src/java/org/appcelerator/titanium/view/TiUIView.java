@@ -1339,6 +1339,7 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 			Log.d(TAG, "Releasing: " + this, Log.DEBUG_MODE);
 		}
 		releaseLongPressMotionEvent();
+		stopRunningAnimations();
 		View nv = getNativeView();
 		if (nv != null) {
 			if (nv instanceof ViewGroup) {
@@ -1388,6 +1389,36 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 		}
 		proxy = null;
 		layoutParams = null;
+	}
+
+	/**
+	 * Cancels any property animation that is still running on this view.
+	 * A running Animator is registered with the main thread's AnimationHandler, which keeps the
+	 * TiAnimationBuilder, this view and its destroyed activity reachable until the animation ends.
+	 * Views that are removed or released while a long/repeating animation runs would leak otherwise.
+	 */
+	private void stopRunningAnimations()
+	{
+		final TiAnimationBuilder pendingBuilder = this.tiBuilder;
+		final TiAnimationBuilder transformBuilder = this.animBuilder;
+		final View outerView = getOuterView();
+		this.tiBuilder = null;
+		if (outerView == null || (pendingBuilder == null && transformBuilder == null)) {
+			return;
+		}
+		Runnable runnable = () -> {
+			if (pendingBuilder != null && pendingBuilder.isRunning()) {
+				pendingBuilder.stop(outerView);
+			}
+			if (transformBuilder != null && transformBuilder.isRunning()) {
+				transformBuilder.stop(outerView);
+			}
+		};
+		if (TiApplication.isUIThread()) {
+			runnable.run();
+		} else {
+			TiMessenger.postOnMain(runnable);
+		}
 	}
 
 	private void releaseLongPressMotionEvent()

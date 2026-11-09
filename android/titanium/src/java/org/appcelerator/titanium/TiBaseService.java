@@ -89,6 +89,9 @@ public class TiBaseService extends Service
 		// Increment the runtime's count of services.
 		KrollRuntime.incrementServiceReceiverRefCount();
 
+		// Restart the runtime if it was disposed. Happens when the user exits the app and the process survives.
+		KrollRuntime.initIfDisposed();
+
 		// Start listening for the runtime's events.
 		this.eventHandler = new TiBaseService.EventHandler(this);
 		this.eventHandler.subscribe();

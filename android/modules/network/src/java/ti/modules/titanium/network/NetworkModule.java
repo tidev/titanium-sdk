@@ -96,7 +96,7 @@ public class NetworkModule extends KrollModule
 		NOT_CONNECTED
 	}
 
-	class NetInfo
+	static class NetInfo
 	{
 		public State state;
 		public boolean failover;
