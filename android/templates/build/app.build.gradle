@@ -80,12 +80,12 @@ android {
 			// "src/main/keepRules/*.keep" files, which the Titanium build system generates
 			// from the SDK's "titanium.keep" template and the app's optional
 			// "platform/android/proguard.cfg" file.
-			// Resource shrinking is only enabled if the "android.optimization.shrinkResources"
-			// tiapp property is set to true. The app's own resources are then protected by a
+			// Resource shrinking is enabled unless the "android.optimization.shrinkResources"
+			// tiapp property is set to false. The app's own resources are then protected by a
 			// generated "res/raw/titanium_keep.xml" file, since Titanium looks them up by name
 			// at runtime via reflection which the resource shrinker cannot see.
 			// Note: Do not use the AGP 9.3 "optimization { enable = true }" DSL here.
-			//       It force-enables resource shrinking regardless of the tiapp setting.
+			//       It force-enables resource shrinking regardless of the tiapp property.
 			minifyEnabled = true
 			shrinkResources = <%- shrinkResources ? 'true' : 'false' %>
 			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')

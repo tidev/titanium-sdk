@@ -92,7 +92,7 @@ export function getSdkNamespacePackages(sdkBindings) {
  * Titanium kroll module/proxy binding classes. These classes are resolved by name via
  * JNI by the native V8/Kroll runtime and must not be removed or renamed.
  *
- * By default all binding classes are kept. When "stripUnusedApis" is set, only the
+ * All binding classes are kept if "stripUnusedApis" is not set. When it is set, only the
  * classes of the SDK modules actually accessed by the app's JavaScript code (plus the
  * ones needed by the SDK's bootstrap scripts) are kept, so R8 can remove the unused
  * SDK modules (e.g. Ti.Calendar, Ti.Contacts, Ti.Media) from the app. This is safe
@@ -123,8 +123,8 @@ export function generateBindingsKeepRules(options) {
 
 	if (!stripUnusedApis || !sdkBindings || !sdkBindings.modules) {
 		lines.push(
-			'# All Titanium SDK binding classes are kept. Set the "android.optimization.stripUnusedApis"',
-			'# tiapp property to true to only keep the APIs used by the app\'s JavaScript code.',
+			'# All Titanium SDK binding classes are kept. The "android.optimization.stripUnusedApis"',
+			'# tiapp property is false, or the binding information of the SDK is not available.',
 			'-keep class ti.modules.** { *; }',
 			'-keep interface ti.modules.** { *; }',
 			'',

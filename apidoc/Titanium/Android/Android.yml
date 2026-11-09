@@ -58,20 +58,21 @@ description: |
 
     ``` xml
     <property name="android.optimization" type="bool">true</property>
-    <property name="android.optimization.stripUnusedApis" type="bool">false</property>
-    <property name="android.optimization.shrinkResources" type="bool">false</property>
+    <property name="android.optimization.stripUnusedApis" type="bool">true</property>
+    <property name="android.optimization.shrinkResources" type="bool">true</property>
     ```
 
     *    `android.optimization`: Enables or disables R8 code optimization for production builds.
          Defaults to `true`. Set to `false` to build an unoptimized app.
     *    `android.optimization.stripUnusedApis`: When `true`, only the Titanium SDK modules accessed
          by the app's JavaScript code (such as `Ti.UI` or `Ti.Media`) are kept, allowing R8 to remove
-         unused SDK modules such as `Ti.Calendar` or `Ti.Contacts` from the app. Defaults to `false`.
+         unused SDK modules such as `Ti.Calendar` or `Ti.Contacts` from the app. Defaults to `true`.
          Titanium APIs accessed dynamically (for example via `Ti[name]`) cannot be detected by the
-         build and must be kept via the app's `platform/android/proguard.cfg` file.
+         build and must be kept via the app's `platform/android/proguard.cfg` file. Set to `false`
+         to keep all Titanium SDK modules.
     *    `android.optimization.shrinkResources`: When `true`, unused Android resources of libraries
          (such as Material or AppCompat) are removed from the app. The app's own resources are always
-         kept since Titanium looks them up by name at runtime. Defaults to `false`.
+         kept since Titanium looks them up by name at runtime. Defaults to `true`.
 
     #### Intents
 

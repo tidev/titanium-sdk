@@ -21,9 +21,9 @@
 
 # The kroll module/proxy binding classes under "ti.modules" and in native module
 # packages are kept via the generated "bindings.keep" file in this folder. By
-# default it keeps all of them. If the "android.optimization.stripUnusedApis"
-# tiapp property is set to true, it only keeps the ones used by the app's
-# JavaScript code so R8 can remove unused Titanium APIs.
+# default it only keeps the ones used by the app's JavaScript code so R8 can
+# remove unused Titanium APIs. If the "android.optimization.stripUnusedApis"
+# tiapp property is set to false, it keeps all of them.
 
 # Native modules can implement C++ backed modules resolved by name through
 # their compiled bindings.

@@ -938,18 +938,19 @@ class AndroidBuilder extends Builder {
 			this.proguard = optimizationProp.value;
 		}
 
-		// Allow the app to opt in to stripping Titanium APIs not used by its JavaScript code
-		// when R8 code optimization is enabled. See generateKeepRuleFiles() method.
-		this.proguardStripUnusedApis = false;
+		// Titanium APIs not used by the app's JavaScript code are stripped by default when R8
+		// code optimization is enabled. Allow the app to opt out. See generateKeepRuleFiles() method.
+		this.proguardStripUnusedApis = true;
 		const stripUnusedApisProp = cli.tiapp.properties['android.optimization.stripUnusedApis'];
 		if (stripUnusedApisProp && (typeof stripUnusedApisProp.value === 'boolean')) {
 			this.proguardStripUnusedApis = stripUnusedApisProp.value;
 		}
 
-		// Allow the app to opt in to resource shrinking when R8 code optimization is enabled.
-		// The app's own resources are protected via a generated "keep" XML file since Titanium
-		// looks them up by name at runtime. See generateResourceKeepXmlFile() method.
-		this.shrinkResources = false;
+		// Resource shrinking is enabled by default when R8 code optimization is enabled.
+		// Allow the app to opt out. The app's own resources are protected via a generated
+		// "keep" XML file since Titanium looks them up by name at runtime.
+		// See generateResourceKeepXmlFile() method.
+		this.shrinkResources = true;
 		const shrinkResourcesProp = cli.tiapp.properties['android.optimization.shrinkResources'];
 		if (shrinkResourcesProp && (typeof shrinkResourcesProp.value === 'boolean')) {
 			this.shrinkResources = shrinkResourcesProp.value;
@@ -2532,10 +2533,11 @@ class AndroidBuilder extends Builder {
 	 * directory, where AGP automatically picks up all "*.keep" files.
 	 *
 	 * Also generates a "bindings.keep" file there which keeps the Titanium kroll binding
-	 * classes. By default it keeps all of them. If the "android.optimization.stripUnusedApis"
-	 * tiapp property is set to true, it only keeps the SDK modules accessed by the app's
-	 * JavaScript code (plus the ones the SDK's bootstrap scripts need), allowing R8 to
-	 * remove unused SDK modules such as Ti.Calendar or Ti.Contacts from the app.
+	 * classes. By default it only keeps the SDK modules accessed by the app's JavaScript
+	 * code (plus the ones the SDK's bootstrap scripts need), allowing R8 to remove unused
+	 * SDK modules such as Ti.Calendar or Ti.Contacts from the app. If the
+	 * "android.optimization.stripUnusedApis" tiapp property is set to false, it keeps all
+	 * of them.
 	 * @returns {Promise<void>}
 	 */
 	async generateKeepRuleFiles() {
@@ -2600,8 +2602,8 @@ class AndroidBuilder extends Builder {
 
 	/**
 	 * Generates a "res/raw/titanium_keep.xml" file listing all of the app's own resources
-	 * via the resource shrinker's "tools:keep" attribute, if resource shrinking is enabled
-	 * via the "android.optimization.shrinkResources" tiapp property.
+	 * via the resource shrinker's "tools:keep" attribute, unless resource shrinking is
+	 * disabled via the "android.optimization.shrinkResources" tiapp property.
 	 *
 	 * Titanium resolves the app's "res" entries by name at runtime via reflection
 	 * (e.g. "TiRHelper" and i18n string lookups), which gradle's resource shrinker cannot
