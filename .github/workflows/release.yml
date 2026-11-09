@@ -48,7 +48,7 @@ jobs:
           echo "vtag=${VTAG}" >> $GITHUB_ENV
           echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
       - name: Validate version
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         env:
           vtag: ${{ env.vtag }}
         with:
@@ -82,7 +82,7 @@ jobs:
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '24'
+          node-version: '26'
           java-version: '21'
 
   ios:
@@ -102,7 +102,7 @@ jobs:
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '24'
+          node-version: '26'
 
   package:
     runs-on: macos-26
@@ -121,7 +121,7 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '24'
+        node-version: '26'
         java-version: '21'
         vtag: ${{ env.vtag }}
 
@@ -160,14 +160,14 @@ jobs:
         git push origin "${TAG_VERSION}"
         echo "clean-tag=${TAG_VERSION}" >> $GITHUB_ENV
     - name: Upload SDK zips (GA)
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       if: ${{ github.event.inputs.release-type == 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
         tag_name: ${{ env.clean-tag }}
         name: ${{ env.vtag }}
     - name: Upload SDK zips (non-GA)
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       if: ${{ github.event.inputs.release-type != 'GA' }}
       with:
         files: mobilesdk-${{ env.vtag }}-*
@@ -183,13 +183,13 @@ jobs:
         git commit -m "chore(release): bump version"
         git push
     - name: Regen Builds
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       with:
         event-type: regen-builds
         repository: tidev/downloads-www
         token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
     - name: Regen Builds (titanium-www)
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@v4
       with:
         event-type: regen-builds
         repository: tidev/titanium-www
@@ -225,9 +225,9 @@ jobs:
           git checkout "$(echo "$vtag" | tr '.' '_')"
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: '26'
           cache: npm
 
       - name: Install dependencies
@@ -248,7 +248,7 @@ jobs:
             --out "titaniumsdk.com/registry/sdk/${VERSION}/release-notes.md"
 
       - name: Open the pull request
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           path: titaniumsdk.com
           token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
