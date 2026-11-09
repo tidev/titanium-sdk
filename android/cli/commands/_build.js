@@ -17,7 +17,7 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import async from 'async';
-import { generateBindingsKeepRules } from '../lib/generate-keep-rules.js';
+import { generateBindingsKeepRules, generateResourceClassKeepRules } from '../lib/generate-keep-rules.js';
 import { generateKeepXmlContent, getFileResourceEntry, getResourceTypeFromFolderName, getValuesResourceEntries } from '../lib/generate-keep-xml.js';
 import { Builder } from '../../../cli/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
@@ -2532,7 +2532,8 @@ class AndroidBuilder extends Builder {
 	 * "platform/android/proguard.cfg" file to the app project's "src/main/keepRules"
 	 * directory, where AGP automatically picks up all "*.keep" files.
 	 *
-	 * Also generates a "bindings.keep" file there which keeps the Titanium kroll binding
+	 * Also generates a "resources.keep" file there which keeps the "R" class of the app,
+	 * and a "bindings.keep" file which keeps the Titanium kroll binding
 	 * classes. By default it only keeps the SDK modules accessed by the app's JavaScript
 	 * code (plus the ones the SDK's bootstrap scripts need), allowing R8 to remove unused
 	 * SDK modules such as Ti.Calendar or Ti.Contacts from the app. If the
@@ -2554,6 +2555,12 @@ class AndroidBuilder extends Builder {
 			await fs.copyFile(this.proguardConfigFile, appKeepFilePath);
 			this.unmarkBuildDirFile(appKeepFilePath);
 		}
+
+		// Generate the "resources.keep" file, keeping the "R" class of the app which
+		// Titanium reads by name via reflection to look up resource IDs.
+		const resourcesKeepFilePath = path.join(keepRulesDirPath, 'resources.keep');
+		await fs.writeFile(resourcesKeepFilePath, generateResourceClassKeepRules(this.appid));
+		this.unmarkBuildDirFile(resourcesKeepFilePath);
 
 		// Load the SDK's binding class information if unused API stripping is enabled.
 		// If it cannot be loaded, then fall back to keeping all Titanium APIs.

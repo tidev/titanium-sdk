@@ -7,6 +7,7 @@
 
 import {
 	generateBindingsKeepRules,
+	generateResourceClassKeepRules,
 	getSdkNamespacePackages,
 	getUsedNamespaces
 } from '../lib/generate-keep-rules.js';
@@ -85,6 +86,13 @@ describe('generate-keep-rules', () => {
 		expect(result.content).to.contain('-keep class ti.modules.** { *; }');
 	});
 
+	it('generateResourceClassKeepRules()', () => {
+		const content = generateResourceClassKeepRules('com.example.app');
+		expect(content).to.contain('-keep class com.example.app.R { *; }');
+		expect(content).to.contain('-keep class com.example.app.R$* { <fields>; }');
+		expect(content).to.not.contain('**.R');
+	});
+
 	describe('stripUnusedApis', () => {
 		const result = generateBindingsKeepRules({
 			tiSymbols: {
@@ -103,9 +111,14 @@ describe('generate-keep-rules', () => {
 		it('strips unused SDK modules', () => {
 			expect(result.content).to.not.contain('-keep class ti.modules.titanium.calendar.** { *; }');
 			expect(result.content).to.not.contain('-keep class ti.modules.titanium.contacts.** { *; }');
-			expect(result.content).to.not.contain('-keep class ti.modules.titanium.xml.** { *; }');
 			expect(result.content).to.not.contain('-keep class ti.modules.** { *; }');
-			expect(result.strippedNamespaces).to.deep.equal([ 'Calendar', 'Contacts', 'XML' ]);
+			expect(result.strippedNamespaces).to.deep.equal([ 'Calendar', 'Contacts' ]);
+		});
+
+		it('keeps SDK modules that a kept module returns proxies of', () => {
+			// "Ti.Network.HTTPClient.responseXML" returns a "Ti.XML.Document" proxy.
+			expect(result.content).to.contain('-keep class ti.modules.titanium.xml.** { *; }');
+			expect(result.keptNamespaces).to.contain('XML');
 		});
 
 		it('always keeps SDK modules used by the SDK bootstrap scripts', () => {

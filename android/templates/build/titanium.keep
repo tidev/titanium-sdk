@@ -36,12 +36,11 @@
 # the module's JS with an InstantiationException at runtime. So keep them whole.
 -keep class * implements org.appcelerator.kroll.common.KrollSourceCodeProvider { *; }
 
-# Titanium and native modules look up resource IDs by name at runtime via
-# reflection on the generated "R" classes. (See "TiRHelper.java" and i18n
-# string lookups.) R8 full mode normally removes these classes, which would
-# break those lookups. So, keep all "R" classes and their fields.
--keep class **.R { *; }
--keep class **.R$* { <fields>; }
+# Titanium looks up resource IDs by name at runtime via reflection on the "R"
+# class of the app. (See "TiRHelper.java" and i18n string lookups.) That class
+# is kept via the generated "resources.keep" file in this folder. The "R"
+# classes of libraries and native modules are not kept. A native module that
+# reads its own "R" class by name must keep it in its "consumer-rules.pro" file.
 
 -dontwarn org.appcelerator.**
 -dontwarn ti.modules.**
