@@ -43,6 +43,7 @@
   NSMutableArray *containedWindows;
   NSMutableArray *modalWindows;
   BOOL forcingRotation;
+  UIInterfaceOrientation deniedGeometryTarget; // orientation the windowing mode refused, until the next size transition
   BOOL statusBarInitiallyHidden;
   BOOL viewControllerControlsStatusBar;
   UIStatusBarStyle defaultStatusBarStyle;

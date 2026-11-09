@@ -205,6 +205,12 @@
 - (void)generateNotification:(NSDictionary *)dict;
 
 /**
+ Clears the cached remote notification once it has been delivered to a listener,
+ so a later call to registerForPushNotifications does not replay stale data.
+ */
+- (void)clearRemoteNotification;
+
+/**
  Tells application to display modal error.
 
  @param message The message to show in the modal error screen.
