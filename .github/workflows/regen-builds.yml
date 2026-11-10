@@ -19,14 +19,6 @@ jobs:
       uses: peter-evans/repository-dispatch@v4
       with:
         event-type: regen-builds
-        repository: tidev/downloads-www
-        token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
-
-    - name: Repository Dispatch (titaniumsdk.com)
-      if: github.event.workflow_run.conclusion == 'success'
-      uses: peter-evans/repository-dispatch@v4
-      with:
-        event-type: regen-builds
         # Not the repository's old name, tidev/titanium-www. GitHub answers a
         # POST to a renamed repository with a redirect, which the dispatch
         # cannot follow: it fails with "Request body length does not match
