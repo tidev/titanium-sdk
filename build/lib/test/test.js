@@ -408,7 +408,7 @@ async function runBuild(platform, target, deviceId, deployType, deviceFamily, sn
 	}
 
 	if (deviceId) {
-		args.push('--C');
+		args.push('--device-id');
 		args.push(deviceId);
 	}
 
