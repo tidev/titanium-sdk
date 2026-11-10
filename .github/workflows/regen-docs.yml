@@ -52,25 +52,3 @@ jobs:
     uses: tidev/titaniumsdk.com/.github/workflows/notify-api-docs.yml@main
     secrets:
       dispatch-token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
-
-  # The old pipeline, kept running alongside the new one so the site currently
-  # being served stays current while the replacement is proven. It carries no
-  # payload because titanium-docs does not read one -- it rebuilds every source
-  # repo on any dispatch, which is the inefficiency titaniumsdk.com replaces.
-  #
-  # Delete this job once titaniumsdk.com is served from titaniumsdk.com (TI-52).
-  notify-legacy:
-    # Skipped on pull_request: a proposed change gets linted, not published.
-    # Skipped in forks: they hold no dispatch token, so this would only ever
-    # produce a failing run. The allowlist in titaniumsdk.com is the actual
-    # boundary -- a fork's payload names the fork, which is not on it.
-    if: github.event_name != 'pull_request' && github.repository_owner == 'tidev'
-    runs-on: ubuntu-latest
-    name: Notify titanium-docs (legacy)
-    steps:
-      - name: Repository dispatch
-        uses: peter-evans/repository-dispatch@v4
-        with:
-          event-type: regen-api-docs
-          repository: tidev/titanium-docs
-          token: ${{ secrets.REGEN_DOCS_GITHUB_TOKEN }}
