@@ -10,7 +10,18 @@ on:
     paths: ['apidoc/**']
   push:
     branches: [main]
-    paths: ['apidoc/**']
+    # apidoc/ is the reference itself. The three package.json files are what
+    # titaniumsdk.com reads for the compatibility page - Node, JDK, Android
+    # SDK, Xcode and iOS ranges - and its regen captures them after every
+    # compile. Without them here, a change that only moves those ranges
+    # reached the site never, and the page stated the old requirements
+    # (TI-95). The pull_request trigger stays apidoc-only: it runs the
+    # apidoc lint, which those files do not affect.
+    paths:
+      - 'apidoc/**'
+      - 'package.json'
+      - 'android/package.json'
+      - 'iphone/package.json'
   release:
     types: [published]
 
