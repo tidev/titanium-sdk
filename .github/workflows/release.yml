@@ -34,7 +34,22 @@ jobs:
     name: Validate input parameters
     outputs:
       vtag: ${{ steps.vtag.outputs.vtag }}
+      # 14.0.0 and 14_0_0_GA, for the jobs that talk to titaniumsdk.com.
+      version: ${{ steps.vtag.outputs.version }}
+      tag: ${{ steps.vtag.outputs.tag }}
     steps:
+      # Releases come from main or a release branch, 14_0_X. The numbered form,
+      # 13_2_0, is accepted too: one release branch was created that way by
+      # mistake, and refusing it would strand anything still released from it.
+      # Anything else is a typo or a feature branch, refused before it is built.
+      - name: Validate branch
+        env:
+          BRANCH: ${{ github.event.inputs.branch }}
+        run: |
+          if ! [[ "$BRANCH" =~ ^(main|[0-9]+_[0-9]+_(X|[0-9]+))$ ]]; then
+            echo "::error::'$BRANCH' is not a release branch: expected main, a branch like 14_0_X, or one like 13_2_0"
+            exit 1
+          fi
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
@@ -47,6 +62,8 @@ jobs:
           VTAG="${PACKAGE_VERSION}.${{ github.event.inputs.release-type }}"
           echo "vtag=${VTAG}" >> $GITHUB_ENV
           echo "vtag=${VTAG}" >> $GITHUB_OUTPUT
+          echo "version=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=$(echo "${VTAG}" | tr '.' '_')" >> $GITHUB_OUTPUT
       - name: Validate version
         uses: actions/github-script@v8
         env:
@@ -200,42 +217,31 @@ jobs:
 
   # The release notes were made by hand: run the changelog, copy the section
   # out, edit the prose, add frontmatter, and open a pull request against the
-  # docs repo. This does the mechanical half — the note lands as a pull request
-  # for review rather than being committed, so the prose can still be edited
-  # before it ships.
+  # docs repo. This does the mechanical half, and drafts the announcement.
+  #
+  # It runs as soon as the release starts, beside the builds, not after the
+  # Release environment is approved. The note and the announcement are what
+  # someone writes while the release waits, so they need to exist before it.
+  # The pull request is opened as a GitHub draft, which cannot be merged:
+  # merging publishes the note, and a release that is then rejected must not
+  # have published one. `release-notes-ready` below turns it into a normal pull
+  # request once the release has actually happened.
+  #
+  # Generated from the branch, not the tag: the tag does not exist until the
+  # release job creates it. The branch's package.json names the version being
+  # released, the same file `validate` read the version from, and the
+  # changelog measures from the previous GA tag to the branch tip.
   #
   # GA only. A release candidate's notes were never published as pages.
   release-notes:
     runs-on: ubuntu-latest
     name: Release notes
-    needs: [validate, release]
+    needs: [validate]
     if: ${{ inputs.release-notes && github.event.inputs.release-type == 'GA' }}
     env:
       vtag: ${{ needs.validate.outputs.vtag }}
+      branch: release-notes/${{ needs.validate.outputs.vtag }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          # Tags and full history: the changelog compares this release against
-          # the previous one, and resolves that comparison through them.
-          fetch-depth: 0
-          ref: ${{ github.event.inputs.branch }}
-
-      - name: Check out the release tag
-        run: |
-          # The tag, not the branch. The release job pushes a version bump to
-          # the branch, so package.json there already names the *next* version.
-          git checkout "$(echo "$vtag" | tr '.' '_')"
-
-      - name: Setup node
-        uses: actions/setup-node@v6
-        with:
-          node-version: '26'
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci --ignore-scripts
-
       - name: Checkout titaniumsdk.com
         uses: actions/checkout@v6
         with:
@@ -243,12 +249,53 @@ jobs:
           path: titaniumsdk.com
           token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
 
+      # A re-run of this workflow - a build failed, the approval was rejected
+      # and the release started again - must not regenerate a pull request that
+      # someone has been editing. create-pull-request would update the existing
+      # branch, replacing the edits with fresh output, so an existing branch
+      # stops this job here instead.
+      - name: Leave an existing pull request alone
+        id: existing
+        working-directory: titaniumsdk.com
+        run: |
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "titaniumsdk.com already has $branch; leaving it as it is." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout repository
+        if: steps.existing.outputs.exists != 'true'
+        uses: actions/checkout@v6
+        with:
+          # Tags and full history: the changelog compares this release against
+          # the previous one, and resolves that comparison through them.
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.branch }}
+          path: titanium-sdk
+
+      - name: Setup node
+        if: steps.existing.outputs.exists != 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+          cache: npm
+          cache-dependency-path: titanium-sdk/package-lock.json
+
+      - name: Install dependencies
+        if: steps.existing.outputs.exists != 'true'
+        working-directory: titanium-sdk
+        run: npm ci --ignore-scripts
+
       - name: Generate the release note
+        if: steps.existing.outputs.exists != 'true'
+        working-directory: titanium-sdk
         run: |
           VERSION="${vtag%.GA}"
           node changelog/release-notes.js \
             --channel GA \
-            --out "titaniumsdk.com/registry/sdk/${VERSION}/release-notes.md"
+            --out "../titaniumsdk.com/registry/sdk/${VERSION}/release-notes.md"
 
       # The announcement can't be generated, but everything mechanical in it
       # can. The script lives in titaniumsdk.com, beside the template it fills,
@@ -256,26 +303,128 @@ jobs:
       # judgement calls marked, reads the thanks line from the note above, and
       # leaves a post that already exists alone.
       - name: Draft the release announcement
+        if: steps.existing.outputs.exists != 'true'
         run: |
           VERSION="${vtag%.GA}"
           node titaniumsdk.com/scripts/new-release-post.ts --version "${VERSION}"
 
       - name: Open the pull request
+        if: steps.existing.outputs.exists != 'true'
         uses: peter-evans/create-pull-request@v8
         with:
           path: titaniumsdk.com
           token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
-          branch: release-notes/${{ needs.validate.outputs.vtag }}
+          branch: ${{ env.branch }}
+          draft: true
           commit-message: "Add ${{ needs.validate.outputs.vtag }} release notes and a draft announcement"
           title: "Add ${{ needs.validate.outputs.vtag }} release notes and a draft announcement"
           body: |
             Generated by the SDK's release workflow for
-            `${{ needs.validate.outputs.vtag }}`.
+            `${{ needs.validate.outputs.vtag }}`, as the release started.
+
+            **This stays a draft until the release is approved.** Merging
+            publishes the release note, so it cannot be merged before the SDK
+            ships. When the release job succeeds, the workflow sets both files'
+            dates to the release day and marks this ready. A rejected or
+            cancelled release leaves it a draft.
 
             - **Release note** (`registry/sdk/.../release-notes.md`): generated
-              from the changelog. Edit **About this release** before merging,
-              since the generator can only describe the release in general terms.
-            - **Announcement** (`content/blog/sdk-...-ga.md`): a draft. Merging
-              does not publish it. Fill in every `TODO(release-post)`, run
-              `node scripts/generate-social-posts.ts`, and set `draft: false`,
-              here or in a later pull request. `docs/releases.md` has the steps.
+              from the changelog. Edit **About this release**, since the
+              generator can only describe the release in general terms.
+            - **Announcement** (`content/blog/sdk-...-ga.md`): a draft post.
+              Merging does not publish it. Fill in every `TODO(release-post)`,
+              run `node scripts/generate-social-posts.ts`, and set
+              `draft: false`, here or in a later pull request.
+              `docs/releases.md` has the steps.
+
+            Edit freely: a re-run of the release workflow leaves this branch
+            alone.
+
+  # The SDK's API reference for the version just released, and with it the
+  # toolchain, the compatibility page and - for a new major - the guides
+  # snapshot, all done by titaniumsdk.com's Regen API Docs workflow.
+  #
+  # Called from here rather than left to regen-docs.yml's `release: published`
+  # trigger, which never fires for these releases: the release above is
+  # created with this run's GITHUB_TOKEN, and GitHub starts no workflow from an
+  # event that token causes. The version is passed rather than read off a tag,
+  # since this run's event is a workflow_dispatch.
+  api-docs:
+    name: Notify titaniumsdk.com of the release
+    needs: [validate, release]
+    if: ${{ github.event.inputs.release-type == 'GA' && github.repository_owner == 'tidev' }}
+    uses: tidev/titaniumsdk.com/.github/workflows/notify-api-docs.yml@main
+    with:
+      ref: ${{ needs.validate.outputs.tag }}
+      version: ${{ needs.validate.outputs.version }}
+    secrets:
+      dispatch-token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+
+  # The release happened, so the release-notes pull request can be merged.
+  #
+  # Its dates were the day the release started, which is not the day it
+  # shipped when the approval waits. Both are set to today, the release day,
+  # and only where they still hold the date they were generated with, so a date
+  # someone chose on purpose is left alone. Then the draft is marked ready.
+  #
+  # `always()` with explicit results rather than the default, so this still
+  # runs when release-notes skipped its work because the pull request already
+  # existed from an earlier run.
+  release-notes-ready:
+    runs-on: ubuntu-latest
+    name: Mark the release notes ready
+    needs: [validate, release, release-notes]
+    if: ${{ always() && needs.release.result == 'success' && needs.release-notes.result == 'success' }}
+    env:
+      vtag: ${{ needs.validate.outputs.vtag }}
+      branch: release-notes/${{ needs.validate.outputs.vtag }}
+      GH_TOKEN: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+    steps:
+      - name: Find the pull request
+        id: pr
+        run: |
+          number=$(gh pr list -R tidev/titaniumsdk.com --head "$branch" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$number" ]; then
+            echo "No open pull request for $branch; nothing to mark ready." >> "$GITHUB_STEP_SUMMARY"
+          fi
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout the pull request
+        if: steps.pr.outputs.number != ''
+        uses: actions/checkout@v6
+        with:
+          repository: tidev/titaniumsdk.com
+          ref: ${{ env.branch }}
+          token: ${{ secrets.REGEN_BUILDS_DOCS_GITHUB_TOKEN }}
+
+      - name: Date it the release day
+        if: steps.pr.outputs.number != ''
+        run: |
+          set -euo pipefail
+          VERSION="${vtag%.GA}"
+          today=$(date -u +%Y-%m-%d)
+          note="registry/sdk/${VERSION}/release-notes.md"
+          post="content/blog/sdk-${VERSION//./-}-ga.md"
+          # The date each file was generated with: the note's frontmatter, and
+          # the post's, which the same run wrote on the same day.
+          generated=$(sed -n 's/^date: *//p' "$note" | head -1)
+          for f in "$note" "$post"; do
+            [ -f "$f" ] || continue
+            sed -i -E "s/^date: '?${generated}'?$/date: '${today}'/" "$f"
+          done
+          # The note's date is unquoted YAML; keep it that way.
+          sed -i -E "s/^date: '(${today})'$/date: \1/" "$note"
+          if git diff --quiet; then
+            echo "Dates already the release day, or chosen by hand." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Date ${vtag} the day it was released"
+          git push origin "HEAD:${branch}"
+
+      - name: Mark it ready
+        if: steps.pr.outputs.number != ''
+        run: |
+          gh pr ready "${{ steps.pr.outputs.number }}" -R tidev/titaniumsdk.com
+          echo "titaniumsdk.com#${{ steps.pr.outputs.number }} is ready to merge." >> "$GITHUB_STEP_SUMMARY"
