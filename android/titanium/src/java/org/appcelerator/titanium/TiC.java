@@ -12,10 +12,6 @@ package org.appcelerator.titanium;
  */
 public class TiC
 {
-	public static final int API_LEVEL_HONEYCOMB = 11;
-	public static final int API_LEVEL_ICE_CREAM_SANDWICH = 14;
-	public static final int API_LEVEL_JELLY_BEAN = 16;
-
 	public static final int PERMISSION_CODE_CALENDAR = 100;
 	public static final int PERMISSION_CODE_CAMERA = 101;
 	public static final int PERMISSION_CODE_CONTACTS = 102;
