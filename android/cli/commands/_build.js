@@ -17,6 +17,8 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import async from 'async';
+import { generateBindingsKeepRules, generateResourceClassKeepRules } from '../lib/generate-keep-rules.js';
+import { generateKeepXmlContent, getFileResourceEntry, getResourceTypeFromFolderName, getValuesResourceEntries } from '../lib/generate-keep-xml.js';
 import { Builder } from '../../../cli/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
 import { validateKeystorePath } from '../lib/keystore-path.js';
@@ -906,7 +908,7 @@ class AndroidBuilder extends Builder {
 				this.minifyCSS = true;
 				this.allowDebugging = false;
 				this.allowProfiling = false;
-				this.proguard = false;
+				this.proguard = true;
 				break;
 
 			case 'test':
@@ -926,6 +928,32 @@ class AndroidBuilder extends Builder {
 				this.allowDebugging = true;
 				this.allowProfiling = true;
 				this.proguard = false;
+		}
+
+		// Allow the app to override R8 code optimization via the "android.optimization" tiapp property.
+		// Note: R8 only ever runs on "release" builds, so this has no effect on "development" builds
+		//       which are always built as "debug".
+		const optimizationProp = cli.tiapp.properties['android.optimization'];
+		if (optimizationProp && (typeof optimizationProp.value === 'boolean')) {
+			this.proguard = optimizationProp.value;
+		}
+
+		// Titanium APIs not used by the app's JavaScript code are stripped by default when R8
+		// code optimization is enabled. Allow the app to opt out. See generateKeepRuleFiles() method.
+		this.proguardStripUnusedApis = true;
+		const stripUnusedApisProp = cli.tiapp.properties['android.optimization.stripUnusedApis'];
+		if (stripUnusedApisProp && (typeof stripUnusedApisProp.value === 'boolean')) {
+			this.proguardStripUnusedApis = stripUnusedApisProp.value;
+		}
+
+		// Resource shrinking is enabled by default when R8 code optimization is enabled.
+		// Allow the app to opt out. The app's own resources are protected via a generated
+		// "keep" XML file since Titanium looks them up by name at runtime.
+		// See generateResourceKeepXmlFile() method.
+		this.shrinkResources = true;
+		const shrinkResourcesProp = cli.tiapp.properties['android.optimization.shrinkResources'];
+		if (shrinkResourcesProp && (typeof shrinkResourcesProp.value === 'boolean')) {
+			this.shrinkResources = shrinkResourcesProp.value;
 		}
 
 		// Select the JavaScript asset encryption module. The open source 'ti.crypt'
@@ -1025,13 +1053,12 @@ class AndroidBuilder extends Builder {
 			});
 		}
 
-		// check that the proguard config exists
+		// Use the app's optional ProGuard/R8 rules file if it exists.
+		// It will be applied in addition to the SDK's default "titanium.keep" rules when R8 is enabled.
+		this.proguardConfigFile = null;
 		const proguardConfigFile = path.join(cli.argv['project-dir'], 'platform', 'android', 'proguard.cfg');
-		if (this.proguard && !fs.existsSync(proguardConfigFile)) {
-			logger.error('Missing ProGuard configuration file');
-			logger.error(`ProGuard settings must go in the file "${proguardConfigFile}"`);
-			logger.error('For example configurations, visit http://proguard.sourceforge.net/index.html#manual/examples.html\n');
-			process.exit(1);
+		if (this.proguard && fs.existsSync(proguardConfigFile)) {
+			this.proguardConfigFile = proguardConfigFile;
 		}
 
 		// map SDK versions to SDK targets instead of by id
@@ -2470,6 +2497,12 @@ class AndroidBuilder extends Builder {
 			}
 		}
 
+		// Generate the R8/ProGuard keep rule files if code optimization is enabled.
+		await this.generateKeepRuleFiles();
+
+		// Generate a resource shrinker "keep" XML file if resource shrinking is enabled.
+		await this.generateResourceKeepXmlFile();
+
 		// Generate a "build.gradle" file for this project from the SDK's "app.build.gradle" EJS template.
 		// Note: Google does not support setting "maxSdkVersion" via Gradle script.
 		let buildGradleContent = await fs.readFile(path.join(this.templatesDir, 'app.build.gradle'));
@@ -2485,10 +2518,273 @@ class AndroidBuilder extends Builder {
 			libDependencyStrings: this.libDependencyStrings,
 			mavenRepositoryUrls: this.mavenRepositoryUrls,
 			ndkAbiArray: this.abis,
-			proguardFilePaths: this.proguardConfigFile ? [ this.proguardConfigFile ] : null,
+			minifyEnabled: this.proguard,
+			shrinkResources: this.proguard && this.shrinkResources,
 			tiSdkAndroidDir: this.platformPath
 		});
 		await fs.writeFile(path.join(this.buildAppDir, 'build.gradle'), buildGradleContent);
+	}
+
+	/**
+	 * Generates the R8/ProGuard keep rule files applied when code optimization is enabled.
+	 *
+	 * Copies the SDK's default "titanium.keep" rules and the app's optional
+	 * "platform/android/proguard.cfg" file to the app project's "src/main/keepRules"
+	 * directory, where AGP automatically picks up all "*.keep" files.
+	 *
+	 * Also generates a "resources.keep" file there which keeps the "R" class of the app,
+	 * and a "bindings.keep" file which keeps the Titanium kroll binding
+	 * classes. By default it only keeps the SDK modules accessed by the app's JavaScript
+	 * code (plus the ones the SDK's bootstrap scripts need), allowing R8 to remove unused
+	 * SDK modules such as Ti.Calendar or Ti.Contacts from the app. If the
+	 * "android.optimization.stripUnusedApis" tiapp property is set to false, it keeps all
+	 * of them.
+	 * @returns {Promise<void>}
+	 */
+	async generateKeepRuleFiles() {
+		if (!this.proguard) {
+			return;
+		}
+		const keepRulesDirPath = path.join(this.buildAppMainDir, 'keepRules');
+		await fs.ensureDir(keepRulesDirPath);
+		const tiKeepFilePath = path.join(keepRulesDirPath, 'titanium.keep');
+		await fs.copyFile(path.join(this.templatesDir, 'titanium.keep'), tiKeepFilePath);
+		this.unmarkBuildDirFile(tiKeepFilePath);
+		if (this.proguardConfigFile) {
+			const appKeepFilePath = path.join(keepRulesDirPath, 'app.keep');
+			await fs.copyFile(this.proguardConfigFile, appKeepFilePath);
+			this.unmarkBuildDirFile(appKeepFilePath);
+		}
+
+		// Generate the "resources.keep" file, keeping the "R" class of the app which
+		// Titanium reads by name via reflection to look up resource IDs. For some resource
+		// types it only keeps the resources of the app, the Titanium SDK and native modules.
+		const resourcesKeepFilePath = path.join(keepRulesDirPath, 'resources.keep');
+		const resourceEntries = await this.getTitaniumResourceEntries();
+		await fs.writeFile(resourcesKeepFilePath, generateResourceClassKeepRules(this.appid, resourceEntries));
+		this.unmarkBuildDirFile(resourcesKeepFilePath);
+
+		// Load the SDK's binding class information if unused API stripping is enabled.
+		// If it cannot be loaded, then fall back to keeping all Titanium APIs.
+		let sdkBindings = null;
+		if (this.proguardStripUnusedApis) {
+			const sdkBindingsFilePath = path.join(this.platformPath, 'titanium.bindings.json');
+			try {
+				sdkBindings = await fs.readJson(sdkBindingsFilePath);
+			} catch (err) {
+				this.logger.warn(`Unable to read "${sdkBindingsFilePath}". Keeping all Titanium APIs. Reason: ${err.message}`);
+			}
+		}
+
+		// Fetch the binding class information from all native modules used by the app.
+		// Their classes are always kept since their bundled JS is not guaranteed to be analyzed.
+		const moduleBindingsList = [];
+		if (sdkBindings) {
+			for (const module of this.modules) {
+				if (module.native) {
+					const javaBindings = await this.loadModuleJavaBindings(module);
+					if (javaBindings) {
+						moduleBindingsList.push(javaBindings);
+					}
+				}
+			}
+		}
+
+		// Generate the "bindings.keep" file, keeping either all Titanium binding classes
+		// or only the ones used by the app's JavaScript code.
+		const keepRuleInfo = generateBindingsKeepRules({
+			tiSymbols: this.tiSymbols,
+			sdkBindings: sdkBindings,
+			moduleBindingsList: moduleBindingsList,
+			stripUnusedApis: this.proguardStripUnusedApis && !!sdkBindings
+		});
+		if (keepRuleInfo.strippedNamespaces.length > 0) {
+			this.logger.info(`R8 will strip unused Titanium namespaces: ${keepRuleInfo.strippedNamespaces.map(name => 'Ti.' + name).join(', ').cyan}`);
+		}
+		if (keepRuleInfo.unresolvedNamespaces.length > 0) {
+			this.logger.debug(`Accessed Titanium namespaces without an SDK Java package (kept via other rules): ${keepRuleInfo.unresolvedNamespaces.join(', ')}`);
+		}
+		const bindingsKeepFilePath = path.join(keepRulesDirPath, 'bindings.keep');
+		await fs.writeFile(bindingsKeepFilePath, keepRuleInfo.content);
+		this.unmarkBuildDirFile(bindingsKeepFilePath);
+	}
+
+	/**
+	 * Fetches "@<type>/<name>" references to all resources under the given "res" directory.
+	 * @param {string} resDirPath Path to an Android "res" directory. Does not have to exist.
+	 * @param {string} [skipFileName] Name of a file to be ignored in all of its subdirectories.
+	 * @returns {Promise<string[]>} Array of resource references. Empty if none were found.
+	 */
+	async getResourceEntriesFromDir(resDirPath, skipFileName) {
+		const entries = [];
+		if (!(await fs.exists(resDirPath))) {
+			return entries;
+		}
+		for (const folderName of await fs.readdir(resDirPath)) {
+			const folderPath = path.join(resDirPath, folderName);
+			if (!(await fs.stat(folderPath)).isDirectory()) {
+				continue;
+			}
+			const resourceType = getResourceTypeFromFolderName(folderName);
+			if (!resourceType) {
+				continue;
+			}
+			for (const fileName of await fs.readdir(folderPath)) {
+				if (fileName === skipFileName) {
+					continue;
+				}
+				const filePath = path.join(folderPath, fileName);
+				if (!(await fs.stat(filePath)).isFile()) {
+					continue;
+				}
+				if (resourceType === 'values') {
+					if (fileName.toLowerCase().endsWith('.xml')) {
+						const fileContent = await fs.readFile(filePath);
+						entries.push(...getValuesResourceEntries(fileContent.toString()));
+					}
+				} else {
+					const entry = getFileResourceEntry(resourceType, fileName);
+					if (entry) {
+						entries.push(entry);
+					}
+				}
+			}
+		}
+		return entries;
+	}
+
+	/**
+	 * Fetches "@<type>/<name>" references to all resources bundled in the given AAR file.
+	 * These are the library's own resources, without the ones of its dependencies.
+	 * @param {string} aarFilePath Path to an Android library AAR file.
+	 * @returns {Promise<string[]>} Array of resource references. Empty if none were found.
+	 */
+	async getResourceEntriesFromAar(aarFilePath) {
+		const yauzl = await import('yauzl');
+		return new Promise((resolve, reject) => {
+			yauzl.open(aarFilePath, { lazyEntries: true }, (err, zipfile) => {
+				if (err) {
+					return reject(err);
+				}
+				const entries = [];
+				zipfile.once('error', reject);
+				zipfile.once('end', () => resolve(entries));
+				zipfile.on('entry', zipEntry => {
+					// Only handle "res/<folder>/<file>" entries.
+					const pathParts = zipEntry.fileName.split('/');
+					if ((pathParts.length !== 3) || (pathParts[0] !== 'res') || !pathParts[2]) {
+						zipfile.readEntry();
+						return;
+					}
+					const resourceType = getResourceTypeFromFolderName(pathParts[1]);
+					if (resourceType !== 'values') {
+						const entry = getFileResourceEntry(resourceType, pathParts[2]);
+						if (entry) {
+							entries.push(entry);
+						}
+						zipfile.readEntry();
+						return;
+					}
+					if (!pathParts[2].toLowerCase().endsWith('.xml')) {
+						zipfile.readEntry();
+						return;
+					}
+					zipfile.openReadStream(zipEntry, (err, readStream) => {
+						if (err) {
+							return reject(err);
+						}
+						const chunks = [];
+						readStream.once('error', reject);
+						readStream.on('data', chunk => chunks.push(chunk));
+						readStream.on('end', () => {
+							entries.push(...getValuesResourceEntries(Buffer.concat(chunks).toString('utf8')));
+							zipfile.readEntry();
+						});
+					});
+				});
+				zipfile.readEntry();
+			});
+		});
+	}
+
+	/**
+	 * Fetches "@<type>/<name>" references to the resources of the app, the Titanium SDK and
+	 * the app's native modules. Titanium and native modules look these up by name at runtime.
+	 * Does not include the resources of other libraries such as Material or AppCompat.
+	 *
+	 * Must be called after all "res" files have been generated/copied for the app project.
+	 * @returns {Promise<string[]>} Array of resource references. Can contain duplicates.
+	 */
+	async getTitaniumResourceEntries() {
+		// Fetch the resources of the app project.
+		const entries = await this.getResourceEntriesFromDir(this.buildAppMainResDir);
+
+		// Fetch the resources of the Titanium SDK library and of all native modules. A module
+		// provides them in its AAR files and/or in its "platform/android/res" directory.
+		const libraryDirPaths = [ path.join(this.platformPath, 'm2repository') ];
+		for (const module of (this.modules || [])) {
+			if (module.native) {
+				libraryDirPaths.push(module.modulePath);
+				entries.push(...await this.getResourceEntriesFromDir(path.join(module.modulePath, 'platform', 'android', 'res')));
+			}
+		}
+		const aarFilePaths = [];
+		const findAarFiles = async (dirPath) => {
+			if (!(await fs.exists(dirPath))) {
+				return;
+			}
+			for (const dirEntry of await fs.readdir(dirPath, { withFileTypes: true })) {
+				const entryPath = path.join(dirPath, dirEntry.name);
+				if (dirEntry.isDirectory()) {
+					await findAarFiles(entryPath);
+				} else if (dirEntry.isFile() && dirEntry.name.toLowerCase().endsWith('.aar')) {
+					aarFilePaths.push(entryPath);
+				}
+			}
+		};
+		for (const libraryDirPath of libraryDirPaths) {
+			await findAarFiles(libraryDirPath);
+		}
+		for (const aarFilePath of aarFilePaths) {
+			try {
+				entries.push(...await this.getResourceEntriesFromAar(aarFilePath));
+			} catch (err) {
+				this.logger.warn(`Unable to read the resources of "${aarFilePath}". Reason: ${err.message}`);
+			}
+		}
+		return entries;
+	}
+
+	/**
+	 * Generates a "res/raw/titanium_keep.xml" file listing all of the app's own resources
+	 * via the resource shrinker's "tools:keep" attribute, unless resource shrinking is
+	 * disabled via the "android.optimization.shrinkResources" tiapp property.
+	 *
+	 * Titanium resolves the app's "res" entries by name at runtime via reflection
+	 * (e.g. "TiRHelper" and i18n string lookups), which gradle's resource shrinker cannot
+	 * detect. So, all resources contributed by the app project itself must be kept.
+	 * Resources of libraries (e.g. Material, AppCompat) are not listed and can be shrunk.
+	 *
+	 * Must be called after all "res" files have been generated/copied for the app project.
+	 * @returns {Promise<void>}
+	 */
+	async generateResourceKeepXmlFile() {
+		if (!this.proguard || !this.shrinkResources) {
+			return;
+		}
+
+		// Fetch "@<type>/<name>" references to all resources under the app's "res" directory.
+		const KEEP_FILE_NAME = 'titanium_keep.xml';
+		const entries = await this.getResourceEntriesFromDir(this.buildAppMainResDir, KEEP_FILE_NAME);
+
+		// Generate the keep XML file under the "res/raw" directory.
+		const uniqueEntryCount = (new Set(entries)).size;
+		this.logger.info(`Resource shrinking enabled. Generated "${KEEP_FILE_NAME.cyan}" keeping ${uniqueEntryCount} app resources.`);
+		const keepXmlDirPath = path.join(this.buildAppMainResDir, 'raw');
+		await fs.ensureDir(keepXmlDirPath);
+		const keepXmlFilePath = path.join(keepXmlDirPath, KEEP_FILE_NAME);
+		await fs.writeFile(keepXmlFilePath, generateKeepXmlContent(entries));
+		this.unmarkBuildDirFile(keepXmlFilePath);
 	}
 
 	/**
@@ -3082,6 +3378,65 @@ class AndroidBuilder extends Builder {
 		});
 	}
 
+	/**
+	 * Reads the given native module's Java bindings JSON file, which lists the module's
+	 * kroll module/proxy binding classes generated by the "kroll-apt" annotation processor.
+	 * Reads the "<module.name>.json" file in the module's root directory if it exists or
+	 * else the JSON file embedded within the module's main JAR file. Results are cached.
+	 * @param {object} module A native module entry from this builder's "modules" array.
+	 * @returns {Promise<Object|null>} Parsed bindings JSON providing "proxies" and "modules"
+	 *                                 dictionaries, or null if it could not be read.
+	 */
+	async loadModuleJavaBindings(module) {
+		if (!this._moduleJavaBindingsCache) {
+			this._moduleJavaBindingsCache = new Map();
+		}
+		if (this._moduleJavaBindingsCache.has(module.modulePath)) {
+			return this._moduleJavaBindingsCache.get(module.modulePath);
+		}
+
+		let javaBindings = null;
+		const moduleName = module.manifest.name;
+		{
+			// Check if a "<module.name>.json" file exists in the module's root directory.
+			const jsonFilePath = path.join(module.modulePath, moduleName + '.json');
+			try {
+				if (await fs.exists(jsonFilePath)) {
+					const fileContent = await fs.readFile(jsonFilePath);
+					if (fileContent) {
+						javaBindings = JSON.parse(fileContent);
+					} else {
+						this.logger.error(`Failed to read module "${module.id}" file "${jsonFilePath}"`);
+					}
+				}
+			} catch (ex) {
+				this.logger.error(`Error accessing module "${
+					module.id
+				}" file "${
+					jsonFilePath
+				}". Reason: ${
+					ex.message
+				}`);
+			}
+		}
+		if (!javaBindings) {
+			// Check if a JSON file is embedded within the module's main JAR file.
+			const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
+			try {
+				if (await fs.exists(jarFilePath)) {
+					javaBindings = await this.getNativeModuleBindings(jarFilePath);
+				}
+			} catch (ex) {
+				this.logger.error(`The module "${module.id}" has an invalid jar file: ${jarFilePath}`);
+			}
+		}
+		if (!javaBindings || !javaBindings.modules || !javaBindings.proxies) {
+			javaBindings = null;
+		}
+		this._moduleJavaBindingsCache.set(module.modulePath, javaBindings);
+		return javaBindings;
+	}
+
 	async generateJavaFiles() {
 		this.logger.info('Generating Java files');
 
@@ -3102,42 +3457,8 @@ class AndroidBuilder extends Builder {
 			}
 
 			// Attempt to read the module's Java bindings JSON file.
-			let javaBindings = null;
-			const moduleName = module.manifest.name;
-			{
-				// Check if a "<module.name>.json" file exists in the module's root directory.
-				const jsonFilePath = path.join(module.modulePath, moduleName + '.json');
-				try {
-					if (await fs.exists(jsonFilePath)) {
-						const fileContent = await fs.readFile(jsonFilePath);
-						if (fileContent) {
-							javaBindings = JSON.parse(fileContent);
-						} else {
-							this.logger.error(`Failed to read module "${module.id}" file "${jsonFilePath}"`);
-						}
-					}
-				} catch (ex) {
-					this.logger.error(`Error accessing module "${
-						module.id
-					}" file "${
-						jsonFilePath
-					}". Reason: ${
-						ex.message
-					}`);
-				}
-			}
+			const javaBindings = await this.loadModuleJavaBindings(module);
 			if (!javaBindings) {
-				// Check if a JSON file is embedded within the module's main JAR file.
-				const jarFilePath = path.join(module.modulePath, moduleName + '.jar');
-				try {
-					if (await fs.exists(jarFilePath)) {
-						javaBindings = await this.getNativeModuleBindings(jarFilePath);
-					}
-				} catch (ex) {
-					this.logger.error(`The module "${module.id}" has an invalid jar file: ${jarFilePath}`);
-				}
-			}
-			if (!javaBindings || !javaBindings.modules || !javaBindings.proxies) {
 				continue;
 			}
 
@@ -3901,6 +4222,18 @@ class AndroidBuilder extends Builder {
 			// Set path to the app-bundle file that was built up above.
 			// Our "package.js" event hook will later copy it to the developer's chosen destination directory.
 			this.aabFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'bundle', 'release', 'app-release.aab');
+
+			// When R8 code optimization is enabled, an obfuscation "mapping.txt" file is produced.
+			// It is needed to retrace obfuscated crash stack traces and can be uploaded to the Play Store.
+			// Our "package.js" event hook will later copy it to the developer's chosen destination directory.
+			if (this.proguard) {
+				this.mappingFile = path.join(this.buildDir, 'app', 'build', 'outputs', 'mapping', 'release', 'mapping.txt');
+				if (await fs.exists(this.mappingFile)) {
+					this.logger.info(`R8 obfuscation mapping file: ${this.mappingFile.cyan}`);
+				} else {
+					this.mappingFile = null;
+				}
+			}
 		}
 
 		// Verify that we can find the above built file(s).

@@ -25,7 +25,7 @@ android {
 	defaultConfig {
 		minSdkVersion 24
 		targetSdkVersion <%- compileSdkVersion %>
-		versionName '<%- moduleVersion %>'
+		versionName = '<%- moduleVersion %>'
 
 		// Add the following constants to Gradle generated "BuildConfig" Java class under module's namespace.
 		buildConfigField('String', 'TI_MODULE_AUTHOR', <%- '"\\"' + (moduleAuthor || '').replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
@@ -35,6 +35,13 @@ android {
 		buildConfigField('String', 'TI_MODULE_LICENSE', <%- '"\\"' + (moduleLicense || '').replace(/\\/g, '\\\\').replace(/"/g, '\\\\\\"') + '\\""' %>)
  		buildConfigField('String', 'TI_MODULE_NAME', '"<%- moduleName %>"')
 		buildConfigField('String', 'TI_MODULE_VERSION', '"<%- moduleVersion %>"')
+
+		// Bundle the module's optional R8/ProGuard consumer rules file into the AAR.
+		// These rules are automatically applied to apps built with code optimization enabled.
+		def consumerRulesFile = file('<%- consumerRulesFilePath.replace(/\\/g, '\\\\') %>')
+		if (consumerRulesFile.exists()) {
+			consumerProguardFiles consumerRulesFile
+		}
 
 		// Have the following ${placeholders} replaced in the module's "AndroidManifest.xml" file.
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
@@ -137,8 +144,8 @@ android {
 		}
 	}
 	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_17
-		targetCompatibility JavaVersion.VERSION_17
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
 	}
 	// Exclude the C++ runtime and Titanium kroll libraries for all architectures when packaging the AAR file.
 	// Avoids app build failure due to library file name collision. (Apps will use "titanium.aar" bundled *.so files.)
