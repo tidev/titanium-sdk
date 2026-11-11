@@ -220,23 +220,23 @@ There are a number of ways to get help with Titanium SDK.
 
 ### Official Documentation, Tutorials and Videos
 
-Please visit the official documentation site at [https://titaniumsdk.com](https://titaniumsdk.com) for the latest and historical documentation on Titanium SDK, Alloy and other modules.
+Please visit the official documentation site at https://titaniumsdk.com for the latest and historical documentation on Titanium SDK, Alloy and other modules.
 
 ### Slack / Developer Community
 
-Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://slack.tidev.io) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
+Community support and discussion about Titanium SDK is available on Slack at [TiSlack](https://titaniumsdk.com/slack) or at [GitHub Discussions](https://github.com/tidev/titanium-sdk/discussions).
 
 ### Social
 
-For the latest information, please follow us on [Bluesky](https://bsky.app/profile/titaniumsdk.com) or X: [@Titanium SDK](https://x.com/titaniumsdk) and [@TiDev](https://x.com/tidevio).
+For the latest information, please follow us on [Bluesky](https://bsky.app/profile/titaniumsdk.com) or [X](https://x.com/titaniumsdk).
 
 ### Blog
 
-The Titanium blog is located at https://tidev.io/blog.
+The Titanium blog is located at https://titaniumsdk.com/blog.
 
-### Commercial Support, Licensing
+### Commercial Support
 
-We give our software away for FREE! In order to do that, we have programs for companies that require additional level of assistance through training or commercial support, need special licensing or want additional levels of capabilities. Please visit the [TiDev Website](https://tidev.io) for more information about TiDev or email [info@tidev.io](mailto:info@tidev.io).
+Need help with a Titanium app? Take a look at our [Developer directory](https://titaniumsdk.com/directory) to find a Titanium expert.
 
 ## Building Locally
 
@@ -332,23 +332,23 @@ Source code contributions are always welcome! See [CONTRIBUTING.md](CONTRIBUTING
 set up a development environment, the coding standards we enforce, and how to get a pull request
 reviewed and merged.
 
-To protect the interests of the Titanium SDK contributors, Appcelerator, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any Appcelerator open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
+To protect the interests of the Titanium SDK contributors, TiDev, customers and end users we require contributors to sign a Contributors License Agreement (CLA) before we pull the changes into the main repository. Our CLA is simple and straightforward - it requires that the contributions you make to any TiDev open source project are properly licensed and that you have the legal authority to make those changes. This helps us significantly reduce future legal risk for everyone involved. It is easy, helps everyone, takes only a few minutes, and only needs to be completed once.
 
-Please visit https://tidev.io/contribute for more information.
+Please visit https://titaniumsdk.com/contribute for more information.
 You can digitally sign the CLA there.
 
 ### Donations
 
-Please consider supporting this project by making a charitable [donation](https://tidev.io/donate). The money you donate goes to compensate the skilled engineers and maintainers that keep this project going.
+Please consider supporting this project by making a charitable [donation](https://titaniumsdk.com/contribute). The money you donate goes to compensate the skilled engineers and maintainers that keep this project going.
 
 ### Code of Conduct
 
-TiDev wants to provide a safe and welcoming community for everyone to participate. Please see our [Code of Conduct](https://tidev.io/code-of-conduct) that applies to all contributors.
+TiDev wants to provide a safe and welcoming community for everyone to participate. Please see our [Code of Conduct](https://titaniumsdk.com/code-of-conduct) that applies to all contributors.
 
 ## Security
 
-If you find a security related issue, please send an email to [security@tidev.io](mailto:security@tidev.io) instead of publicly creating a ticket.
+If you find a security related issue, please send an email to [security@titaniumsdk.com](mailto:security@titaniumsdk.com) instead of publicly creating a ticket.
 
 ## Legal
 
-Titanium is a registered trademark of TiDev Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev Inc. on 4/7/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://tidev.io/legal.
+Titanium is a registered trademark of TiDev, Inc. All Titanium trademark and patent rights were transferred and assigned to TiDev, Inc. on 4/7/2022. Please see the LEGAL information about using our trademarks, privacy policy, terms of usage and other legal information at https://titaniumsdk.com/legal.
