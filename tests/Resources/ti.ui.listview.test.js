@@ -896,6 +896,95 @@ describe('Titanium.UI.ListView', function () {
 		}
 	});
 
+	it('ListSection.items manipulation (large data set)', () => {
+		// Rows that were never displayed must still be fully addressable through the section API.
+		const rowCount = 20000;
+		const dataItems = [];
+		for (let i = 0; i < rowCount; i++) {
+			dataItems.push({ properties: { title: `Row ${i}`, searchableText: `Row ${i}` } });
+		}
+		const section = Ti.UI.createListSection({ items: dataItems });
+		const listView = Ti.UI.createListView({ sections: [ section ] });
+
+		should(listView.sectionCount).be.eql(1);
+		should(section.items.length).be.eql(rowCount);
+		should(section.getItemAt(0).properties.title).be.eql('Row 0');
+		should(section.getItemAt(rowCount - 1).properties.title).be.eql(`Row ${rowCount - 1}`);
+		should(section.getItemAt(rowCount)).be.null();
+
+		section.appendItems([ { properties: { title: 'Appended' } } ]);
+		should(section.items.length).be.eql(rowCount + 1);
+		should(section.getItemAt(rowCount).properties.title).be.eql('Appended');
+
+		section.deleteItemsAt(0, 2);
+		should(section.items.length).be.eql(rowCount - 1);
+		should(section.getItemAt(0).properties.title).be.eql('Row 2');
+
+		section.insertItemsAt(1, [ { properties: { title: 'Inserted' } } ]);
+		should(section.getItemAt(1).properties.title).be.eql('Inserted');
+		should(section.getItemAt(2).properties.title).be.eql('Row 3');
+
+		section.updateItemAt(2, { properties: { title: 'Updated' } });
+		should(section.getItemAt(2).properties.title).be.eql('Updated');
+		should(section.getItemAt(3).properties.title).be.eql('Row 4');
+
+		section.items = [];
+		should(section.items.length).be.eql(0);
+	});
+
+	it('ListSection.items manipulation (while displayed)', finish => {
+		// Mutations on a displayed section update the native list incrementally.
+		const section = Ti.UI.createListSection({
+			headerTitle: 'Header',
+			footerTitle: 'Footer',
+			items: [
+				{ properties: { title: 'B' } },
+				{ properties: { title: 'A' } },
+				{ properties: { title: 'E' } },
+				{ properties: { title: 'G' } }
+			]
+		});
+		const listView = Ti.UI.createListView({ sections: [ section ] });
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+
+		win.addEventListener('open', () => {
+			try {
+				section.updateItemAt(0, { properties: { title: 'A' } });
+				section.updateItemAt(1, { properties: { title: 'B' } });
+				section.updateItemAt(3, { properties: { title: 'F' } });
+				section.insertItemsAt(2, [ { properties: { title: 'C' } }, { properties: { title: 'D' } } ]);
+				section.deleteItemsAt(0, 1);
+				section.deleteItemsAt(3, 2);
+				section.appendItems([ { properties: { title: 'E' } }, { properties: { title: 'F' } } ]);
+				section.insertItemsAt(0, [ { properties: { title: 'A' } } ]);
+				section.replaceItemsAt(1, 1, [ { properties: { title: 'B' } } ]);
+
+				const validation = [ 'A', 'B', 'C', 'D', 'E', 'F' ];
+				const items = listView.sections[0].items;
+				should(items.length).be.eql(validation.length);
+				for (let i = 0; i < items.length; i++) {
+					should(items[i].properties.title).be.eql(validation[i]);
+				}
+
+				section.items = [ { properties: { title: 'X' } } ];
+				should(listView.sections[0].items.length).be.eql(1);
+				should(listView.sections[0].items[0].properties.title).be.eql('X');
+
+				section.items = [];
+				should(listView.sections[0].items.length).be.eql(0);
+
+				section.appendItems([ { properties: { title: 'Y' } } ]);
+				should(listView.sections[0].items[0].properties.title).be.eql('Y');
+			} catch (err) {
+				return finish(err);
+			}
+			finish();
+		});
+
+		win.add(listView);
+		win.open();
+	});
+
 	it('ListSection.items manipulation (header & footer)', () => {
 		const section = Ti.UI.createListSection({
 			headerTitle: 'HEADER',

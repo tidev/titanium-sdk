@@ -20,13 +20,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListItemProxy>
+public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListItemEntry>
 {
 	private static final String TAG = "ListViewAdapter";
 
 	private final TreeMap<String, LinkedList<ListItemProxy>> recyclableItemsMap = new TreeMap<>();
 
-	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemProxy> models)
+	public ListViewAdapter(@NonNull Context context, @NonNull List<ListItemEntry> models)
 	{
 		super(context, models);
 
@@ -49,14 +49,22 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 	@Override
 	public int getItemViewType(int position)
 	{
-		ListItemProxy proxy = this.models.get(position);
-		if (proxy != null) {
-			String templateId = proxy.getTemplateId();
-			if (templateId != null) {
-				return templateId.hashCode();
-			}
+		final ListItemEntry entry = this.models.get(position);
+		if (entry != null) {
+			// Resolved from the raw data item. Does not create the item proxy.
+			return entry.getTemplateId().hashCode();
 		}
 		return 0;
+	}
+
+	/**
+	 * Entries are immutable identities: changing a row's data replaces its entry, which
+	 * areItemsTheSame() already reports as a different item. Same entry means same content.
+	 */
+	@Override
+	protected boolean areContentsTheSame(@NonNull ListItemEntry oldModel, @NonNull ListItemEntry newModel)
+	{
+		return true;
 	}
 
 	/**
@@ -69,9 +77,10 @@ public class ListViewAdapter extends TiRecyclerViewAdapter<ListViewHolder, ListI
 	@Override
 	public void onBindViewHolder(@NonNull ListViewHolder holder, int position)
 	{
-		// Fetch item proxy for given list position.
-		final ListItemProxy item = this.models.get(position);
-		final boolean selected = this.tracker != null ? this.tracker.isSelected(item) : false;
+		// Fetch item proxy for given list position. This creates the proxy if the row was never shown.
+		final ListItemEntry entry = this.models.get(position);
+		final boolean selected = this.tracker != null ? this.tracker.isSelected(entry) : false;
+		final ListItemProxy item = entry.getProxy();
 
 		// Check if we have any recyclable items for the current template.
 		LinkedList<ListItemProxy> recyclableItems = this.recyclableItemsMap.get(item.getTemplateId());
