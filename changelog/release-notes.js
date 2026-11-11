@@ -16,6 +16,19 @@
  *
  * With no --out it prints to stdout, which is how to look at one without
  * writing anything. --no-fetch skips the git fetch below, for running offline.
+ *
+ * ## Where the body comes from
+ *
+ * The release's section of CHANGELOG.md, when the branch has one. The release
+ * process (maintainer-docs/releasing-the-sdk.md) generates that section,
+ * hand-edits it - the About paragraph, attributions, commit messages that do
+ * not describe their change - and merges it before releasing. Regenerating from
+ * the commits here would throw those edits away and publish the raw output, so
+ * the edited section is the note.
+ *
+ * Generated from the commits otherwise, as before: a release that skipped the
+ * changelog step still gets a note, just an unedited one. --from-commits forces
+ * that, for comparing the two.
  */
 
 import { execFileSync, spawn } from 'node:child_process';
@@ -35,6 +48,7 @@ function arg(name, fallback) {
 
 const channel = arg('channel', 'GA');
 const out = arg('out');
+const fromCommits = process.argv.includes('--from-commits');
 
 /**
  * Brings the tags — and the history behind them — into the clone.
@@ -105,11 +119,47 @@ function generateChangelog() {
 	});
 }
 
-if (!process.argv.includes('--no-fetch')) {
-	fetchTags();
+/**
+ * This version's section of CHANGELOG.md, heading included, or null.
+ *
+ * A version's heading is `# [14.0.0](compare-url) (date)`, or `##` for a patch,
+ * and its section runs to the next version's heading. The headings inside a
+ * section (`## About this release`, `### iOS platform`) do not start with a
+ * version, so they do not end it.
+ *
+ * @returns {string|null}
+ */
+function changelogSection() {
+	let changelog;
+	try {
+		changelog = fs.readFileSync(join(repoRoot, 'CHANGELOG.md'), 'utf8');
+	} catch {
+		return null;
+	}
+	const escaped = version.replace(/\./g, '\\.');
+	const start = new RegExp(`^#{1,6}\\s+\\[?${escaped}\\]?(?:\\(.*?\\))?\\s+\\(\\d{4}-\\d{2}-\\d{2}\\)\\s*$`, 'm').exec(changelog);
+	if (!start) {
+		return null;
+	}
+	const rest = changelog.slice(start.index + start[0].length);
+	const next = /^#{1,6}\s+\[?\d+\.\d+\.\d+\]?[\s(]/m.exec(rest);
+	return changelog.slice(start.index, start.index + start[0].length + (next ? next.index : rest.length));
 }
 
-const body = await generateChangelog();
+const section = fromCommits ? null : changelogSection();
+let body;
+if (section) {
+	console.error(`using the ${version} section of CHANGELOG.md`);
+	body = section;
+} else {
+	console.error(fromCommits
+		? '--from-commits: generating from the commits'
+		: `no ${version} section in CHANGELOG.md; generating from the commits`);
+	if (!process.argv.includes('--no-fetch')) {
+		fetchTags();
+	}
+	body = await generateChangelog();
+}
 
 // `# [14.0.0](https://.../compare/13_4_1_GA...14.0.0) (2026-09-04)` — or `##`
 // for a patch. The date is the only thing taken from it; the heading itself is
