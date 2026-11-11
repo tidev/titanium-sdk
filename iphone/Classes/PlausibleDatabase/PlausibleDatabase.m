@@ -13,7 +13,7 @@
  * 3. Neither the name of the copyright holder nor the names of any contributors
  *    may be used to endorse or promote products derived from this
  *    software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -29,7 +29,7 @@
 
 #import "PlausibleDatabase.h"
 
-/** 
+/**
  * Generic Database Exception
  * @ingroup exceptions
  */
@@ -46,12 +46,12 @@ NSString *PLDatabaseErrorDomain = @"com.plausiblelabs.pldatabase";
 NSString *PLDatabaseErrorQueryStringKey = @"com.plausiblelabs.pldatabase.error.query.string";
 
 /**
-  * Key to retrieve the native database error code from an NSError in the PLDatabaseErrorDomain, as an NSNumber
-  * @ingroup globals
-  */
+ * Key to retrieve the native database error code from an NSError in the PLDatabaseErrorDomain, as an NSNumber
+ * @ingroup globals
+ */
 NSString *PLDatabaseErrorVendorErrorKey = @"com.plausiblelabs.pldatabase.error.vendor.code";
 
-/** 
+/**
  * Key to retrieve the native database error string from an NSError in the PLDatabaseErrorDomain, as an NSString
  * @ingroup globals
  */
@@ -75,25 +75,26 @@ NSString *PLDatabaseErrorVendorStringKey = @"com.plausiblelabs.pldatabase.error.
  * @param nativeString The native SQL driver's non-localized error string.
  * @return A NSError that may be returned to the API caller.
  */
-+ (NSError *) errorWithCode: (PLDatabaseError) errorCode localizedDescription: (NSString *) localizedDescription 
-                queryString: (NSString *) queryString vendorError: (NSNumber *) vendorError
-                vendorErrorString: (NSString *) vendorErrorString 
++ (NSError *)errorWithCode:(PLDatabaseError)errorCode localizedDescription:(NSString *)localizedDescription
+               queryString:(NSString *)queryString
+               vendorError:(NSNumber *)vendorError
+         vendorErrorString:(NSString *)vendorErrorString
 {
-    NSMutableDictionary *userInfo;
+  NSMutableDictionary *userInfo;
 
-    /* Create the userInfo dictionary */
-    userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys: 
-                localizedDescription, NSLocalizedDescriptionKey,
-                vendorError, TI_PLDatabaseErrorVendorErrorKey,
-                vendorErrorString, TI_PLDatabaseErrorVendorStringKey,
-                nil];
-    
-    /* Optionally insert the query string. */
-    if (queryString != nil)
-        [userInfo setObject: queryString forKey: TI_PLDatabaseErrorQueryStringKey];
-    
-    /* Return the NSError */
-    return [NSError errorWithDomain: TI_PLDatabaseErrorDomain code: errorCode userInfo: userInfo];
+  /* Create the userInfo dictionary */
+  userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                      localizedDescription, NSLocalizedDescriptionKey,
+                                  vendorError, TI_PLDatabaseErrorVendorErrorKey,
+                                  vendorErrorString, TI_PLDatabaseErrorVendorStringKey,
+                                  nil];
+
+  /* Optionally insert the query string. */
+  if (queryString != nil)
+    [userInfo setObject:queryString forKey:TI_PLDatabaseErrorQueryStringKey];
+
+  /* Return the NSError */
+  return [NSError errorWithDomain:TI_PLDatabaseErrorDomain code:errorCode userInfo:userInfo];
 }
 
 @end

@@ -8,7 +8,6 @@
 #import "TiUIView.h"
 
 @interface ___FILEBASENAMEASIDENTIFIER___ : TiUIView {
-
 }
 
 @end
