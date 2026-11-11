@@ -170,7 +170,7 @@ events:
     description: |
         Fires when the scene transitions to the active state, meaning it is in the
         foreground and receiving user input events. This is the per-scene equivalent
-        of the legacy [resumed](Titanium.App.iOS.resumed) event and mirrors
+        of the legacy [resumed](Titanium.App.resumed) event and mirrors
         [Titanium.UI.Window.focus](Titanium.UI.Window.focus) at the scene level.
 
         Add a listener via `scene.addEventListener('focus', fn)`. The
@@ -192,7 +192,7 @@ events:
         Fires when the scene is about to lose its active status, for example when a
         system overlay (like the notification center) covers the scene or when the
         user switches to another scene. This is the per-scene equivalent of the
-        legacy [pause](Titanium.App.iOS.pause) event and mirrors
+        legacy [pause](Titanium.App.pause) event and mirrors
         [Titanium.UI.Window.blur](Titanium.UI.Window.blur) at the scene level.
 
         Add a listener via `scene.addEventListener('blur', fn)`.
@@ -212,7 +212,7 @@ events:
     description: |
         Fires when the scene is no longer visible on screen. This can happen when
         the user switches to another app or when the scene is dismissed. This is
-        the per-scene equivalent of the legacy [paused](Titanium.App.iOS.paused)
+        the per-scene equivalent of the legacy [paused](Titanium.App.paused)
         event.
 
         Add a listener via `scene.addEventListener('paused', fn)`.
@@ -232,7 +232,7 @@ events:
     description: |
         Fires when the scene transitions from the background to the foreground,
         meaning it becomes visible on screen but may not yet be active. This is
-        the per-scene equivalent of the legacy [resume](Titanium.App.iOS.resume)
+        the per-scene equivalent of the legacy [resume](Titanium.App.resume)
         event.
 
         Add a listener via `scene.addEventListener('resumed', fn)`.
