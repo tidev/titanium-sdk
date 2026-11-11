@@ -300,7 +300,13 @@ jobs:
         if: steps.existing.outputs.exists != 'true'
         run: |
           VERSION="${vtag%.GA}"
-          node titaniumsdk.com/scripts/new-release-post.ts --version "${VERSION}"
+          # The note's date, not today's. The note takes its date from the
+          # CHANGELOG.md heading, which can be days before the run, and
+          # release-notes-ready moves a date to the release day only where it
+          # still matches the note's. The two have to start out equal for both
+          # to be moved.
+          DATE=$(sed -n 's/^date: *//p' "titaniumsdk.com/registry/sdk/${VERSION}/release-notes.md" | head -1)
+          node titaniumsdk.com/scripts/new-release-post.ts --version "${VERSION}" ${DATE:+--date "$DATE"}
 
       - name: Open the pull request
         if: steps.existing.outputs.exists != 'true'
