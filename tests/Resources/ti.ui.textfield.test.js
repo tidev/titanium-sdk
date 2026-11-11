@@ -40,6 +40,38 @@ describe('Titanium.UI.TextField', () => {
 			});
 		});
 
+		describe('.customActions', () => {
+			it('is undefined by default', () => {
+				const textField = Ti.UI.createTextField();
+				should(textField.customActions).be.undefined();
+			});
+
+			it('can be initialized', () => {
+				const textField = Ti.UI.createTextField({ customActions: [ 'Action 1', 'Action 2' ] });
+				should(textField.customActions).be.an.Array();
+				should(textField.customActions).eql([ 'Action 1', 'Action 2' ]);
+			});
+
+			it('can be changed dynamically', (finish) => {
+				const textField = Ti.UI.createTextField({ value: 'Titanium' });
+				win = Ti.UI.createWindow({ backgroundColor: '#fff' });
+				win.add(textField);
+				win.addEventListener('postlayout', function listener() {
+					try {
+						win.removeEventListener('postlayout', listener);
+						textField.customActions = [ 'Action 1' ];
+						should(textField.customActions).eql([ 'Action 1' ]);
+						textField.customActions = null;
+						should(textField.customActions).be.null();
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+		});
+
 		describe('.enableCopy', () => {
 			it('is a Boolean', () => {
 				const textField = Ti.UI.createTextField();
