@@ -12,7 +12,7 @@ import path from 'node:path';
 import sprintf from 'sprintf';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import fields from 'fields';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateModuleManifest } from '../lib/validate-module-manifest.js';
 import { validatePlatformOptions } from '../lib/validate-platform-options.js';
 import { loadPlugins } from '../lib/load-plugins.js';
@@ -228,7 +228,7 @@ export async function run(logger, config, cli) {
 		await cli.emit(`clean.module.${platform}.pre`);
 
 		// Do the actual cleaning per-sdk _cleanModule command
-		const { run: cleanModule2 } = await import(cleanModule);
+		const { run: cleanModule2 } = await import(pathToFileURL(cleanModule));
 		try {
 			await new Promise((resolve, reject) => {
 				cleanModule2(logger, config, cli, err => err ? reject(err) : resolve());
