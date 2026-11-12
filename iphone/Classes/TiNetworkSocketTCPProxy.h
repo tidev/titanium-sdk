@@ -29,6 +29,7 @@ typedef enum {
   NSCondition *listening;
 
   NSThread *socketThread;
+  BOOL destroying;
   // We have to have an explicit "host" property because of some 'fun' undocumented KVO
   // behavior - it turns out that KVO 'getters' also look for '-(type)_key' signature
   // selectors.  TiProxy has a '_host' function.
