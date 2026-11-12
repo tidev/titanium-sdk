@@ -5,7 +5,7 @@
 
 In order to build and debug the Titanium iOS project, the following steps should be
 done before the initial run:
-1. Make sure that the titanium_prep library is downloaded. To do so, run the following in `titanium_mobile/build`: 
+1. Make sure that the ti_prep library is downloaded. To do so, run the following in `titanium_mobile/build`: 
 ```bash
 npm install
 node scons.js cleanbuild ios

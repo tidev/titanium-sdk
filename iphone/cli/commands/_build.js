@@ -7183,7 +7183,7 @@ class iOSBuilder extends Builder {
 		this.logger.info('Encrypting JavaScript files');
 
 		if (!this.jsFilesChanged && destExists && prev && prev.size === destStat.size && prev.mtime === JSON.parse(JSON.stringify(destStat.mtime)) && prev.hash === this.hash(existingContent)) {
-			this.logger.info('No JavaScript file changes, skipping titanium_prep');
+			this.logger.info('No JavaScript file changes, skipping ti_prep');
 			this.currentBuildManifest.files[rel] = prev;
 			return next();
 		}
@@ -7198,7 +7198,7 @@ class iOSBuilder extends Builder {
 				function (cb) {
 					if (!completed && tries > 3) {
 						// we failed 3 times, so just give up
-						this.logger.error('titanium_prep failed to complete successfully');
+						this.logger.error('ti_prep failed to complete successfully');
 						this.logger.error('Try cleaning this project and build again\n');
 						process.exit(1);
 					}
@@ -7219,7 +7219,7 @@ class iOSBuilder extends Builder {
 
 					child.on('close', function (code) {
 						if (code) {
-							this.logger.error(`titanium_prep failed to run (${code})`);
+							this.logger.error(`ti_prep failed to run (${code})`);
 							this.logger.error(`${err}\n`);
 							process.exit(1);
 						}
@@ -7254,7 +7254,7 @@ class iOSBuilder extends Builder {
 							completed = true;
 						} else {
 							// failure, maybe it was a fluke, try again
-							this.logger.warn('titanium_prep failed to complete successfully, trying again');
+							this.logger.warn('ti_prep failed to complete successfully, trying again');
 							tries++;
 						}
 
@@ -7266,7 +7266,7 @@ class iOSBuilder extends Builder {
 		});
 
 		titaniumPrepHook(
-			path.join(this.platformPath, 'titanium_prep'),
+			path.join(this.platformPath, 'ti_prep'),
 			[ this.tiapp.id, this.buildAssetsDir, this.tiapp.guid ],
 			{},
 			next
