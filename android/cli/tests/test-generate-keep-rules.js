@@ -7,6 +7,7 @@
 
 import {
 	generateBindingsKeepRules,
+	generateHyperloopKeepRules,
 	generateResourceClassKeepRules,
 	getSdkNamespacePackages,
 	getUsedNamespaces
@@ -193,5 +194,33 @@ describe('generate-keep-rules', () => {
 			expect(moduleResult.content).to.contain('-keep class com.example.map.ViewProxy { *; }');
 			expect(moduleResult.content).to.not.contain('-keep class org.appcelerator.kroll.KrollModule { *; }');
 		});
+	});
+
+	it('generateHyperloopKeepRules()', () => {
+		const content = generateHyperloopKeepRules([
+			'hyperloop.bootstrap.js',
+			'com.js',
+			'com.facebook.js',
+			'com.facebook.shimmer.js',
+			'com.facebook.shimmer.Shimmer.js',
+			'com.facebook.shimmer.Shimmer$Builder.js',
+			'android.app.js',
+			'android.app.Activity.js',
+			'java.lang.Runnable.js',
+			'androidx.core.view.ViewCompat.js'
+		]);
+		expect(content).to.include('-keep class com.facebook.shimmer.Shimmer { *; }');
+		expect(content).to.include('-keep class com.facebook.shimmer.Shimmer$Builder { *; }');
+		expect(content).to.include('-keep class androidx.core.view.ViewCompat { *; }');
+		expect(content).to.not.include('-keep class com.facebook.shimmer {');
+		expect(content).to.not.include('-keep class com.facebook {');
+		expect(content).to.not.include('android.app');
+		expect(content).to.not.include('java.lang');
+		expect(content).to.not.include('bootstrap');
+	});
+
+	it('generateHyperloopKeepRules() without classes', () => {
+		expect(generateHyperloopKeepRules([])).to.equal('');
+		expect(generateHyperloopKeepRules([ 'android.app.Activity.js' ])).to.equal('');
 	});
 });

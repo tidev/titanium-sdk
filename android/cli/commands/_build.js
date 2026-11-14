@@ -17,7 +17,7 @@ import { detect as androidDetect } from '../lib/detect.js';
 import { AndroidManifest } from '../lib/android-manifest.js';
 import appc from 'node-appc';
 import async from 'async';
-import { generateBindingsKeepRules, generateResourceClassKeepRules } from '../lib/generate-keep-rules.js';
+import { generateBindingsKeepRules, generateHyperloopKeepRules, generateResourceClassKeepRules } from '../lib/generate-keep-rules.js';
 import { generateKeepXmlContent, getFileResourceEntry, getResourceTypeFromFolderName, getValuesResourceEntries } from '../lib/generate-keep-xml.js';
 import { Builder } from '../../../cli/lib/builder.js';
 import { GradleWrapper } from '../lib/gradle-wrapper.js';
@@ -2607,6 +2607,22 @@ class AndroidBuilder extends Builder {
 		const bindingsKeepFilePath = path.join(keepRulesDirPath, 'bindings.keep');
 		await fs.writeFile(bindingsKeepFilePath, keepRuleInfo.content);
 		this.unmarkBuildDirFile(bindingsKeepFilePath);
+
+		// Generate the "hyperloop.keep" file, keeping the Java classes which Hyperloop
+		// generated JS wrappers for. Hyperloop loads them by name via reflection.
+		const hyperloopFileNames = [];
+		for (const dirPath of this.pluginResourcesDirPaths || []) {
+			const hyperloopDirPath = path.join(dirPath, 'hyperloop');
+			if (await fs.exists(hyperloopDirPath)) {
+				hyperloopFileNames.push(...await fs.readdir(hyperloopDirPath));
+			}
+		}
+		const hyperloopKeepRules = generateHyperloopKeepRules(hyperloopFileNames);
+		if (hyperloopKeepRules) {
+			const hyperloopKeepFilePath = path.join(keepRulesDirPath, 'hyperloop.keep');
+			await fs.writeFile(hyperloopKeepFilePath, hyperloopKeepRules);
+			this.unmarkBuildDirFile(hyperloopKeepFilePath);
+		}
 	}
 
 	/**
@@ -2827,6 +2843,7 @@ class AndroidBuilder extends Builder {
 		// Fire an event requesting additional "Resources" paths from plugins. (used by Hyperloop)
 		this.logger.info('Analyzing plugin-contributed files');
 		this.htmlJsFiles = {}; // for Hyperloop to mark files it doesn't want processed
+		this.pluginResourcesDirPaths = []; // read by generateKeepRuleFiles() method
 		const hook = this.cli.createHook('build.android.requestResourcesDirPaths', this, async (paths, done) => {
 			try {
 				const newTasks = [];
@@ -2838,6 +2855,7 @@ class AndroidBuilder extends Builder {
 						if (!await fs.exists(nextPath) || !(await fs.stat(nextPath)).isDirectory()) {
 							continue;
 						}
+						this.pluginResourcesDirPaths.push(nextPath);
 						newTasks.push(
 							walker.walk(nextPath, this.buildAppMainAssetsResourcesDir)
 						);
