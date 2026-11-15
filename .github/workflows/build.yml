@@ -20,7 +20,7 @@ jobs:
       - name: Android build
         uses: ./.github/actions/build-android
         with:
-          node-version: '24'
+          node-version: '26'
           java-version: '21'
 
   ios:
@@ -36,7 +36,7 @@ jobs:
       - name: iOS build
         uses: ./.github/actions/build-ios
         with:
-          node-version: '24'
+          node-version: '26'
 
   js:
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
     - name: Use Node.js
       uses: actions/setup-node@v6
       with:
-        node-version: '24'
+        node-version: '26'
 
     - name: Install dependencies
       run: npm ci
@@ -75,6 +75,6 @@ jobs:
     - name: Package
       uses: ./.github/actions/package
       with:
-        node-version: '24'
+        node-version: '26'
         java-version: '21'
         vtag: ${{ env.vtag }}

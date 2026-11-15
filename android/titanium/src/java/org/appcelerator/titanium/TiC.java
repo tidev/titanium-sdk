@@ -325,6 +325,7 @@ public class TiC
 	public static final String PROPERTY_BLACKLISTED_URLS = "blacklistedURLs";
 	public static final String PROPERTY_BLOCKED_URLS = "blockedURLs";
 	public static final String PROPERTY_BORDER_COLOR = "borderColor";
+	public static final String PROPERTY_BORDER_DASH_PATTERN = "borderDashPattern";
 	public static final String PROPERTY_BORDER_PREFIX = "border";
 	public static final String PROPERTY_BORDER_RADIUS = "borderRadius";
 	public static final String PROPERTY_BORDER_STYLE = "borderStyle";
@@ -545,12 +546,14 @@ public class TiC
 	public static final String PROPERTY_LINE_SPACING = "lineSpacing";
 	public static final String PROPERTY_LIFECYCLE_CONTAINER = "lifecycleContainer";
 	public static final String PROPERTY_LIGHT_COLOR = "lightColor";
+	public static final String PROPERTY_LINK_COLOR = "linkColor";
 	public static final String PROPERTY_LOAD_URL = "loadUrl";
 	public static final String PROPERTY_LOOPING = "looping";
 	public static final String PROPERTY_LED_ARGB = "ledARGB";
 	public static final String PROPERTY_LED_OFF_MS = "ledOffMS";
 	public static final String PROPERTY_LED_ON_MS = "ledOnMS";
 	public static final String PROPERTY_LEFT = "left";
+	public static final String PROPERTY_LEFT_ADJUST = "leftAdjust";
 	public static final String PROPERTY_LEFT_BUTTON = "leftButton";
 	public static final String PROPERTY_LEFT_IMAGE = "leftImage";
 	public static final String PROPERTY_LEFT_VIEW = "leftView";
@@ -820,6 +823,7 @@ public class TiC
 	public static final String PROPERTY_TRANSLUCENT = "translucent";
 	public static final String PROPERTY_TRUE_HEADING = "trueHeading";
 	public static final String PROPERTY_TYPE = "type";
+	public static final String PROPERTY_UNDERLINE = "underline";
 	public static final String PROPERTY_UPDATE_CURRENT_INTENT = "updateCurrentIntent";
 	public static final String PROPERTY_URI = "uri";
 	public static final String PROPERTY_URL = "url";

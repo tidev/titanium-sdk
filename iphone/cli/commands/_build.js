@@ -4298,6 +4298,29 @@ class iOSBuilder extends Builder {
 					}
 				}, this);
 			}, this);
+
+			// Xcode 27.2+ refuses to open a project in which a file reference is a member of more
+			// than one group. The extension "Resources" and "Frameworks" children were pushed into
+			// the app's groups above and are copied again as part of the extension's own group
+			// tree, so drop every reference from the app's groups that already lives elsewhere.
+			const groupedRefs = new Set();
+			Object.keys(xobjs.PBXGroup).forEach(function (key) {
+				const group = xobjs.PBXGroup[key];
+				if (!group || typeof group !== 'object' || !Array.isArray(group.children) || group === resourcesGroup || group === frameworksGroup) {
+					return;
+				}
+				group.children.forEach(child => groupedRefs.add(child.value));
+			});
+			[ resourcesGroup, frameworksGroup ].forEach(function (group) {
+				const seen = new Set();
+				group.children = group.children.filter(function (child) {
+					if (groupedRefs.has(child.value) || seen.has(child.value)) {
+						return false;
+					}
+					seen.add(child.value);
+					return true;
+				});
+			});
 		} else {
 			this.logger.trace('No extensions to add');
 		}
