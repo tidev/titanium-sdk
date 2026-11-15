@@ -901,7 +901,13 @@ public class TiDrawableReference
 			stream = blob.getInputStream();
 		} else if (isTypeResourceId() && resourceId != UNKNOWN) {
 			try {
-				stream = TiApplication.getInstance().getResources().openRawResource(resourceId);
+				// Use the activity's resources. They follow "Ti.UI.overrideUserInterfaceStyle",
+				// while the application's resources only follow the system's light/dark mode.
+				Context context = TiApplication.getAppCurrentActivity();
+				if (context == null) {
+					context = TiApplication.getInstance();
+				}
+				stream = context.getResources().openRawResource(resourceId);
 			} catch (Resources.NotFoundException e) {
 				String errorMessage
 					= "Drawable resource could not be opened. Are you sure you have the resource for the current "
