@@ -251,7 +251,8 @@ public class AttributedStringProxy extends KrollProxy
 													} else {
 														// If it is not an Android Typeface, it is a custom font
 														Typeface font = TiUIHelper.toTypeface(
-															activity, fontProperties[TiUIHelper.FONT_FAMILY_POSITION]);
+															activity, fontProperties[TiUIHelper.FONT_FAMILY_POSITION],
+															fontProperties[TiUIHelper.FONT_WEIGHT_POSITION]);
 														spannableText.setSpan(new CustomTypefaceSpan(font), range[0],
 																			  range[0] + range[1],
 																			  Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
