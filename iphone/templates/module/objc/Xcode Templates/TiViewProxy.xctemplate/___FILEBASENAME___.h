@@ -8,6 +8,7 @@
 #import "TiViewProxy.h"
 
 @interface ___FILEBASENAMEASIDENTIFIER___ : TiViewProxy {
+
 }
 
 @end
