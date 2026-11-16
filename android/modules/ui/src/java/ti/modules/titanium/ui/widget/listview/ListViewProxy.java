@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -58,6 +58,7 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SEPARATOR_STYLE,
 		TiC.PROPERTY_SHOW_SELECTION_CHECK,
 		TiC.PROPERTY_SHOW_VERTICAL_SCROLL_INDICATOR,
+		TiC.PROPERTY_SNAPPING,
 		TiC.PROPERTY_TEMPLATES,
 		TiC.PROPERTY_TOUCH_FEEDBACK,
 		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
@@ -124,8 +125,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 			// Append ListSection array.
 			for (final Object o : (Object[]) sections) {
-				if (o instanceof ListSectionProxy) {
-					final ListSectionProxy section = (ListSectionProxy) o;
+				if (o instanceof ListSectionProxy section) {
 
 					section.setParent(this);
 					this.sections.add(section);
@@ -135,8 +135,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			// Notify ListView of new sections.
 			update();
 
-		} else if (sections instanceof ListSectionProxy) {
-			final ListSectionProxy section = (ListSectionProxy) sections;
+		} else if (sections instanceof ListSectionProxy section) {
 
 			// Append ListSection.
 			section.setParent(this);
@@ -171,8 +170,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		if (listView != null) {
 			final ListItemProxy item = listView.getAdapterItem(adapterIndex);
 			final TiViewProxy parentProxy = item.getParent();
-			if (parentProxy instanceof ListSectionProxy) {
-				final ListSectionProxy section = (ListSectionProxy) parentProxy;
+			if (parentProxy instanceof ListSectionProxy section) {
 				item.fireSyncEvent(TiC.EVENT_DELETE, null);
 				section.deleteItemsAt(item.getIndexInSection(), 1, null);
 			}
@@ -201,8 +199,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListItemProxy toItem = listView.getAdapterItem(toAdapterIndex);
 			final TiViewProxy parentProxy = toItem.getParent();
 
-			if (parentProxy instanceof ListSectionProxy) {
-				final ListSectionProxy toSection = (ListSectionProxy) parentProxy;
+			if (parentProxy instanceof ListSectionProxy toSection) {
 				final int toIndex = Math.max(toItem.getIndexInSection(), 0);
 
 				// Prevent updating items during move operations.
@@ -258,8 +255,7 @@ public class ListViewProxy extends RecyclerViewProxy
 			final ListItemProxy targetItemProxy = listView.getAdapterItem(adapterIndex);
 			if (targetItemProxy != null) {
 				final TiViewProxy targetParentProxy = targetItemProxy.getParent();
-				if (targetParentProxy instanceof ListSectionProxy) {
-					ListSectionProxy targetSectionProxy = (ListSectionProxy) targetParentProxy;
+				if (targetParentProxy instanceof ListSectionProxy targetSectionProxy) {
 					KrollDict data = new KrollDict();
 					data.put(TiC.PROPERTY_SECTION, this.moveEventInfo.sectionProxy);
 					data.put(TiC.PROPERTY_SECTION_INDEX, this.moveEventInfo.sectionIndex);
@@ -450,7 +446,7 @@ public class ListViewProxy extends RecyclerViewProxy
 		}
 	}
 
-	// NOTE: For internal use only.
+	@Kroll.getProperty
 	public KrollDict getContentOffset()
 	{
 		final TiListView listView = getListView();
@@ -562,6 +558,11 @@ public class ListViewProxy extends RecyclerViewProxy
 			if (listView != null) {
 				listView.setContinousUpdate(TiConvert.toBoolean(value, false));
 			}
+		} else if (name.equals("forceUpdates")) {
+			final TiListView listView = getListView();
+			if (listView != null) {
+				listView.setForceUpdates(TiConvert.toBoolean(value, false));
+			}
 		}
 	}
 
@@ -577,8 +578,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 		if (sections instanceof Object[]) {
 			for (Object o : (Object[]) sections) {
-				if (o instanceof ListSectionProxy) {
-					final ListSectionProxy section = (ListSectionProxy) o;
+				if (o instanceof ListSectionProxy section) {
 
 					// Add section.
 					section.setParent(this);
@@ -626,15 +626,21 @@ public class ListViewProxy extends RecyclerViewProxy
 			return;
 		}
 
-		final ListItemProxy[] items =
-			new ListItemProxy[] { listView.getFirstVisibleItem(), listView.getLastVisibleItem()};
+		final ArrayList<ListItemProxy> items = new ArrayList<>();
+		final LinearLayoutManager lm = listView.getLayoutManager();
+		final int firstVisibleItemPos = lm.findFirstVisibleItemPosition();
+		final int lastVisibleItemPos = lm.findLastVisibleItemPosition();
+
+		// ideally markers should be triggered for all visible items between first and last visible ones
+		for (int i = firstVisibleItemPos; i <= lastVisibleItemPos; i++) {
+			items.add(listView.getVisibleItemAt(i));
+		}
 
 		for (final ListItemProxy item : items) {
 			if (item != null) {
 				final Object parent = item.getParent();
 
-				if (parent instanceof ListSectionProxy) {
-					final ListSectionProxy section = (ListSectionProxy) parent;
+				if (parent instanceof ListSectionProxy section) {
 					final int sectionIndex = getIndexOfSection(section);
 
 					if (markers.containsKey(sectionIndex)) {
@@ -697,8 +703,7 @@ public class ListViewProxy extends RecyclerViewProxy
 
 				// Insert ListSection array.
 				for (final Object o : (Object[]) sections) {
-					if (o instanceof ListSectionProxy) {
-						final ListSectionProxy section = (ListSectionProxy) o;
+					if (o instanceof ListSectionProxy section) {
 
 						// Inset ListSection.
 						section.setParent(this);
@@ -709,8 +714,7 @@ public class ListViewProxy extends RecyclerViewProxy
 				// Notify ListView of new sections.
 				update();
 
-			} else if (sections instanceof ListSectionProxy) {
-				final ListSectionProxy section = (ListSectionProxy) sections;
+			} else if (sections instanceof ListSectionProxy section) {
 
 				// Insert ListSection.
 				section.setParent(this);

@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -33,7 +33,7 @@ describe('Titanium', () => {
 
 			it('matches expected format/value', () => {
 				should(Ti.version).not.eql('__VERSION__'); // This is the placeholder value used in iOS, let's ensure we replaced it!
-				should(Ti.version).match(/\d+\.\d+\.\d+/); // i.e. '9.0.0' (the short version string, no timestamp qualifier)
+				should(Ti.version).match(/\d+\.\d+\.\d+/); // e.g. '9.0.0' (the short version string, no timestamp qualifier)
 				// Build plugin "mocha.test.support" stores SDK version to app properties.
 				should(Ti.version).eql(Ti.App.Properties.getString('Ti.version'));
 			});
@@ -50,7 +50,7 @@ describe('Titanium', () => {
 
 			it('matches expected format/value', () => {
 				should(Ti.buildDate).not.eql('__TIMESTAMP__'); // This is the placeholder value used in iOS, let's ensure we replaced it!
-				should(Ti.buildDate).match(/[01]?\d\/[0123]?\d\/20\d{2} \d{2}:\d{2}/); // i.e. '4/14/2020 18:48'
+				should(Ti.buildDate).match(/[01]?\d\/[0123]?\d\/20\d{2} \d{2}:\d{2}/); // e.g. '4/14/2020 18:48'
 			});
 
 			it('has no getter', () => {

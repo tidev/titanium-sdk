@@ -1,5 +1,5 @@
 /*
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -36,6 +36,9 @@ Persistent<String> Proxy::inheritSymbol;
 Persistent<String> Proxy::propertiesSymbol;
 Persistent<String> Proxy::lengthSymbol;
 Persistent<String> Proxy::sourceUrlSymbol;
+Persistent<String> Proxy::getPropertySymbol;
+Persistent<String> Proxy::setPropertySymbol;
+Persistent<String> Proxy::nativeSymbol;
 
 Proxy::Proxy() :
 	JavaObject()
@@ -52,6 +55,9 @@ void Proxy::bindProxy(Local<Object> exports, Local<Context> context)
 	propertiesSymbol.Reset(isolate, NEW_SYMBOL(isolate, "_properties"));
 	lengthSymbol.Reset(isolate, NEW_SYMBOL(isolate, "length"));
 	sourceUrlSymbol.Reset(isolate, NEW_SYMBOL(isolate, "sourceUrl"));
+	getPropertySymbol.Reset(isolate, NEW_SYMBOL(isolate, "getProperty"));
+	setPropertySymbol.Reset(isolate, NEW_SYMBOL(isolate, "setProperty"));
+	nativeSymbol.Reset(isolate, NEW_SYMBOL(isolate, "$native"));
 
 	Local<FunctionTemplate> proxyTemplate = FunctionTemplate::New(isolate, 0, External::New(isolate, JNIUtil::krollProxyClass));
 	Local<String> proxySymbol = NEW_SYMBOL(isolate, "Proxy");
@@ -80,7 +86,10 @@ static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, 
 	Local<Context> context = isolate->GetCurrentContext();
 	// Call getProperty on the Proxy to get the property.
 	// We define this method in JavaScript on the Proxy prototype.
-	MaybeLocal<Value> maybeGetProperty = proxy->Get(context, STRING_NEW(isolate, "getProperty"));
+	// Use the cached symbol instead of allocating a new string on every property access.
+	Local<String> getPropertyName = Proxy::getPropertySymbol.IsEmpty()
+		? NEW_SYMBOL(isolate, "getProperty") : Proxy::getPropertySymbol.Get(isolate);
+	MaybeLocal<Value> maybeGetProperty = proxy->Get(context, getPropertyName);
 	if (maybeGetProperty.IsEmpty()) {
 		LOGE(TAG, "Unable to lookup Proxy.prototype.getProperty");
 		return Undefined(isolate);
@@ -97,14 +106,14 @@ static Local<Value> getPropertyForProxy(Isolate* isolate, Local<Name> property, 
 	return value.FromMaybe(Undefined(isolate).As<Value>());
 }
 
-// This variant is used when accessing a property in standard JS fashion (i.e. obj.text or obj['text'])
+// This variant is used when accessing a property in standard JS fashion (e.g. obj.text or obj['text'])
 void Proxy::getProperty(Local<Name> property, const PropertyCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
 	args.GetReturnValue().Set(getPropertyForProxy(isolate, property, args.Holder()));
 }
 
-// This variant is used when accessing a property through a getter method (i.e. obj.getText())
+// This variant is used when accessing a property through a getter method (e.g. obj.getText())
 void Proxy::getProperty(const FunctionCallbackInfo<Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
@@ -138,7 +147,10 @@ static void setPropertyOnProxy(Isolate* isolate, Local<Name> property, Local<Val
 {
 	// Call Proxy.prototype.setProperty.
 	Local<Context> context = isolate->GetCurrentContext();
-	MaybeLocal<Value> maybeSetProperty = proxy->Get(context, STRING_NEW(isolate, "setProperty"));
+	// Use the cached symbol instead of allocating a new string on every property write.
+	Local<String> setPropertyName = Proxy::setPropertySymbol.IsEmpty()
+		? NEW_SYMBOL(isolate, "setProperty") : Proxy::setPropertySymbol.Get(isolate);
+	MaybeLocal<Value> maybeSetProperty = proxy->Get(context, setPropertyName);
 	if (maybeSetProperty.IsEmpty()) {
 		LOGE(TAG, "Unable to lookup Proxy.prototype.setProperty");
 		return;
@@ -198,7 +210,7 @@ static void onPropertyChangedForProxy(Isolate* isolate, Local<String> property, 
 	setPropertyOnProxy(isolate, property, value, proxyObject);
 }
 
-// This variant is used when accessing a property in a standard way and setting a value (i.e. obj.text = 'whatever')
+// This variant is used when accessing a property in a standard way and setting a value (e.g. obj.text = 'whatever')
 void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8::PropertyCallbackInfo<void>& info)
 {
 	Isolate* isolate = info.GetIsolate();
@@ -206,7 +218,7 @@ void Proxy::onPropertyChanged(Local<Name> property, Local<Value> value, const v8
 	onPropertyChangedForProxy(isolate, property->ToString(context).ToLocalChecked(), value, info.Holder());
 }
 
-// This variant is used when accessing a property through a getter method (i.e. setText('whatever'))
+// This variant is used when accessing a property through a getter method (e.g. setText('whatever'))
 void Proxy::onPropertyChanged(const v8::FunctionCallbackInfo<v8::Value>& args)
 {
 	Isolate* isolate = args.GetIsolate();
@@ -309,6 +321,11 @@ void Proxy::hasListenersForEventType(const v8::FunctionCallbackInfo<v8::Value>& 
 	}
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
+	if (proxy == nullptr) {
+		JSException::Error(isolate, "Failed to unwrap Proxy instance.");
+		return;
+	}
+
 	// TODO Support Symbols for event types?
 	Local<String> eventType = args[0].As<String>();
 	Local<Boolean> hasListeners = args[1]->ToBoolean(isolate);
@@ -350,6 +367,11 @@ void Proxy::onEventFired(const v8::FunctionCallbackInfo<v8::Value>& args)
 	}
 	Proxy* proxy = NativeObject::Unwrap<Proxy>(holder);
 
+	if (proxy == nullptr) {
+		JSException::Error(isolate, "Failed to unwrap Proxy instance.");
+		return;
+	}
+
 	// TODO Support Symbols for event types?
 	Local<String> eventType = args[0].As<String>();
 	Local<Value> eventData = args[1];
@@ -387,7 +409,7 @@ Local<FunctionTemplate> Proxy::inheritProxyTemplate(Isolate* isolate,
 {
 	EscapableHandleScope scope(isolate);
 
-	// Wrap the java class in an External and we can access it via FunctionCallbackInfo.Data() in #proxyConstructor
+	// Wrap the Java class in an External and we can access it via FunctionCallbackInfo.Data() in #proxyConstructor
 	Local<FunctionTemplate> inheritedTemplate = FunctionTemplate::New(isolate, proxyConstructor, External::New(isolate, javaClass));
 
 	inheritedTemplate->InstanceTemplate()->SetInternalFieldCount(kInternalFieldCount);
@@ -418,13 +440,13 @@ void Proxy::proxyConstructor(const v8::FunctionCallbackInfo<v8::Value>& args)
 	// every instance gets a special "_properties" object for us to use internally for get/setProperty
 	jsProxy->DefineOwnProperty(context, propertiesSymbol.Get(isolate), Object::New(isolate), static_cast<PropertyAttribute>(DontEnum));
 
-	// Now we hook up a java Object from the JVM...
+	// Now we hook up a Java Object from the JVM...
 	jobject javaProxy = Proxy::unwrapJavaProxy(args); // do we already have one that got passed in?
 	bool deleteRef = false;
 	if (!javaProxy) {
 		if (args.Data().IsEmpty() || !args.Data()->IsExternal()) {
 			String::Utf8Value jsClassName(isolate, jsProxy->GetConstructorName());
-			LOGE(TAG, "No JNI Java Class reference set for proxy java proxy type %s", *jsClassName);
+			LOGE(TAG, "No JNI Java Class reference set for proxy Java proxy type %s", *jsClassName);
 			return;
 		}
 
@@ -582,6 +604,9 @@ void Proxy::dispose(Isolate* isolate)
 	propertiesSymbol.Reset();
 	lengthSymbol.Reset();
 	sourceUrlSymbol.Reset();
+	getPropertySymbol.Reset();
+	setPropertySymbol.Reset();
+	nativeSymbol.Reset();
 }
 
 jobject Proxy::unwrapJavaProxy(const v8::FunctionCallbackInfo<v8::Value>& args)

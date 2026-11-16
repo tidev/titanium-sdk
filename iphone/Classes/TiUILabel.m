@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -32,6 +32,7 @@
 {
   if (self = [super init]) {
     padding = CGRectZero;
+    textPadding = UIEdgeInsetsZero;
     initialLabelFrame = CGRectZero;
     verticalAlign = UIControlContentVerticalAlignmentFill;
   }
@@ -74,31 +75,51 @@
   return size;
 }
 
+- (CGFloat)textWidthForWidth:(CGFloat)width
+{
+  // A width of 0 means "unconstrained" to sizeThatFits:, so keep it as is.
+  // Otherwise subtract the horizontal padding but never fall back to 0, because
+  // a label whose padding covers the whole width would measure as one unwrapped line.
+  if (width <= 0) {
+    return 0;
+  }
+  return MAX(width - (textPadding.left + textPadding.right), 1);
+}
+
 - (CGFloat)contentWidthForWidth:(CGFloat)suggestedWidth
 {
   /*
-     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to 
-     have atleast enough space to display one word. On the otherhand font measurement is unsuitable for 
+     Why both? sizeThatFits returns the width with line break mode tail truncation and we like to
+     have at least enough space to display one word. On the other hand font measurement is unsuitable for
      attributed strings till we move to the new measurement API. Hence take both and return MAX.
      */
-  CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(suggestedWidth, 0)].width;
-  CGFloat fontMeasurementResult = [self sizeForFont:suggestedWidth].width;
-  return (MAX(sizeThatFitsResult, fontMeasurementResult));
+  CGFloat horizontalPadding = textPadding.left + textPadding.right;
+  CGFloat textWidth = [self textWidthForWidth:suggestedWidth];
+  CGFloat sizeThatFitsResult = [[self label] sizeThatFits:CGSizeMake(textWidth, 0)].width;
+  CGFloat fontMeasurementResult = [self sizeForFont:textWidth].width;
+  return (MAX(sizeThatFitsResult, fontMeasurementResult)) + horizontalPadding;
 }
 
 - (CGFloat)contentHeightForWidth:(CGFloat)width
 {
-  return [[self label] sizeThatFits:CGSizeMake(width, 0)].height;
+  CGFloat textWidth = [self textWidthForWidth:width];
+  return [[self label] sizeThatFits:CGSizeMake(textWidth, 0)].height + textPadding.top + textPadding.bottom;
 }
 
 - (void)padLabel
 {
 #ifndef TI_USE_AUTOLAYOUT
-  CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(initialLabelFrame.size.width, 0)];
+  // The text area is the view's bounds minus the "padding" property.
+  CGRect contentFrame = UIEdgeInsetsInsetRect(initialLabelFrame, textPadding);
+  contentFrame.size.width = [self textWidthForWidth:initialLabelFrame.size.width];
+  if (contentFrame.size.height < 0) {
+    contentFrame.size.height = 0;
+  }
+  CGSize actualLabelSize = [[self label] sizeThatFits:CGSizeMake(contentFrame.size.width, 0)];
   UIControlContentVerticalAlignment alignment = verticalAlign;
   if (alignment == UIControlContentVerticalAlignmentFill) {
-    //IOS7 layout issue fix with attributed string.
-    if (actualLabelSize.height < initialLabelFrame.size.height) {
+    // iOS 7 layout issue fix with attributed string.
+    if (actualLabelSize.height < contentFrame.size.height) {
       alignment = UIControlContentVerticalAlignmentCenter;
     } else {
       alignment = UIControlContentVerticalAlignmentTop;
@@ -108,10 +129,10 @@
     CGFloat originX = 0;
     switch (label.textAlignment) {
     case NSTextAlignmentRight:
-      originX = (initialLabelFrame.size.width - actualLabelSize.width);
+      originX = (contentFrame.size.width - actualLabelSize.width);
       break;
     case NSTextAlignmentCenter:
-      originX = (initialLabelFrame.size.width - actualLabelSize.width) / 2.0;
+      originX = (contentFrame.size.width - actualLabelSize.width) / 2.0;
       break;
     default:
       break;
@@ -123,24 +144,26 @@
     CGRect labelRect = CGRectMake(originX, 0, actualLabelSize.width, actualLabelSize.height);
     switch (alignment) {
     case UIControlContentVerticalAlignmentBottom:
-      labelRect.origin.y = initialLabelFrame.size.height - actualLabelSize.height;
+      labelRect.origin.y = contentFrame.size.height - actualLabelSize.height;
       break;
     case UIControlContentVerticalAlignmentCenter:
-      labelRect.origin.y = (initialLabelFrame.size.height - actualLabelSize.height) / 2;
+      labelRect.origin.y = (contentFrame.size.height - actualLabelSize.height) / 2;
       if (labelRect.origin.y < 0) {
-        labelRect.size.height = (initialLabelFrame.size.height - labelRect.origin.y);
+        labelRect.size.height = (contentFrame.size.height - labelRect.origin.y);
       }
       break;
     default:
-      if (initialLabelFrame.size.height < actualLabelSize.height) {
-        labelRect.size.height = initialLabelFrame.size.height;
+      if (contentFrame.size.height < actualLabelSize.height) {
+        labelRect.size.height = contentFrame.size.height;
       }
       break;
     }
 
+    labelRect.origin.x += contentFrame.origin.x;
+    labelRect.origin.y += contentFrame.origin.y;
     [label setFrame:CGRectIntegral(labelRect)];
   } else {
-    [label setFrame:initialLabelFrame];
+    [label setFrame:contentFrame];
   }
 
   if ([self backgroundImageLayer] != nil && !CGRectIsEmpty(initialLabelFrame)) {
@@ -151,7 +174,7 @@
 }
 
 #ifndef TI_USE_AUTOLAYOUT
-// FIXME: This isn't quite true.  But the brilliant soluton wasn't so brilliant, because it screwed with layout in unpredictable ways.
+// FIXME: This isn't quite true.  But the brilliant solution wasn't so brilliant, because it screwed with layout in unpredictable ways.
 //	Sadly, there was a brilliant solution for fixing the blurring here, but it turns out there's a
 //	quicker fix: Make sure the label itself has an even height and width. Everything else is irrelevant.
 - (void)setCenter:(CGPoint)newCenter
@@ -287,6 +310,23 @@
 #endif
 
   if (url == nil || url.length == 0) {
+    // Fall back to the native link attribute. The "html" property produces these
+    // via NSHTMLTextDocumentType for <a href="..."> tags.
+    if (idx < theString.length) {
+      NSRange effectiveRange = NSMakeRange(0, 0);
+      id linkValue = [theString attribute:NSLinkAttributeName atIndex:idx effectiveRange:&effectiveRange];
+      if ([linkValue isKindOfClass:[NSURL class]]) {
+        url = [(NSURL *)linkValue absoluteString];
+      } else if ([linkValue isKindOfClass:[NSString class]]) {
+        url = (NSString *)linkValue;
+      }
+      if (url != nil && url.length > 0) {
+        theRange = effectiveRange;
+      }
+    }
+  }
+
+  if (url == nil || url.length == 0) {
     return NO;
   }
 
@@ -307,7 +347,7 @@
   if ([recognizer numberOfTouchesRequired] == 2) {
     [self.proxy fireEvent:@"twofingertap" withObject:event];
   } else if ([recognizer numberOfTapsRequired] == 2) {
-    //Because double-tap suppresses touchStart and double-click, we must do this:
+    // Because double-tap suppresses touchStart and double-click, we must do this:
     if ([self.proxy _hasListeners:@"touchstart"]) {
       [self.proxy fireEvent:@"touchstart" withObject:event propagate:YES];
     }
@@ -368,11 +408,11 @@
 - (void)didMoveToSuperview
 {
   /*
-	 *	Because of how we re-use the same cells in both a tableview and its
-	 *	search table, there is the chance that the label is transported between
-	 *	the two views before a selected search row is deselected. In other
-	 *	words, make sure we're not highlighted when changing superviews.
-	 */
+   *	Because of how we re-use the same cells in both a tableview and its
+   *	search table, there is the chance that the label is transported between
+   *	the two views before a selected search row is deselected. In other
+   *	words, make sure we're not highlighted when changing superviews.
+   */
   [self setHighlighted:NO];
   [super didMoveToSuperview];
 }
@@ -380,8 +420,8 @@
 - (void)didMoveToWindow
 {
   /*
-     * See above
-     */
+   * See above
+   */
   [self setHighlighted:NO];
   [super didMoveToWindow];
 }
@@ -404,6 +444,13 @@
   }
 }
 
+- (void)setPadding_:(id)value
+{
+  textPadding = [TiUtils contentInsets:value];
+  [self padLabel];
+  [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
 - (void)setMaxLines_:(id)value
 {
   ENSURE_TYPE(value, NSNumber);
@@ -414,9 +461,26 @@
 
 - (void)setText_:(id)text
 {
-  [[self label] setText:[TiUtils stringValue:text]];
+  originalText = [TiUtils stringValue:text];
+
+  [[self label] setText:originalText];
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
+}
+
+- (void)setTextTransform_:(id)value
+{
+  NSString *textTransform = [TiUtils stringValue:value];
+
+  if ([textTransform isEqualToString:@"uppercase"]) {
+    [[self label] setText:[originalText uppercaseString]];
+  } else if ([textTransform isEqualToString:@"lowercase"]) {
+    [[self label] setText:[originalText lowercaseString]];
+  } else {
+    [[self label] setText:originalText];
+  }
+
+  [self padLabel];
 }
 
 - (void)setColor_:(id)color
@@ -480,12 +544,42 @@
 - (void)setAttributedString_:(id)arg
 {
 #ifdef USE_TI_UIATTRIBUTEDSTRING
-  ENSURE_SINGLE_ARG(arg, TiUIAttributedStringProxy);
-  [[self proxy] replaceValue:arg forKey:@"attributedString" notification:NO];
-  [[self label] setAttributedText:[arg attributedString]];
+  TiUIAttributedStringProxy *attributedStringProxy = [TiUIAttributedStringProxy fromProperties:arg];
+  if (attributedStringProxy) {
+    [[self proxy] replaceValue:attributedStringProxy forKey:@"attributedString" notification:NO];
+    [[self label] setAttributedText:[attributedStringProxy attributedString]];
+    [self padLabel];
+    [(TiViewProxy *)[self proxy] contentsWillChange];
+  }
+#endif
+}
+
+- (void)setHtml_:(id)html
+{
+  ENSURE_SINGLE_ARG(html, NSString);
+  [[self proxy] replaceValue:html forKey:@"html" notification:NO];
+
+  NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]
+                                                                                        options:@{ NSDocumentTypeDocumentAttribute : NSHTMLTextDocumentType,
+                                                                                          NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) }
+                                                                             documentAttributes:nil
+                                                                                          error:nil];
+
+  // For parity with Android: Trim trailing newline characters which UIKit often appends for block tags.
+  while (attributedString.length > 0) {
+    unichar c = [[attributedString string] characterAtIndex:attributedString.length - 1];
+    if (c == '\n' || c == '\r') {
+      [attributedString deleteCharactersInRange:NSMakeRange(attributedString.length - 1, 1)];
+    } else {
+      break;
+    }
+  }
+
+  [[self label] setAttributedText:attributedString];
+  [attributedString release];
+
   [self padLabel];
   [(TiViewProxy *)[self proxy] contentsWillChange];
-#endif
 }
 
 - (void)setBackgroundPaddingLeft_:(id)left

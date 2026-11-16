@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -22,6 +22,7 @@ import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.util.KrollAssetHelper;
 import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,12 +89,14 @@ public class TiWebViewBinding
 	private AppBinding appBinding;
 	private TiReturn tiReturn;
 	private WebView webView;
+	private TiViewProxy proxy;
 	private boolean interfacesAdded = false;
 
-	public TiWebViewBinding(WebView webView)
+	public TiWebViewBinding(WebView webView, TiViewProxy proxy)
 	{
 		codeSnippets = new Stack<String>();
 		this.webView = webView;
+		this.proxy = proxy;
 		apiBinding = new ApiBinding();
 		appBinding = new AppBinding();
 		tiReturn = new TiReturn();
@@ -111,6 +114,17 @@ public class TiWebViewBinding
 
 	public void destroy()
 	{
+		// Remove JavaScript interfaces to prevent memory leaks
+		// This must be done before setting webView to null
+		if (webView != null) {
+			if (interfacesAdded) {
+				webView.removeJavascriptInterface("TiApp");
+				webView.removeJavascriptInterface("TiAPI");
+				webView.removeJavascriptInterface("_TiReturn");
+				interfacesAdded = false;
+			}
+		}
+
 		// remove any event listener that have already been added to the Ti.APP through
 		// this web view instance
 		appBinding.clearEventListeners();
@@ -146,12 +160,29 @@ public class TiWebViewBinding
 		return code;
 	}
 
+	public void injectEventBindings()
+	{
+		StringBuilder code = new StringBuilder();
+		StringBuilder tiCode = TiWebViewBinding.readResourceFile("binding.min.js");
+		String outCode = tiCode.toString().replaceAll("\"", "\\\\\"")
+			.replace("\n", "").replace("\r", "");
+		code.append("(function addBinding(){");
+		// skip if the bindings already exist, a second injection would reset the registered listeners
+		code.append("if(window.Ti&&window.Ti._event_listeners)return;");
+		code.append("var s=document.createElement(\"script\");");
+		code.append("s.setAttribute(\"type\",\"text/javascript\");");
+		code.append("s.innerHTML=\"" + outCode + "\";");
+		code.append("(document.body||document.documentElement).appendChild(s);");
+		code.append("})()");
+		getJSValue(code.toString());
+	}
+
 	private final Semaphore returnSemaphore = new Semaphore(0);
 	private String returnValue;
 
 	synchronized public String getJSValue(String expression)
 	{
-		// Don't try to evaluate js code again if the binding has already been destroyed
+		// Don't try to evaluate JS code again if the binding has already been destroyed
 		if (!destroyed && interfacesAdded) {
 			String code = "_TiReturn.setValue((function(){try{return " + expression
 						  + "+\"\";}catch(ti_eval_err){return '';}})());";
@@ -238,6 +269,7 @@ public class TiWebViewBinding
 				if (json != null && !json.equals("undefined")) {
 					dict = new KrollDict(new JSONObject(json));
 				}
+				dict.put("source", proxy);
 				module.fireEvent(event, dict);
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing event JSON", e);

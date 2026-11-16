@@ -1,12 +1,10 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 package org.appcelerator.kroll.common;
-
-import android.util.Config;
 
 /**
  * A replacement class for org.appcelerator.titanium.config.TitaniumConfig so that I can change
@@ -24,9 +22,9 @@ public class TiConfig
 	* &lt;property name="ti.android.debug" type="bool"&gt;true&lt;/property&gt;
 	* </pre>
 	*/
-	public static boolean LOGD = Config.DEBUG;
-	public static boolean LOGV = Config.DEBUG;
-	public static boolean DEBUG = Config.DEBUG;
-	public static boolean RELEASE = !Config.DEBUG;
-	public static boolean PROFILE = Config.PROFILE;
+	public static boolean LOGD = false;
+	public static boolean LOGV = false;
+	public static boolean DEBUG = false;
+	public static boolean RELEASE = true;
+	public static boolean PROFILE = false;
 }

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -58,6 +58,7 @@ public class ListItemProxy extends TiViewProxy
 	private boolean placeholder = false;
 	private boolean hasAddedItemEvents = false;
 	private boolean selected = false;
+	private String cachedSearchableTextLower = null;
 
 	public ListItemProxy()
 	{
@@ -114,11 +115,12 @@ public class ListItemProxy extends TiViewProxy
 	/**
 	 * Handle event payload manipulation.
 	 *
-	 * @param eventName Name of fired event.
-	 * @param data      Data payload of fired event.
+	 * @param eventName     Name of fired event.
+	 * @param data          Data payload of fired event.
+	 * @param fireItemEvent Set true to also fire the matching `itemclick`/`itemlongpress` event on the ListView.
 	 * @return Object of event payload.
 	 */
-	public Object handleEvent(String eventName, Object data, boolean fireItemClick)
+	public Object handleEvent(String eventName, Object data, boolean fireItemEvent)
 	{
 		// Inject row data into events.
 		final ListViewProxy listViewProxy = getListViewProxy();
@@ -130,8 +132,7 @@ public class ListItemProxy extends TiViewProxy
 			final TiViewProxy source = sourceObject instanceof TiViewProxy ? (TiViewProxy) sourceObject : this;
 
 			final Object parent = getParent();
-			if (parent instanceof ListSectionProxy) {
-				final ListSectionProxy section = (ListSectionProxy) parent;
+			if (parent instanceof ListSectionProxy section) {
 
 				// Include section specific properties.
 				payload.putIfAbsent(TiC.PROPERTY_SECTION, section);
@@ -166,13 +167,36 @@ public class ListItemProxy extends TiViewProxy
 			// Override data with new payload.
 			data = payload;
 
-			// Fire `itemclick` event on ListView.
-			if (fireItemClick && eventName.equals(TiC.EVENT_CLICK)) {
-				listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
+			// Fire `itemclick`/`itemlongpress` event on ListView.
+			if (fireItemEvent) {
+				fireListViewItemEvent(eventName, data);
 			}
 		}
 
 		return data;
+	}
+
+	/**
+	 * Fires the ListView item event matching the given item event, if any.
+	 * `click` fires `itemclick` and `longpress` fires `itemlongpress`.
+	 *
+	 * @param eventName Name of event fired on the item.
+	 * @param data      Payload already processed by handleEvent().
+	 * @return Returns true if a ListView listener handled the event.
+	 */
+	private boolean fireListViewItemEvent(String eventName, Object data)
+	{
+		final ListViewProxy listViewProxy = getListViewProxy();
+		if (listViewProxy == null) {
+			return false;
+		}
+		if (eventName.equals(TiC.EVENT_CLICK)) {
+			return listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
+		}
+		if (eventName.equals(TiC.EVENT_LONGPRESS)) {
+			return listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_LONGPRESS, data);
+		}
+		return false;
 	}
 
 	/**
@@ -186,14 +210,16 @@ public class ListItemProxy extends TiViewProxy
 	@Override
 	public boolean fireEvent(String eventName, Object data, boolean bubbles)
 	{
-		data = handleEvent(eventName, data, true);
-		return super.fireEvent(eventName, data, bubbles);
+		data = handleEvent(eventName, data, false);
+		final boolean handled = fireListViewItemEvent(eventName, data);
+		return super.fireEvent(eventName, data, bubbles) || handled;
 	}
 	@Override
 	public boolean fireSyncEvent(String eventName, Object data, boolean bubbles)
 	{
-		data = handleEvent(eventName, data, true);
-		return super.fireSyncEvent(eventName, data, bubbles);
+		data = handleEvent(eventName, data, false);
+		final boolean handled = fireListViewItemEvent(eventName, data);
+		return super.fireSyncEvent(eventName, data, bubbles) || handled;
 	}
 
 	/**
@@ -221,8 +247,7 @@ public class ListItemProxy extends TiViewProxy
 				if (this.childProperties.containsKey(bindId)) {
 					final Object childPropertiesObj = this.childProperties.get(bindId);
 
-					if (childPropertiesObj instanceof KrollDict) {
-						final KrollDict childProperties = (KrollDict) childPropertiesObj;
+					if (childPropertiesObj instanceof KrollDict childProperties) {
 
 						// Include child properties for specified `bindId`.
 						properties.putAll(childProperties);
@@ -287,11 +312,10 @@ public class ListItemProxy extends TiViewProxy
 
 		// Add event listeners to given proxy.
 		for (KrollDict.Entry<String, Object> entry : eventDictionary.entrySet()) {
-			if (!(entry.getValue() instanceof KrollFunction)) {
+			if (!(entry.getValue() instanceof KrollFunction callback)) {
 				continue;
 			}
 			final String eventName = entry.getKey();
-			final KrollFunction callback = (KrollFunction) entry.getValue();
 			final KrollObject krollObject = proxy.getKrollObject();
 			proxy.addEventListener(eventName, new KrollEventCallback() {
 				@Override
@@ -355,6 +379,7 @@ public class ListItemProxy extends TiViewProxy
 		proxy.loadTemplate();
 		proxy.copyChildPropertiesTo(childProxies, proxy.template);
 		proxy.add(childProxies);
+		proxy.addTemplateEventListeners(proxy, proxy.template);
 
 		// Now that this proxy has no children, release this proxy's 1 native view container.
 		// We do this to reduce memory footprint of all offscreen list items.
@@ -554,8 +579,7 @@ public class ListItemProxy extends TiViewProxy
 	{
 		final TiViewProxy parent = getParent();
 
-		if (parent instanceof ListSectionProxy) {
-			final ListSectionProxy section = (ListSectionProxy) parent;
+		if (parent instanceof ListSectionProxy section) {
 
 			return section.getListItemIndex(this);
 		}
@@ -580,7 +604,7 @@ public class ListItemProxy extends TiViewProxy
 	/**
 	 * Override getRect() to amend dimensions.
 	 *
-	 * @return Dictinary of view dimensions.
+	 * @return Dictionary of view dimensions.
 	 */
 	@Override
 	public KrollDict getRect()
@@ -696,6 +720,17 @@ public class ListItemProxy extends TiViewProxy
 		if (event.equals(TiC.EVENT_CLICK)) {
 			return true;
 		}
+
+		// Detect `longpress` events on the item and its child views while the ListView
+		// listens for `itemlongpress`. Otherwise the long press is not dispatched and can not
+		// bubble up to this item. Not done unconditionally so that a long press without any
+		// listener still falls through to a normal click.
+		if (event.equals(TiC.EVENT_LONGPRESS)) {
+			final ListViewProxy listViewProxy = getListViewProxy();
+			if (listViewProxy != null && listViewProxy.hasListeners(TiC.EVENT_ITEM_LONGPRESS)) {
+				return true;
+			}
+		}
 		return super.hierarchyHasListener(event);
 	}
 
@@ -764,8 +799,7 @@ public class ListItemProxy extends TiViewProxy
 				if (this.childProperties.containsKey(TiC.PROPERTY_TITLE)) {
 					final Object existingTitleObject = this.childProperties.get(TiC.PROPERTY_TITLE);
 
-					if (existingTitleObject instanceof KrollDict) {
-						final KrollDict existingTitleProperties = (KrollDict) existingTitleObject;
+					if (existingTitleObject instanceof KrollDict existingTitleProperties) {
 
 						// Child template already exists.
 						// Merge new properties with existing properties.
@@ -787,8 +821,7 @@ public class ListItemProxy extends TiViewProxy
 			if (this.childProperties.containsKey(TiC.PROPERTY_IMAGE)) {
 				final Object existingImageObject = this.childProperties.get(TiC.PROPERTY_IMAGE);
 
-				if (existingImageObject instanceof KrollDict) {
-					final KrollDict existingImageProperties = (KrollDict) existingImageObject;
+				if (existingImageObject instanceof KrollDict existingImageProperties) {
 
 					// Child template already exists.
 					// Merge new properties with existing properties.
@@ -801,14 +834,12 @@ public class ListItemProxy extends TiViewProxy
 			}
 		}
 
-		if (name.equals(TiC.PROPERTY_HEADER_VIEW) && value instanceof TiViewProxy) {
-			final TiViewProxy headerProxy = (TiViewProxy) value;
+		if (name.equals(TiC.PROPERTY_HEADER_VIEW) && value instanceof TiViewProxy headerProxy) {
 
 			// Set header view parent, so it can be released correctly.
 			headerProxy.setParent(this);
 		}
-		if (name.equals(TiC.PROPERTY_FOOTER_VIEW) && value instanceof TiViewProxy) {
-			final TiViewProxy footerProxy = (TiViewProxy) value;
+		if (name.equals(TiC.PROPERTY_FOOTER_VIEW) && value instanceof TiViewProxy footerProxy) {
 
 			// Set footer view parent, so it can be released correctly.
 			footerProxy.setParent(this);
@@ -836,6 +867,10 @@ public class ListItemProxy extends TiViewProxy
 			}
 
 			setProperty(TiC.PROPERTY_BACKGROUND_SELECTED_COLOR, selectionColor);
+		}
+
+		if (name.equals(TiC.PROPERTY_SEARCHABLE_TEXT) && value instanceof String) {
+			this.cachedSearchableTextLower = ((String) value).toLowerCase();
 		}
 
 		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
@@ -889,6 +924,17 @@ public class ListItemProxy extends TiViewProxy
 		super.setProperty(name, value);
 
 		processProperty(name, value);
+	}
+
+	/**
+	 * Get cached lowercase searchable text for filtering.
+	 * Returns pre-computed lowercase version to avoid repeated toLowerCase() calls.
+	 *
+	 * @return Lowercase searchable text or null if not set.
+	 */
+	public String getSearchableTextLower()
+	{
+		return this.cachedSearchableTextLower;
 	}
 
 	/**

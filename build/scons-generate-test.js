@@ -1,11 +1,16 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
-const version = require('../package.json').version;
+import { program } from 'commander';
+import fs from 'fs-extra';
+import { main } from './lib/test/generator.js';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
+
 program.version(version).parse(process.argv);
 
-const main = require('./lib/test/generator');
 main(program.args)
 	.then(() => process.exit(0))
 	.catch(err => {

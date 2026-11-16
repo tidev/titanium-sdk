@@ -72,15 +72,15 @@ Note that this release includes feature and behavior changes. See [Notice of Fea
 
 This release includes over 300 bug fixes and improvements:
 
-  * [Full list of Issues that were addressed in Release 3.3.0](https://jira.appcelerator.org/issues/?filter=16132)
+  * Full list of Issues that were addressed in Release 3.3.0
 
-  * [Fixed Android Issues](https://jira.appcelerator.org/issues/?filter=16133)
+  * Fixed Android Issues
 
-  * [Fixed BlackBerry Issues](https://jira.appcelerator.org/issues/?filter=16134)
+  * Fixed BlackBerry Issues
 
-  * [Fixed iOS Issues](https://jira.appcelerator.org/issues/?filter=16135)
+  * Fixed iOS Issues
 
-  * [Fixed CLI Issues](https://jira.appcelerator.org/issues/?filter=16136)
+  * Fixed CLI Issues
 
 
 <a name="alloy"></a>
@@ -124,7 +124,7 @@ This release coincides with the release of Studio 3.3.0.
   * Genymotion virtual device support
   * New Windows installer
 
-For more details, see the [Studio Release Notes](https://docs.appcelerator.com/titanium/latest/#!/guide/Titanium_Studio_Release_Notes).
+For more details, see the [Studio Release Notes](https://titaniumsdk.com/api/).
 
 <a name="cli"></a>
 ### Titanium CLI 3.3.0
@@ -183,13 +183,13 @@ Studio.
 
 For information on getting started, see:
 
-  * [Getting Started with the Windows Phone SDK](https://docs.appcelerator.com/titanium/latest/#!/guide/Getting_Started_with_the_Windows_Phone_SDK)
-  * [Getting Started with the Windows 8 SDK](https://docs.appcelerator.com/titanium/latest/#!/guide/Getting_Started_with_the_Windows_8_SDK)
+  * [Getting Started with the Windows Phone SDK](https://titaniumsdk.com/api/)
+  * [Getting Started with the Windows 8 SDK](https://titaniumsdk.com/api/)
 
 To access native features of the Windows Phone platform, create a module that uses the Titanium
 Windows Phone 8 Reflection API to make calls to the native Windows Phone 8 API.  For details on
 adding native Windows Phone 8 functionality to your application, see
-[Windows Phone 8 Module Development Guide](https://docs.appcelerator.com/titanium/latest/#!/guide/Windows_Phone_8_Module_Development_Guide).
+[Windows Phone 8 Module Development Guide](https://titaniumsdk.com/api/).
 
 
 <a name="changes"></a>
@@ -208,13 +208,13 @@ Previously, you had to set a theme to display the action bar.
 
 To hide the action bar, the application needs to wait for the main window or tab group to open, then
 call the Activity's
-[actionbar.hide()](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.ActionBar-method-hide)
+[actionbar.hide()](https://titaniumsdk.com/api/)
 method; or create a theme that hides the action bar.
 
 As of this Release, the `tiapp.xml` element, `<navbar-hidden>`, which used to be able to hide the
 action bar, has no effect on Android applications.
 
-For information about hiding the action bar, see [Android Action Bar: Hiding the Action Bar](https://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar-section-36735509_AndroidActionBar-HidingtheActionBar).
+For information about hiding the action bar, see [Android Action Bar: Hiding the Action Bar](https://titaniumsdk.com/api/).
 
 
 <a name="lightweight_windows"></a>
@@ -223,7 +223,7 @@ For information about hiding the action bar, see [Android Action Bar: Hiding the
 As of this Release, support for lightweight windows (windows without an Android Activity) is
 removed and using the `ti.android.useLegacyWindow` property in the `tiapp.xml` file has no effect.
 
-As <a href="https://docs.appcelerator.com/titanium/release-notes/?version=3.2.0.GA#lightweight_windows">previously mentioned</a>,
+As <a href="https://titaniumsdk.com/api/">previously mentioned</a>,
 all windows are heavyweight, and you cannot control the type of window created.
 
 Prior to Release 3.2.0, all windows were lightweight by default and you had to explicitly create
@@ -265,14 +265,14 @@ use an AppCompat theme as the parent, for example:
         <style name="LightDarkBar" parent="Theme.AppCompat.Light.DarkActionBar"/>
     </resources>
     
-For more information about using Android Themes, see [Android Themes](https://docs.appcelerator.com/titanium/latest/#!/guide/Android_Themes).
+For more information about using Android Themes, see [Android Themes](https://titaniumsdk.com/api/).
 
 <a name="view_enabled"></a>
 #### View enabled property
 
 As of this Release, the Android-specific `enabled` property for view components is deprecated.  Use
 the non-platform-specific
-[touchEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-property-touchEnabled)
+[touchEnabled](https://titaniumsdk.com/api/)
 property to disable touch events for a view component.
 
 <a name="deprecated_ios"></a>
@@ -314,7 +314,7 @@ was appended to the end of the version.
 
 To achieve parity across platforms, the `Titanium.Database.ResultSet.fieldcount()` method has been
 removed from the SDK.  Use the read-only
-[Titanium.Database.ResultSet.fieldcount](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Database.ResultSet-property-fieldCount)
+[Titanium.Database.ResultSet.fieldcount](https://titaniumsdk.com/api/)
 property to retrieve the same information.
 
 <a name="ssl_cert"></a>
@@ -327,7 +327,7 @@ longer supported.
   * The iOS-specific `Titanium.Network.HTTPClient` `clientCertificateIdentity` and `clientCertificates` properties are no longer supported.
 
 Use the HTTPClient's
-[securityManager](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.HTTPClient-property-securityManager)
+[securityManager](https://titaniumsdk.com/api/)
 property to implement support for SSL Certificate Stores.
 
 <a name="titanium_include"></a>
@@ -337,8 +337,8 @@ As of this release, the `Titanium.include` method is deprecated.  This method wa
 external JavaScript files into a project.
 
 Instead, create a [CommonJS
-module](https://docs.appcelerator.com/titanium/latest/#!/guide/CommonJS_Modules_in_Titanium) and use
-the [require](https://docs.appcelerator.com/titanium/latest/#!/api/Global-method-require) method to
+module](https://titaniumsdk.com/api/) and use
+the [require](https://titaniumsdk.com/api/) method to
 include external JavaScript.
 
 
@@ -356,9 +356,9 @@ This section lists new features and improvements only available on the Android p
 #### ActionBar Improvements
 
 This Release exposes the Android methods,
-[setDisplayShowHomeEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.ActionBar-method-setDisplayShowHomeEnabled)
+[setDisplayShowHomeEnabled](https://titaniumsdk.com/api/)
 and
-[setDisplayShowTitleEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Android.ActionBar-method-setDisplayShowTitleEnabled),
+[setDisplayShowTitleEnabled](https://titaniumsdk.com/api/),
 to programmatically show or hide the action bar home icon, and title and subtitle, respectively.
 
 See also the *AppCompat Library* section below.
@@ -375,8 +375,8 @@ are a number of behavior changes to the application:
   3. If the application is using a custom theme, the parent theme must be based off an AppCompat theme.  The application cannot use the base Holo, Light or Dark themes.
 
 For more information about using Android Themes and the Action Bar, see
-[Android Themes](https://docs.appcelerator.com/titanium/latest/#!/guide/Android_Themes) and
-[Android Action Bar](https://docs.appcelerator.com/titanium/latest/#!/guide/Android_Action_Bar), respectively.
+[Android Themes](https://titaniumsdk.com/api/) and
+[Android Action Bar](https://titaniumsdk.com/api/), respectively.
 
 
 <a name="application_apis"></a>
@@ -384,15 +384,15 @@ For more information about using Android Themes and the Action Bar, see
 
 This Release introduces several application-level properties:
 
-  * [appVersionCode](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.Android-property-appVersionCode): returns the version code (`android:versionCode`) of the application.
-  * [appVersionName](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.Android-property-appVersionName): returns the version name (`android:versionName`) of the application.
-  * [launchIntent](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App.Android-property-launchIntent): returns the intent that was used to launch the application.
+  * [appVersionCode](https://titaniumsdk.com/api/) of the application.
+  * [appVersionName](https://titaniumsdk.com/api/) of the application.
+  * [launchIntent](https://titaniumsdk.com/api/): returns the intent that was used to launch the application.
 
 <a name="audio_player"></a>
 #### AudioPlayer Improvements
 
 This Release introduces the
-[time](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media.AudioPlayer-property-time)
+[time](https://titaniumsdk.com/api/)
 property to report or set the current playback time of the AudioPlayer.
 
 
@@ -402,8 +402,8 @@ property to report or set the current playback time of the AudioPlayer.
 This Release adds support for camera features to the Android platform that were previously only
 available for iOS:
 
-  * [Titanium.Media.cameraFlashMode](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media-property-cameraFlashMode) property: Use this property to control the device's camera flash mode.
-  * [Titanium.Media.saveToPhotoGallery](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Media-method-saveToPhotoGallery) method: Use this method to save the photo to the device's gallery.
+  * [Titanium.Media.cameraFlashMode](https://titaniumsdk.com/api/) property: Use this property to control the device's camera flash mode.
+  * [Titanium.Media.saveToPhotoGallery](https://titaniumsdk.com/api/) method: Use this method to save the photo to the device's gallery.
 
 <a name="genymotion"></a>
 #### Genymotion Virtual Devices
@@ -415,13 +415,13 @@ Virtual Device manager. Genymotion emulators run a lot faster than the native An
 devices provide more configurable options than the free Genymotion emulators. You can pay for an
 enterprise license if you want more features with Genymotion.
 
-For more information about installing and using Genymotion virtual devices, see [Installing Genymotion](https://docs.appcelerator.com/titanium/latest/#!/guide/Installing_Genymotion).
+For more information about installing and using Genymotion virtual devices, see [Installing Genymotion](https://titaniumsdk.com/api/).
 
 <a name="label_padding"></a>
 #### Label Padding
 
 This Release introduces the
-[includeFontPadding](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Label-property-includeFontPadding)
+[includeFontPadding](https://titaniumsdk.com/api/)
 property to increase the padding above and below the label to display diacritical marks, such as
 accents and subscript curls.
 
@@ -431,10 +431,10 @@ accents and subscript curls.
 This Release introduces properties to show or hide a divider after the header or before the footer in either
 a ListView or TableView:
 
-  * [Titanium.UI.ListView.footerDividersEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView-property-footerDividersEnabled): controls displaying a divider before the footer view.
-  * [Titanium.UI.ListView.headerDividersEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView-property-headerDividersEnabled): controls displaying a divider before the header view.
-  * [Titanium.UI.TableView.footerDividersEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TableView-property-footerDividersEnabled): controls displaying a divider before the footer view.
-  * [Titanium.UI.TableView.headerDividersEnabled](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TableView-property-headerDividersEnabled): controls displaying a divider before the header view.
+  * [Titanium.UI.ListView.footerDividersEnabled](https://titaniumsdk.com/api/): controls displaying a divider before the footer view.
+  * [Titanium.UI.ListView.headerDividersEnabled](https://titaniumsdk.com/api/): controls displaying a divider before the header view.
+  * [Titanium.UI.TableView.footerDividersEnabled](https://titaniumsdk.com/api/): controls displaying a divider before the footer view.
+  * [Titanium.UI.TableView.headerDividersEnabled](https://titaniumsdk.com/api/): controls displaying a divider before the header view.
 
 This Release also adds the ability to disable animations when scrolling to an item in
 ListView.  When using the `scrollToItem` method, set the `animated` property of the
@@ -452,9 +452,9 @@ This Release adds Android platform support for the proximity sensor, which deter
 holding the phone to their ear to shut down the phone's display.  Use the following APIs to determine
 the state of the proximity sensor:
 
-  * [proximity event](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-event-proximity): fires when the sensor changes.
-  * [proximityDetection property](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-property-proximityDetection): set to `true` to enable proximity detection.
-  * [proximityState property](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.App-property-proximityState): indicates the state of the proximity detector.
+  * [proximity event](https://titaniumsdk.com/api/): fires when the sensor changes.
+  * [proximityDetection property](https://titaniumsdk.com/api/): set to `true` to enable proximity detection.
+  * [proximityState property](https://titaniumsdk.com/api/): indicates the state of the proximity detector.
 
 Previously, these APIs were only available for the iOS platform.
 
@@ -463,7 +463,7 @@ Previously, these APIs were only available for the iOS platform.
 #### WebView SSL Error Event
 
 This Release introduces the
-[sslerror](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView-event-sslerror)
+[sslerror](https://titaniumsdk.com/api/)
 event that fires when an SSL error occurs during a request.  Use this event to set the `ignoreSslError` property
 to allow the request to proceed or fail.
 
@@ -472,8 +472,8 @@ to allow the request to proceed or fail.
 
 This Release introduces two new properties to set flags on the window activity:
 
-  * [flagSecure](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-flagSecure): set to `true` to disable capturing the window in a screenshot or being dislayed in non-secure displays.
-  * [windowFlags](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-windowFlags): sets additional Window Manager Layout Parameter flags on the activity window.
+  * [flagSecure](https://titaniumsdk.com/api/): set to `true` to disable capturing the window in a screenshot or being dislayed in non-secure displays.
+  * [windowFlags](https://titaniumsdk.com/api/): sets additional Window Manager Layout Parameter flags on the activity window.
 
 
 <a name="new_bb"></a>
@@ -485,8 +485,8 @@ This section lists new features and improvements only available on the BlackBerr
 #### applyProperties and removeAllChildren
 
 As of this Release, the BlackBerry platform supports the
-[applyProperties](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Proxy-method-applyProperties) and
-[removeAllChildren](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-method-removeAllChildren)
+[applyProperties](https://titaniumsdk.com/api/) and
+[removeAllChildren](https://titaniumsdk.com/api/)
 methods.
 
 
@@ -499,7 +499,7 @@ This section lists new features and improvements only available on the iOS platf
 #### Clipping Behavior
 
 Use the
-[clipMode](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-property-clipMode)
+[clipMode](https://titaniumsdk.com/api/)
 property to control the clipping behavior of the view component.  Set this property to one of the
 following constants:
 
@@ -511,7 +511,7 @@ By default, the view component uses the `CLIP_MODE_DEFAULT` behavior.  Previousl
 always enabled.
 
 For more information, see the "iOS Clipping Behavior" section in the
-[Titanium.UI.View API Reference](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View).
+[Titanium.UI.View API Reference](https://titaniumsdk.com/api/).
 
 <a name="core_motion"></a>
 #### Core Motion Module
@@ -521,8 +521,8 @@ as the accelerometer, gyroscope, and magnetometer. The Core Motion module allows
 measurements provided by these sensors.
 
 For more information, see the
-[Core Motion Module guide](https://docs.appcelerator.com/titanium/latest/#!/guide/Core_Motion_Module) and
-[CoreMotion API Reference](https://docs.appcelerator.com/titanium/latest/#!/api/Modules.CoreMotion).
+[Core Motion Module guide](https://titaniumsdk.com/api/) and
+[CoreMotion API Reference](https://titaniumsdk.com/api/).
 
 <a name="http_client"></a>
 #### HTTPClient Improvements
@@ -540,16 +540,16 @@ for Android.
 
 This Release introduces new APIs for ListView:
 
-  * [Titanium.UI.View.pullBackgroundColor property](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-property-pullBackgroundColor): controls the background color of the wrapper view of the pull view of a ListView or TableView.  Set this property on the view object contained in the pull view not on the ListView or the TableView.
-  * [Titanium.UI.ListView.noresults event](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ListView-event-noresults): fires if `searchText` or `searchView` returns no results.
+  * [Titanium.UI.View.pullBackgroundColor property](https://titaniumsdk.com/api/): controls the background color of the wrapper view of the pull view of a ListView or TableView.  Set this property on the view object contained in the pull view not on the ListView or the TableView.
+  * [Titanium.UI.ListView.noresults event](https://titaniumsdk.com/api/): fires if `searchText` or `searchView` returns no results.
 
 
 <a name="scrollable_view_move"></a>
 #### ScrollableView Move Methods
 
 This Release adds iOS support for the
-[movePrevious](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ScrollableView-method-movePrevious) and
-[moveNext](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.ScrollableView-method-moveNext)
+[movePrevious](https://titaniumsdk.com/api/) and
+[moveNext](https://titaniumsdk.com/api/)
 methods to programmatically change the current view displayed in the scrollable view.
 
 These methods plus the `scrollToView` method will animate the transition.  If you do not want to
@@ -563,9 +563,9 @@ Previously, these APIs were only available for Android and BlackBerry.
 
 This Release exposes iOS properties to customize the tint colors of a Switch:
 
-  * [onTintColor](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Switch-property-onTintColor): sets the tint color of the switch when it is on.
-  * [thumbTintColor](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Switch-property-thumbTintColor): sets the thumb color of the switch.
-  * [tintColor](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Switch-property-tintColor): sets the tint color of the switch when it is off. On iOS 7 and greater, this is only the outline color.
+  * [onTintColor](https://titaniumsdk.com/api/): sets the tint color of the switch when it is on.
+  * [thumbTintColor](https://titaniumsdk.com/api/): sets the thumb color of the switch.
+  * [tintColor](https://titaniumsdk.com/api/): sets the tint color of the switch when it is off. On iOS 7 and greater, this is only the outline color.
 
 
 <a name="ios_tab_group"></a>
@@ -573,16 +573,16 @@ This Release exposes iOS properties to customize the tint colors of a Switch:
 
 This Release introduces new properties to control the appearance of a Tab Group:
 
-  * [navTintColor](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TabGroup-property-navTintColor): sets the tint color of the tabs.
-  * [titleAttributes](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TabGroup-property-titleAttributes): sets the title attributes of the tab.
-  * [translucent](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TabGroup-property-translucent): controls the translucent behavior of the navigation bar of the tab.
+  * [navTintColor](https://titaniumsdk.com/api/): sets the tint color of the tabs.
+  * [titleAttributes](https://titaniumsdk.com/api/): sets the title attributes of the tab.
+  * [translucent](https://titaniumsdk.com/api/): controls the translucent behavior of the navigation bar of the tab.
 
 
 <a name="toolbar_background"></a>
 #### Toolbar Background
 
 This Release introduces the
-[extendBackground](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.iOS.Toolbar-property-extendBackground)
+[extendBackground](https://titaniumsdk.com/api/)
 property to extend the background of the Toolbar into the iOS 7 status bar.
 
 
@@ -592,9 +592,9 @@ property to extend the background of the Toolbar into the iOS 7 status bar.
 To add a shadow to a view component, use the following properties to control the appearance of the
 shadow:
 
-  * [viewShadowColor](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-property-viewShadowColor): sets the color of the shadow
-  * [viewShadowOffset](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-property-viewShadowOffset): sets the offset of the shadow
-  * [viewShadowRadius](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.View-property-viewShadowRadius): set the radius of the rounded corners of the shadow
+  * [viewShadowColor](https://titaniumsdk.com/api/): sets the color of the shadow
+  * [viewShadowOffset](https://titaniumsdk.com/api/): sets the offset of the shadow
+  * [viewShadowRadius](https://titaniumsdk.com/api/): set the radius of the rounded corners of the shadow
 
 
 <a name="webview_app_urls"></a>
@@ -602,16 +602,16 @@ shadow:
 
 To have the WebView handle application URLs, such as a phone number, which is normally sent to a
 shared application, use the
-[handlePlatformUrl](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.WebView-property-handlePlatformUrl)
+[handlePlatformUrl](https://titaniumsdk.com/api/)
 property to override the default behavior.
 
 <a name="window_nav_buttons"></a>
 #### Window Navigation Buttons
 
 This Release introduces the
-[leftNavButtons](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-leftNavButtons)
+[leftNavButtons](https://titaniumsdk.com/api/)
 and
-[rightNavButtons](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.Window-property-rightNavButtons)
+[rightNavButtons](https://titaniumsdk.com/api/)
 properties to add multiples buttons to the left and right side of the iOS navigation bar.
 
 Previously, only one button could be displayed in the left and right side of the iOS navigation bar. 
@@ -622,7 +622,7 @@ Previously, only one button could be displayed in the left and right side of the
 
 This Release introduces a new mechanism to support SSL certificates with the HTTPClient exposed as
 the
-[securityManager](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.Network.HTTPClient-property-securityManager)
+[securityManager](https://titaniumsdk.com/api/)
 property.  This property is only available on the Android and iOS platforms.
 
 
@@ -630,7 +630,7 @@ property.  This property is only available on the Android and iOS platforms.
 ### TableView Search Improvements
 
 This Release introduces the
-[filterAnchored](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TableView-property-filterAnchored)
+[filterAnchored](https://titaniumsdk.com/api/)
 property for TableView to limit searches to the start of the string.  For example, if this property is set to `true`,
 searching for "ha" returns results for "Harold" and "Harvard", but not "Sharon" and "Jonathan".
 If the property is set to `false`, the search returns all of the previous strings.
@@ -644,8 +644,8 @@ This Release introduces the `selection` property for TextArea and TextField to r
 location and length of the currently selected text.  This property can also be used to get the
 current location of the cursor. This property is only available on the Android and iOS platforms.
 
-  * [Titanium.UI.TextArea.selection](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextArea-property-selection): returns the currently selected text of the TextArea.
-  * [Titanium.UI.TextField.selection](https://docs.appcelerator.com/titanium/latest/#!/api/Titanium.UI.TextField-property-selection): returns the currently selected text of the TextField.
+  * [Titanium.UI.TextArea.selection](https://titaniumsdk.com/api/): returns the currently selected text of the TextArea.
+  * [Titanium.UI.TextField.selection](https://titaniumsdk.com/api/): returns the currently selected text of the TextField.
 
 
 <a name="known_issues"></a>

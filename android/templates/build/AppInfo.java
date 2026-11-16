@@ -52,10 +52,6 @@ public final class <%- classname %>AppInfo implements ITiAppInfo
 		return "<%- tiapp.icon %>";
 	}
 
-	public boolean isAnalyticsEnabled() {
-		return <%- !!tiapp.analytics %>;
-	}
-
 	public String getGUID() {
 		return "<%- tiapp.guid %>";
 	}

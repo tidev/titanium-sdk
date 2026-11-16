@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -234,7 +234,7 @@ public class TableViewRowProxy extends TiViewProxy
 	/**
 	 * Override getRect() to amend dimensions.
 	 *
-	 * @return Dictinary of view dimensions.
+	 * @return Dictionary of view dimensions.
 	 */
 	@Override
 	public KrollDict getRect()
@@ -255,8 +255,7 @@ public class TableViewRowProxy extends TiViewProxy
 	{
 		final TiViewProxy parent = getParent();
 
-		if (parent instanceof TableViewSectionProxy) {
-			final TableViewSectionProxy section = (TableViewSectionProxy) parent;
+		if (parent instanceof TableViewSectionProxy section) {
 
 			return section.getRowIndex(this);
 		}
@@ -379,7 +378,7 @@ public class TableViewRowProxy extends TiViewProxy
 		for (final WeakReference ref : clones) {
 			final TableViewRowProxy clone = (TableViewRowProxy) ref.get();
 
-			if (ref != null) {
+			if (ref != null && clone != null) {
 				clone.onPropertyChanged(name, value);
 			}
 		}

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -43,7 +43,7 @@ public class AttrProxy extends NodeProxy
 	public boolean getSpecified()
 	{
 		// Harmony will return false even when ownerElement is null, whereas
-		// spec says: "If the ownerElement attribute is null (i.e. because it
+		// spec says: "If the ownerElement attribute is null (e.g. because it
 		// was just created or was set to null by the various removal and cloning
 		// operations) specified is true."
 		if (attr.getOwnerElement() == null) {

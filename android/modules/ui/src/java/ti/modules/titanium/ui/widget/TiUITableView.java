@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -111,6 +111,11 @@ public class TiUITableView extends TiUIView
 
 			// Set vertical scroll indicator.
 			this.tableView.getRecyclerView().setVerticalScrollBarEnabled(TiConvert.toBoolean(value, true));
+		}
+
+		if (name.equals(TiC.PROPERTY_SNAPPING)) {
+			// Set row snapping.
+			this.tableView.setSnapping(TiConvert.toBoolean(value, false));
 		}
 
 		if (name.equals(TiC.PROPERTY_SEARCH) || name.equals(TiC.PROPERTY_SEARCH_AS_CHILD)) {
@@ -225,13 +230,12 @@ public class TiUITableView extends TiUIView
 
 			boolean hasColor = name.equals(TiC.PROPERTY_SEPARATOR_COLOR) && value != null;
 			if (hasColor || properties.containsKey(TiC.PROPERTY_SEPARATOR_COLOR)) {
-				String colorString;
+				int color;
 				if (name.equals(TiC.PROPERTY_SEPARATOR_COLOR)) {
-					colorString = TiConvert.toString(value);
+					color = TiConvert.toColor(value, proxy.getActivity());
 				} else {
-					colorString = properties.getString(TiC.PROPERTY_SEPARATOR_COLOR);
+					color = TiConvert.toColor(properties.get(TiC.PROPERTY_SEPARATOR_COLOR), proxy.getActivity());
 				}
-				final int color = TiConvert.toColor(colorString, proxy.getActivity());
 
 				// Set separator with specified color.
 				this.tableView.setSeparator(color, height);
@@ -251,6 +255,7 @@ public class TiUITableView extends TiUIView
 			|| name.equals(TiC.PROPERTY_HEADER_VIEW)
 			|| name.equals(TiC.PROPERTY_FOOTER_TITLE)
 			|| name.equals(TiC.PROPERTY_FOOTER_VIEW)
+			|| name.equals(TiC.PROPERTY_SEARCH_TEXT)
 			|| name.equals(TiC.PROPERTY_BACKGROUND_COLOR)) {
 			this.tableView.update(true);
 		}

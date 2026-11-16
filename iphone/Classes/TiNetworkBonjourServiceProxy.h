@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -24,7 +24,7 @@ PROPERTY(JSValue *, socket, Socket);
 PROPERTY(NSString *, type, Type);
 
 // Methods
-// FIXME: socketProxy can be TiNetworkSocketTCPProxy* once that proxy is moved to obj-c api
+// FIXME: socketProxy can be TiNetworkSocketTCPProxy* once that proxy is moved to obj-c API
 JSExportAs(publish,
            -(void)publish
            : (JSValue *)socketProxy withCallback

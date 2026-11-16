@@ -1,7 +1,7 @@
 /**
  * Loads, merges, edits, and saves "AndroidManifest.xml" files.
  *
- * You would normally want gradle to merge "AndroidManifest.xml" files between the app and its native libraries,
+ * You would normally want Gradle to merge "AndroidManifest.xml" files between the app and its native libraries,
  * but Titanium needs the ability to merge together manifest information from the following sources as well:
  * - App's "tiapp.xml"
  * - App's "platform/android/AndroidManifest.xml"
@@ -17,18 +17,16 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-'use strict';
-
-const DOMParser = require('xmldom').DOMParser;
-const fs = require('fs-extra');
-const os = require('os');
+import { DOMParser } from '@xmldom/xmldom';
+import fs from 'fs-extra';
+import os from 'node:os';
 
 /**
  * Class used to load, merge, edit, and save "AndroidManifest.xml" files.
  *
  * You are expected to load XML files via the static fromFilePath() or fromXmlString() methods.
  */
-class AndroidManifest {
+export class AndroidManifest {
 	/**
 	 * Creates a new AndroidManifest instance wrapping the given "xmldom.Document" object.
 	 * @param {Object} xmlDomDocument
@@ -132,7 +130,7 @@ class AndroidManifest {
 			if (permissionElement) {
 				permissionElement.setAttribute('android:name', name);
 				if (nodeToInsertAt) {
-					// The <application/> element exists. Insert above it to avoid gradle linting warnings.
+					// The <application/> element exists. Insert above it to avoid Gradle linting warnings.
 					// If we've acquired its indentation TextNode, then duplicate it so everything will line-up.
 					if (isTextNode(nodeToInsertAt)) {
 						manifestElement.insertBefore(nodeToInsertAt.cloneNode(false), nodeToInsertAt);
@@ -198,7 +196,7 @@ class AndroidManifest {
 	/**
 	 * Sets the <manifest/> element's "package" attribute to the given Java package name.
 	 * @param {String} name
-	 * The Java package name to be assigned such as "com.appceleration.kitchensink". Cannot be null or undefined.
+	 * The Java package name to be assigned such as "com.tidev.kitchensink". Cannot be null or undefined.
 	 */
 	setPackageName(name) {
 		// Validate argument.
@@ -262,6 +260,49 @@ class AndroidManifest {
 			}
 		}
 		return usesSdk;
+	}
+
+	/**
+	 * Determines if the manifest has an <activity-alias/> that shows a launcher icon on first install.
+	 * The alias must have an <intent-filter/> with the MAIN action and the LAUNCHER category
+	 * and must not be disabled via the "android:enabled" attribute.
+	 * @return {Boolean} Returns true if an enabled launcher alias exists. Returns false if not.
+	 */
+	hasEnabledLauncherAlias() {
+		if (this.isEmpty()) {
+			return false;
+		}
+
+		const appElement = getFirstChildElementByTagName(this._xmlDomDocument.documentElement, 'application');
+		if (!appElement) {
+			return false;
+		}
+
+		const hasChildWithName = (filterElement, tagName, androidName) => {
+			return !!getFirstChildElementByTagAndAndroidName(filterElement, tagName, androidName);
+		};
+		for (let index = 0; index < appElement.childNodes.length; index++) {
+			const aliasElement = appElement.childNodes.item(index);
+			if (!isElementNode(aliasElement) || (aliasElement.tagName !== 'activity-alias')) {
+				continue;
+			}
+
+			// An alias is enabled by default. A resource reference such as "@bool/name" is unknown
+			// at build time, so only a missing attribute or a literal "true" counts as enabled.
+			if (aliasElement.hasAttribute('android:enabled') && (aliasElement.getAttribute('android:enabled') !== 'true')) {
+				continue;
+			}
+
+			for (let filterIndex = 0; filterIndex < aliasElement.childNodes.length; filterIndex++) {
+				const filterElement = aliasElement.childNodes.item(filterIndex);
+				if (isElementNode(filterElement) && (filterElement.tagName === 'intent-filter')
+					&& hasChildWithName(filterElement, 'action', 'android.intent.action.MAIN')
+					&& hasChildWithName(filterElement, 'category', 'android.intent.category.LAUNCHER')) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -408,11 +449,11 @@ class AndroidManifest {
 
 	/**
 	 * Applies a 'tools:replace="attributeName"' attribute to all <manifest/>, <application/>, and <activity/> elements.
-	 * Will flag every attribute in these elements to be replaced by the gradle manifest merging tool.
+	 * Will flag every attribute in these elements to be replaced by the Gradle manifest merging tool.
 	 *
-	 * Note that a gradle build failure will occur if the app's "AndroidManifest.xml" defines an activity attribute
+	 * Note that a Gradle build failure will occur if the app's "AndroidManifest.xml" defines an activity attribute
 	 * which conflicts with a library's same activity attribute. Google expects the developer to resolve it by
-	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overriden.
+	 * defining a "tools:replace" attribute which explicitly defines each attribute that should be replaced/overridden.
 	 * Since "most" Titanium app developers override existing <application/> and <activity/> attributes, we'll
 	 * do this for them to avoid the massive tech-support issues.
 	 */
@@ -689,7 +730,7 @@ class AndroidManifest {
  * @private
  */
 function createManifestXmlDomDocument() {
-	const xmlDomDocument = (new DOMParser()).parseFromString('<manifest/>');
+	const xmlDomDocument = (new DOMParser()).parseFromString('<manifest/>', 'text/xml');
 	xmlDomDocument.documentElement.setAttribute('xmlns:android', 'http://schemas.android.com/apk/res/android');
 	xmlDomDocument.documentElement.setAttribute('xmlns:tools', 'http://schemas.android.com/tools');
 	return xmlDomDocument;
@@ -711,7 +752,7 @@ function isElementNode(node) {
  * @param {Object} node The XML node object to check. Can be null/undefined.
  * @returns {Boolean}
  * Returns true if given node is text between XLM elements or attributes.
- * Returns false if not or given an invalild argument.
+ * Returns false if not or given an invalid argument.
  * @private
  */
 function isTextNode(node) {
@@ -820,5 +861,3 @@ function applyToolsReplaceToElement(element) {
 		element.removeAttribute('tools:replace');
 	}
 }
-
-module.exports = AndroidManifest;

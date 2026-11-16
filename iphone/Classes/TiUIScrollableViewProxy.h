@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -8,6 +8,7 @@
 
 #import <TitaniumKit/TiViewProxy.h>
 #import <libkern/OSAtomic.h>
+#include <pthread.h>
 
 @interface TiUIScrollableViewProxy : TiViewProxy {
   pthread_rwlock_t viewsLock;

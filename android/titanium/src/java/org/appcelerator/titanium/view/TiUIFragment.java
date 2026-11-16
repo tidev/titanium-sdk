@@ -131,7 +131,7 @@ public abstract class TiUIFragment extends TiUIView implements Handler.Callback
 
 	public boolean handleMessage(Message msg)
 	{
-		//overwriting so descendents don't have to
+		//overwriting so descendants don't have to
 		return true;
 	}
 

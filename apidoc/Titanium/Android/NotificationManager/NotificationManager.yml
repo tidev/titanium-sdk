@@ -117,3 +117,19 @@ properties:
     summary: Use <Titanium.Android.STREAM_DEFAULT> instead.
     type: Number
     permission: read-only
+
+  - name: notificationChannels
+    summary: Returns an object with the ID and name of the notification channels
+    since: "12.1.0"
+    type: Dictionary<NotificationChannels>
+
+---
+name: NotificationChannels
+summary: The parameter passed to the `error` callback of <PreviewImageOptions>.
+properties:
+  - name: name
+    summary: Name of the channel
+    type: String
+  - name: id
+    summary: ID of the channel
+    type: String

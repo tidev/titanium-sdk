@@ -1,7 +1,7 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
- * Licensed under the terms of the Apache Public License
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
+ * Licensed under the terms of the Apache Public License.
  * Please see the LICENSE included with this distribution for details.
  */
 #define DISABLE_TI_LOG_SERVER
@@ -10,24 +10,19 @@
 #import <TitaniumKit/TiSharedConfig.h>
 #import <UIKit/UIKit.h>
 
-#ifndef TI_LOG_SERVER_PORT
-#define TI_LOG_SERVER_PORT 10571
-#endif
-
 // NOTE: this main is only used inside Xcode. In the real SDK, it's
 // automatically replaced and built on the fly - when running in
 // Xcode give some reasonable values
 
-NSString *const TI_APPLICATION_DEPLOYTYPE = @"development";
-NSString *const TI_APPLICATION_ID = @"com.appcelerator.kitchensink.xcode";
-NSString *const TI_APPLICATION_PUBLISHER = @"Appcelerator";
-NSString *const TI_APPLICATION_URL = @"https://appcelerator.com";
+NSString *const TI_APPLICATION_DEPLOY_TYPE = @"development";
+NSString *const TI_APPLICATION_ID = @"com.tidev.kitchensink.xcode";
+NSString *const TI_APPLICATION_PUBLISHER = @"TiDev, Inc";
+NSString *const TI_APPLICATION_URL = @"https://titaniumsdk.com";
 NSString *const TI_APPLICATION_NAME = @"Kitchen Sink (Xcode)";
 NSString *const TI_APPLICATION_VERSION = @"1.0.0";
 NSString *const TI_APPLICATION_DESCRIPTION = @"Kitchen Sink from XCode";
-NSString *const TI_APPLICATION_COPYRIGHT = @"Appcelerator";
+NSString *const TI_APPLICATION_COPYRIGHT = @"TiDev, Inc";
 NSString *const TI_APPLICATION_GUID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
-BOOL const TI_APPLICATION_ANALYTICS = YES;
 BOOL const TI_APPLICATION_SHOW_ERROR_CONTROLLER = YES;
 #if TARGET_OS_MACCATALYST
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"/Contents/Resources";
@@ -35,15 +30,20 @@ NSString *const TI_APPLICATION_RESOURCE_DIR = @"/Contents/Resources";
 NSString *const TI_APPLICATION_RESOURCE_DIR = @"";
 #endif
 NSString *const TI_APPLICATION_BUILD_TYPE = @"";
+NSUInteger const TI_LOG_SERVER_PORT = 10571;
+CGFloat const TI_APPLICATION_DEFAULT_BGCOLOR_RED = 1.0f;
+CGFloat const TI_APPLICATION_DEFAULT_BGCOLOR_GREEN = 1.0f;
+CGFloat const TI_APPLICATION_DEFAULT_BGCOLOR_BLUE = 1.0f;
 
 // Currently unused
+NSString *const TI_LOG_ID = @"25FE4B6E-7DA9-4344-B55B-25195570860F";
 NSString *const TI_APPLICATION_SDK_VERSION = @"8.0.0";
 NSString *const TI_APPLICATION_BUILD_HASH = @"df92fbf";
 NSString *const TI_APPLICATION_BUILD_DATE = @"3/14/2018 20:46";
 
 int main(int argc, char *argv[])
 {
-  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOYTYPE];
+  [[TiSharedConfig defaultConfig] setApplicationDeployType:TI_APPLICATION_DEPLOY_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationID:TI_APPLICATION_ID];
   [[TiSharedConfig defaultConfig] setApplicationPublisher:TI_APPLICATION_PUBLISHER];
   [[TiSharedConfig defaultConfig] setApplicationURL:[NSURL URLWithString:TI_APPLICATION_URL]];
@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
   [[TiSharedConfig defaultConfig] setApplicationDescription:TI_APPLICATION_DESCRIPTION];
   [[TiSharedConfig defaultConfig] setApplicationCopyright:TI_APPLICATION_COPYRIGHT];
   [[TiSharedConfig defaultConfig] setApplicationGUID:TI_APPLICATION_GUID];
-  [[TiSharedConfig defaultConfig] setAnalyticsEnabled:TI_APPLICATION_ANALYTICS];
   [[TiSharedConfig defaultConfig] setShowErrorController:TI_APPLICATION_SHOW_ERROR_CONTROLLER];
   [[TiSharedConfig defaultConfig] setApplicationBuildType:TI_APPLICATION_BUILD_TYPE];
   [[TiSharedConfig defaultConfig] setApplicationResourcesDirectory:TI_APPLICATION_RESOURCE_DIR];
@@ -63,13 +62,10 @@ int main(int argc, char *argv[])
   [[TiLogServer defaultLogServer] setPort:TI_LOG_SERVER_PORT];
 #endif
 
-  UIColor *defaultBgColor = UIColor.blackColor;
-#if defined(DEFAULT_BGCOLOR_RED) && defined(DEFAULT_BGCOLOR_GREEN) && defined(DEFAULT_BGCOLOR_BLUE)
-  defaultBgColor = [UIColor colorWithRed:DEFAULT_BGCOLOR_RED
-                                   green:DEFAULT_BGCOLOR_GREEN
-                                    blue:DEFAULT_BGCOLOR_BLUE
-                                   alpha:1.0f];
-#endif
+  UIColor *defaultBgColor = [UIColor colorWithRed:TI_APPLICATION_DEFAULT_BGCOLOR_RED
+                                            green:TI_APPLICATION_DEFAULT_BGCOLOR_GREEN
+                                             blue:TI_APPLICATION_DEFAULT_BGCOLOR_BLUE
+                                            alpha:1.0f];
   [[TiSharedConfig defaultConfig] setDefaultBackgroundColor:defaultBgColor];
 #if defined(DEBUG) || defined(DEVELOPER)
   [[TiSharedConfig defaultConfig] setDebugEnabled:YES];

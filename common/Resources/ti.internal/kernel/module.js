@@ -1,6 +1,6 @@
 /**
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -75,7 +75,7 @@ function bootstrap (global, kroll) {
 		 * each invocation API in an external (3rd party) module
 		 * See invoker.js for more info
 		 * @param  {object} externalModule native module proxy
-		 * @param  {string} sourceUrl      the current js file url
+		 * @param  {string} sourceUrl      the current JS file url
 		 * @return {object}                wrapper around the externalModule
 		 */
 		createModuleWrapper (externalModule, sourceUrl) {
@@ -588,17 +588,23 @@ function bootstrap (global, kroll) {
 	 * @return {Module}                   The loaded Module
 	 */
 	Module.runModule = function (source, filename, activityOrService) {
-		let id = filename;
-		if (!Module.main) {
-			id = '.';
-		}
-
-		const module = new Module(id, null);
 		// FIXME: I don't know why instanceof for Titanium.Service works here!
 		// On Android, it's an apiname of Ti.Android.Service
 		// On iOS, we don't yet pass in the value, but we do set Ti.App.currentService property beforehand!
-		// Can we remove the preload stuff in KrollBridge.m to pass along the service instance into this like we do on Andorid?
-		module.isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : Ti.App.currentService !== null;
+		// Can we remove the preload stuff in KrollBridge.m to pass along the service instance into this like we do on Android?
+		const isService = OS_ANDROID ? (activityOrService instanceof Titanium.Service) : Ti.App.currentService !== null;
+
+		// The app's launch script becomes the main module. A service that ran first in this runtime
+		// (process started or runtime restarted for a service) must not keep that role, because the
+		// launch script runs unwrapped and needs "global.require" which only the main module sets.
+		let id = filename;
+		if (!Module.main || (Module.main.isService && !isService)) {
+			id = '.';
+			Module.main = null;
+		}
+
+		const module = new Module(id, null);
+		module.isService = isService;
 		if (OS_ANDROID) {
 			if (module.isService) {
 				Object.defineProperty(Ti.Android, 'currentService', {

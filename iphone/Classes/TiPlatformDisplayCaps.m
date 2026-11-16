@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -47,7 +47,7 @@ GETTER_IMPL(NSNumber *, dpi, Dpi);
 // TODO Remove? Not in our docs!
 - (BOOL)isUIPortrait
 {
-  UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
+  UIInterfaceOrientation orientation = [TiUtils interfaceOrientation];
   return UIInterfaceOrientationIsPortrait(orientation);
 }
 

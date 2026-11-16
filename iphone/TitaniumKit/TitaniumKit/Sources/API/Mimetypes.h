@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -16,7 +16,7 @@ extern const NSString *svgMimeType;
 
 /**
  Converts a file extension into a mime type.
- 
+
  @param ext The extension to convert.
  @return The mime-type converted from the extension.
  */
@@ -24,7 +24,7 @@ extern const NSString *svgMimeType;
 
 /**
  Converts a mime type into a file extension.
- 
+
  @param mimetype The mime type to convert.
  @return The file extension converted from the mime-type.
  */

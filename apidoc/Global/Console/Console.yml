@@ -3,7 +3,7 @@ name: Global.Console
 summary: Console logging facilities.
 description: |
     The toplevel `console` support is intended to supplement <Titanium.API>
-    and make it easier for developers to port existing javascript code
+    and make it easier for developers to port existing JavaScript code
     (especially CommonJS modules) to Titanium.
     
     Note that `console` does not currently implement the complete

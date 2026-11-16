@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -39,6 +39,27 @@ describe('Titanium.UI.TextArea', () => {
 			it('equals \'Ti.UI.TextField\'', () => {
 				const textField = Ti.UI.createTextArea({});
 				should(textField.apiName).be.eql('Ti.UI.TextArea');
+			});
+		});
+
+		describe('.scrollable', () => {
+			it('defaults to true', () => {
+				const textArea = Ti.UI.createTextArea();
+				should(textArea).have.property('scrollable').which.is.a.Boolean();
+				should(textArea.scrollable).be.true();
+			});
+
+			it('equals value passed to factory method', () => {
+				const textArea = Ti.UI.createTextArea({ scrollable: false });
+				should(textArea.scrollable).be.false();
+			});
+
+			it('can be changed after creation', () => {
+				const textArea = Ti.UI.createTextArea({ scrollable: false });
+				textArea.scrollable = true;
+				should(textArea.scrollable).be.true();
+				textArea.scrollable = false;
+				should(textArea.scrollable).be.false();
 			});
 		});
 

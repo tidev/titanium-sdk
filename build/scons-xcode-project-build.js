@@ -1,13 +1,17 @@
 #!/usr/bin/env node
-'use strict';
 
-const program = require('commander');
-const fs = require('fs-extra');
-const path = require('path');
-const IOS = require('./lib/ios');
-const Builder = require('./lib/builder');
-const { i18n } = require('node-titanium-sdk');
-program.parse(process.argv);
+import { program } from 'commander';
+import fs from 'fs-extra';
+import path from 'node:path';
+import IOS from './lib/ios.js';
+import { Builder } from './lib/builder.js';
+import { i18n } from 'node-titanium-sdk';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const { version } = fs.readJsonSync(path.join(__dirname, '../package.json'));
+
+program.allowExcessArguments().parse(process.argv);
 
 const projectDir = program.args[0];
 const targetBuildDir = program.args[1];
@@ -49,7 +53,7 @@ async function generateBundle(outputDir) {
 	const builder = new Builder(options, [ 'ios' ]);
 	await builder.ensureGitHash();
 	const ios = new IOS({
-		sdkVersion: require('../package.json').version,
+		sdkVersion: version,
 		gitHash: options.gitHash,
 		timestamp: options.timestamp
 	});
@@ -59,7 +63,11 @@ async function generateBundle(outputDir) {
 
 async function main(tmpBundleDir) {
 	await fs.emptyDir(tmpBundleDir);
-	await generateBundle(appDir); // run rollup/babel to generate single bundled ti.main.js in app
+	// Build bundles outside the .app to avoid wiping the executable via fs.emptyDir.
+	await generateBundle(tmpBundleDir); // run rollup/babel to generate bundled ti.main.js/ti.kernel.js
+	await fs.copy(path.join(tmpBundleDir, 'ti.main.js'), path.join(appDir, 'ti.main.js'));
+	await fs.copy(path.join(tmpBundleDir, 'ti.kernel.js'), path.join(appDir, 'ti.kernel.js'));
+
 	console.log(`Removing temp dir used for bundling: ${tmpBundleDir}`);
 	await fs.remove(tmpBundleDir); // remove tmp location
 	console.log(`Copying xcode resources: ${xcodeProjectResources} -> ${appDir}`);
@@ -74,7 +82,7 @@ async function generateI18n () {
 	const project = path.join(projectDir, '..');
 
 	const i18nData = i18n.load(project);
-	const fileHeader = '/**\n * Appcelerator Titanium\n * this is a generated file - DO NOT EDIT\n */\n\n';
+	const fileHeader = '/**\n * Titanium SDK\n * this is a generated file - DO NOT EDIT\n */\n\n';
 	for (const [ language, data ] of Object.entries(i18nData)) {
 		const dir = path.join(appDir, `${language}.lproj`);
 		await fs.ensureDir(dir);

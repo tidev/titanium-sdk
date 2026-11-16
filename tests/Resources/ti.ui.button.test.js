@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -25,6 +25,39 @@ describe('Titanium.UI.Button', function () {
 			win = null;
 			done();
 		}
+	});
+
+	describe.ios('as a bar button', () => {
+		it('accepts .visibilityPriority and .axisBehavior in a navigation bar', finish => {
+			const items = [
+				Ti.UI.createButton({
+					title: 'One',
+					visibilityPriority: Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_HIGH,
+					axisBehavior: Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED
+				}),
+				Ti.UI.createButton({
+					title: 'Two',
+					visibilityPriority: Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_LOW,
+					axisBehavior: Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY
+				})
+			];
+			win = Ti.UI.createWindow({ rightNavButtons: items });
+			const nav = Ti.UI.createNavigationWindow({ window: win });
+			win.addEventListener('open', () => {
+				try {
+					// Properties can be changed once the item is in the bar
+					items[0].visibilityPriority = Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD;
+					items[0].axisBehavior = Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC;
+					should(items[0].visibilityPriority).be.eql(Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD);
+					should(items[0].axisBehavior).be.eql(Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC);
+					win = nav; // close the navigation window, which closes the root window too
+					finish();
+				} catch (err) {
+					finish(err);
+				}
+			});
+			nav.open();
+		});
 	});
 
 	it('.apiName', () => {
@@ -65,7 +98,7 @@ describe('Titanium.UI.Button', function () {
 			should(bar.title).eql('this is my value');
 			bar.titleid = 'other text'; // key won't get found!
 			should(bar.titleid).eql('other text');
-			should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira.appcelerator.org/browse/TIMOB-23498
+			should(bar.title).eql('this is my value'); // should retain old value if can't find key! https://jira-archive.titaniumsdk.com/TIMOB-23498
 		});
 
 		it('has no accessors', () => {
@@ -108,7 +141,7 @@ describe('Titanium.UI.Button', function () {
 		win.addEventListener('focus', function () {
 			try {
 				view.image = Ti.Filesystem.getFile('Logo.png').read();
-				should(view.image).be.an.Object(); // ios gives null
+				should(view.image).be.an.Object(); // iOS gives null
 			} catch (err) {
 				return finish(err);
 			}

@@ -1,10 +1,9 @@
 #!/usr/bin/env node
-'use strict';
 
-const exec = require('child_process').exec, // eslint-disable-line security/detect-child-process
-	spawn = require('child_process').spawn, // eslint-disable-line security/detect-child-process
-	fs = require('fs'),
-	path = require('path');
+import { exec } from 'node:child_process';
+import fs from 'fs-extra';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 if (parseInt(process.versions.modules) < 46) {
 	console.error('You must run this using Node.js 4.0 or newer. Sorry.');
@@ -44,10 +43,11 @@ exec('npm -v', function (err, stdout) {
 	}
 
 	// make sure we're in the right directory
+	const __dirname = path.dirname(fileURLToPath(import.meta.url));
 	let titaniumDir = __dirname;
 	while (1) {
 		const p = path.join(titaniumDir, 'package.json');
-		if (fs.existsSync(p) && require(p).name === 'titanium-mobile') { // eslint-disable-line security/detect-non-literal-require
+		if (fs.existsSync(p) && fs.readJsonSync(p).name === 'titanium-mobile') {
 			break;
 		}
 		titaniumDir = path.dirname(titaniumDir);
@@ -69,21 +69,7 @@ exec('npm -v', function (err, stdout) {
 			process.exit(1);
 		}
 
-		console.log('\nBuilding node-ios-device binaries');
-
-		const nodeIosDeviceDir = path.join(titaniumDir, 'node_modules', 'node-ios-device'),
-			child = spawn('sh', [ path.join(nodeIosDeviceDir, 'bin', 'build-all.sh') ], { cwd: nodeIosDeviceDir, stdio: 'inherit' });
-
-		child.on('close', function (code) {
-			if (code) {
-				console.error('Error: Failed to build node-ios-device');
-				process.exit(1);
-			}
-
-			rm(path.join(nodeIosDeviceDir, 'build'));
-
-			console.info('\nCompleted successfully!');
-			process.exit(0);
-		});
+		console.info('\nCompleted successfully!');
+		process.exit(0);
 	});
 });

@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -123,6 +123,76 @@ describe('Titanium.UI.Window', function () {
 			// TODO: Add snapshot test
 		});
 
+		describe.ios('.verticalBarBehavior', () => {
+			beforeEach(() => {
+				win = Ti.UI.createWindow({});
+			});
+
+			it('is a Number', () => {
+				should(win.verticalBarBehavior).be.a.Number();
+			});
+
+			it('defaults to automatic', () => {
+				should(win.verticalBarBehavior).be.eql(0);
+			});
+
+			it('can be assigned a Number value', () => {
+				win.verticalBarBehavior = Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED;
+				should(win.verticalBarBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED);
+			});
+
+			it('can be changed while the window is open', finish => {
+				win = Ti.UI.createWindow({ verticalBarBehavior: Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED });
+				win.addEventListener('open', () => {
+					try {
+						win.verticalBarBehavior = Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC;
+						should(win.verticalBarBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+
+			it('has no accessors', () => {
+				should(win).not.have.accessors('verticalBarBehavior');
+			});
+		});
+
+		describe.ios('.verticalBarCompressionBehavior', () => {
+			beforeEach(() => {
+				win = Ti.UI.createWindow({});
+			});
+
+			it('is a Number', () => {
+				should(win.verticalBarCompressionBehavior).be.a.Number();
+			});
+
+			it('defaults to automatic', () => {
+				should(win.verticalBarCompressionBehavior).be.eql(0);
+			});
+
+			it('can be assigned a Number value inside a NavigationWindow', finish => {
+				win = Ti.UI.createWindow({ verticalBarCompressionBehavior: Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR });
+				const nav = Ti.UI.createNavigationWindow({ window: win });
+				win.addEventListener('open', () => {
+					try {
+						should(win.verticalBarCompressionBehavior).be.eql(Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR);
+						win = nav; // close the navigation window, which closes the root window too
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				nav.open();
+			});
+
+			it('has no accessors', () => {
+				should(win).not.have.accessors('verticalBarCompressionBehavior');
+			});
+		});
+
 		describe.ios('.homeIndicatorAutoHidden', () => {
 			beforeEach(() => {
 				win = Ti.UI.createWindow({
@@ -145,6 +215,59 @@ describe('Titanium.UI.Window', function () {
 
 			it('has no accessors', () => {
 				should(win).not.have.accessors('homeIndicatorAutoHidden');
+			});
+		});
+
+		describe.ios('.reservedRegions', () => {
+			it('is an empty Array before the window is opened', () => {
+				win = Ti.UI.createWindow({});
+				should(win.reservedRegions).be.an.Array();
+				should(win.reservedRegions).be.empty();
+			});
+
+			it('is an Array of regions once the window is opened', finish => {
+				win = Ti.UI.createWindow({ extendSafeArea: true });
+				win.addEventListener('open', () => {
+					try {
+						const regions = win.reservedRegions;
+						should(regions).be.an.Array();
+						// Devices without reserved regions (everything but iPhone Duo) report none
+						for (const region of regions) {
+							should(region.kind).be.oneOf([ 'division', 'occlusion' ]);
+							should(region.active).be.a.Boolean();
+							should(region.rect).be.an.Object();
+							should(region.rect.width).be.a.Number();
+							should(region.margins).be.an.Object();
+							should(region.margins.top).be.a.Number();
+						}
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
+			});
+
+			it('has no accessors', () => {
+				win = Ti.UI.createWindow({});
+				should(win).not.have.accessors('reservedRegions');
+			});
+		});
+
+		describe.ios('reservedregionschange', () => {
+			it('listener can be added and removed', finish => {
+				win = Ti.UI.createWindow({});
+				const listener = () => {};
+				win.addEventListener('reservedregionschange', listener);
+				win.addEventListener('open', () => {
+					try {
+						win.removeEventListener('reservedregionschange', listener);
+						finish();
+					} catch (err) {
+						finish(err);
+					}
+				});
+				win.open();
 			});
 		});
 
@@ -246,8 +369,8 @@ describe('Titanium.UI.Window', function () {
 		});
 
 		it.ios('.leftNavButton with default color (no color value) and .rightNavButton with tintColor', finish => {
-			// TO DO: Snapshots for different iPads are different. Can not test with static image.
-			// Probably try with snapshot comparision (with and without color) at run time
+			// TODO: Snapshots for different iPads are different. Can not test with static image.
+			// Probably try with snapshot comparison (with and without color) at run time
 			if (utilities.isMacOS() || utilities.isIPad()) {
 				return finish(); // how to skip for iPad?
 			}
@@ -291,8 +414,8 @@ describe('Titanium.UI.Window', function () {
 		});
 
 		it.ios('.leftNavButton and .rightNavButton  with color and tintColor', finish => {
-			// TO DO: Snapshots for different iPads are different. Can not test with static image.
-			// Probably try with snapshot comparision (with and without color) at run time
+			// TODO: Snapshots for different iPads are different. Can not test with static image.
+			// Probably try with snapshot comparison (with and without color) at run time
 			if (utilities.isMacOS() || utilities.isIPad()) {
 				return finish(); // how to skip for iPad?
 			}
@@ -570,7 +693,7 @@ describe('Titanium.UI.Window', function () {
 			it('can be assigned new value', () => {
 				win.titleid = 'other text';
 				should(win.titleid).eql('other text');
-				should(win.title).eql('this is my value'); // FIXME Windows: https://jira.appcelerator.org/browse/TIMOB-23498
+				should(win.title).eql('this is my value'); // FIXME Windows: https://jira-archive.titaniumsdk.com/TIMOB-23498
 			});
 
 			it('has no accessors', () => {
@@ -725,6 +848,19 @@ describe('Titanium.UI.Window', function () {
 					}).catch(e => finish(e));
 				}).catch(e => finish(e));
 			});
+
+			it.android('called twice before first close finishes resolves both Promises', finish => {
+				win = Ti.UI.createWindow({
+					backgroundColor: '#0000ff',
+					exitOnClose: false
+				});
+
+				win.open().then(() => {
+					const first = win.close();
+					const second = win.close();
+					return Promise.all([ first, second ]).then(() => finish());
+				}).catch(e => finish(e));
+			});
 		});
 
 		describe('#open()', () => {
@@ -797,7 +933,7 @@ describe('Titanium.UI.Window', function () {
 	describe('events', function () {
 		this.timeout(20000);
 
-		// FIXME https://jira.appcelerator.org/browse/TIMOB-23640
+		// FIXME https://jira-archive.titaniumsdk.com/TIMOB-23640
 		it.windowsDesktopBroken('postlayout event gets fired', function (finish) {
 			win = Ti.UI.createWindow({ backgroundColor: 'yellow' });
 
@@ -1004,7 +1140,7 @@ describe('Titanium.UI.Window', function () {
 		let thirdWindowOpen = 0;
 		let thirdWindowClose = 0;
 
-		// Create 3 windows in sucession, opening each, then once opened create.open next. Once last one is open,
+		// Create 3 windows in succession, opening each, then once opened create.open next. Once last one is open,
 		// schedule it to be closed, and as it gets closed schedule the one before it to close, etc.
 		// once last window is closed, verify the number of events we get fired on each window (close/open/focus/blur)
 
@@ -1057,7 +1193,7 @@ describe('Titanium.UI.Window', function () {
 			// now wrap up test!
 			try {
 				should(rootWindowFocus).be.eql(2);
-				should(rootWindowBlur).be.eql(2); // FIXME: ios gives us 1 here!
+				should(rootWindowBlur).be.eql(2); // FIXME: iOS gives us 1 here!
 				should(rootWindowOpen).be.eql(1);
 				should(rootWindowClose).be.eql(1);
 
@@ -1200,8 +1336,8 @@ describe('Titanium.UI.Window', function () {
 		win.close();
 		// wait until a window should have opened and fired the event...
 		setTimeout(() => finish(), 1000);
-		// locally android took 106,67,64ms
-		// ios took 1ms repeatedly
+		// locally Android took 106,67,64ms
+		// iOS took 1ms repeatedly
 		// so 1 second should be enough time.
 	});
 

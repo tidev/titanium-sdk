@@ -1,20 +1,18 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2019-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 /* eslint-env mocha */
 /* eslint no-unused-expressions: "off" */
-/* eslint node/no-deprecated-api: "off"  */
-/* eslint node/no-unsupported-features/node-builtins: "off" */
 'use strict';
 const should = require('./utilities/assertions'); // eslint-disable-line no-unused-vars
 let assert;
 
 // possible test cases:
-// https://github.com/nodejs/node/blob/master/test/parallel/test-assert-deep.js
-// https://github.com/nodejs/node/blob/master/test/parallel/test-assert.js
+// https://github.com/nodejs/node/blob/main/test/parallel/test-assert-deep.js
+// https://github.com/nodejs/node/blob/main/test/parallel/test-assert.js
 
 describe('assert', function () {
 	it('should be required as core module', function () {

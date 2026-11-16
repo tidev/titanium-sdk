@@ -1,34 +1,12 @@
-'use strict';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { execSync } from 'node:child_process';
+import fs from 'fs-extra';
+import semver from 'semver';
 
-const path = require('path');
-const semver = require('semver');
-const fs = require('fs-extra');
-// eslint-disable-next-line security/detect-child-process
-const execSync = require('child_process').execSync;
-const packageJSON = require('../package.json');
-const previousBranch = guessPreviousBranch(packageJSON.version);
-
-// some of us use our personal email addresses to commit...
-const KNOWN_EMPLOYEE_EMAILS = [
-	'chris@cb1inc.com',
-	'ewanharris93@gmail.com',
-	'chris.a.williams@gmail.com',
-	'jan.vennemann@gmx.net',
-	'contact@garymathews.com',
-	'yordan.banev@gmail.com',
-	'iw@whitfin.io',
-	'mukherjee2@users.noreply.github.com',
-	'14187093+Sajoha@users.noreply.github.com',
-	'Topener@users.noreply.github.com',
-	'brenton.house@gmail.com',
-	'build@users.noreply.github.com'
-];
-
-// others use our company email addresses
-const KNOWN_EMPLOYEE_EMAIL_DOMAINS = [
-	'axway.com',
-	'appcelerator.com'
-];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJSON = fs.readJSONSync(path.join(__dirname, '../package.json'));
+const previous = previousRelease(packageJSON.version);
 
 function groupBy(list, keyGetter) {
 	const map = new Map();
@@ -61,41 +39,70 @@ function prettifiedScope(rawScope) {
 }
 
 /**
- * Try to determine what branch or tag to compare against for determining the commit list and compare url
+ * The release these notes are measured from: the newest GA release older than
+ * the one being cut.
  *
- * @param {string} version current version
- * @returns {string}
+ * Every release is tagged `<major>_<minor>_<patch>_GA`, so the tags are the
+ * record of what actually shipped. This used to guess at a maintenance branch
+ * instead, which failed two ways: a bare name like `14_0_X` does not resolve on
+ * a CI checkout, where the branch exists only as `origin/14_0_X`, and a branch
+ * tip is not a release.
+ *
+ * Picking by version rather than by reachability keeps maintenance releases
+ * right — cutting 13.4.2 compares against 13.4.1 even though 14.0.0 has already
+ * shipped from main — and needs no knowledge of how the branches are laid out.
+ *
+ * @param {string} version the version being released
+ * @returns {{ tag: string, sha: string }} the tag and the commit it points at
  */
-function guessPreviousBranch(version) {
-	const result = version.match(/(\d+)\.(\d+)\.(\d+)/);
-	const major = parseInt(result[1], 10);
-	const minor = parseInt(result[2], 10);
-	const patch = parseInt(result[3], 10);
-	if (patch === 0) {
-		// new major or minor version...
+function previousRelease(version) {
+	const released = execSync('git tag --list "*_GA"', { encoding: 'utf8' })
+		.split(/\r?\n/)
+		// `1_8_0_1_GA` is the one four-part tag in the repo's history. Dropping
+		// what does not parse also drops it, and it predates anything we would
+		// ever compare against.
+		.map(line => /^(\d+)_(\d+)_(\d+)_GA$/.exec(line.trim()))
+		.filter(Boolean)
+		.map(([ tag, major, minor, patch ]) => ({ tag, version: `${major}.${minor}.${patch}` }))
+		.filter(release => semver.lt(release.version, version))
+		.sort((a, b) => semver.compare(a.version, b.version));
 
-		// new minor version
-		if (minor !== 0) { // if 8.1.0, 6.5.0, 7.8.0, etc
-			// return previous minor version's maintenance branch
-			return `${major}_${minor - 1}_X`; // return 8_0_X, 6_4_X, 7_7_X respectively
-		}
-
-		// major version
-		// try and find latest maintenance branch of previous major version by asking for git branches with a pattern
-		const output = execSync(`git branch --list ${major - 1}_*_X`, { encoding: 'utf8' });
-		const lines = output.split(/\r?\n/).map(l => l.trim()).filter(l => l).sort();
-		const latestBranch = lines[lines.length - 1];
-		return latestBranch;
+	const previous = released[released.length - 1];
+	if (!previous) {
+		throw new Error(`cannot find a GA release older than ${version} to generate notes from`);
 	}
 
-	// e.g. 8.2.1, 1.2.3, 7.5.2
-	return `${major}_${minor}_${patch - 1}_GA`; // try 8_2_0, 1_2_2, 7_5_1?
-	// Maybe we can try and confirm the tag actually exists? Because we've been awful about tagging and tag names...
-	// ideally it should be like "v1.2.3", but we're doing like '8_1_1_GA' so far
+	// The commit, not the tag. `from` is handed to `git log`, and a sha resolves
+	// without depending on which refs a checkout happens to have fetched.
+	const sha = execSync(`git rev-list -n 1 ${previous.tag}`, { encoding: 'utf8' }).trim();
+
+	// A tag fetched with `--depth` is grafted with no history behind it, so it
+	// shares no ancestor with HEAD and the symmetric difference below degenerates
+	// to every commit in the repository. That does not fail — it quietly yields a
+	// release note spanning the whole project, so check for it here.
+	let mergeBase = '';
+	try {
+		mergeBase = execSync(`git merge-base ${sha} HEAD`, {
+			encoding: 'utf8',
+			stdio: [ 'ignore', 'pipe', 'ignore' ]
+		}).trim();
+	} catch {
+		// exit 1 is "no common ancestor"; a broken git would have thrown above
+	}
+	if (!mergeBase) {
+		throw new Error(
+			`${previous.tag} (${sha.slice(0, 10)}) shares no history with HEAD, so the range would be `
+			+ 'the entire repository rather than one release.\n'
+			+ 'A shallow clone does this; `git fetch --unshallow --tags` repairs it. release-notes.js\n'
+			+ 'runs that itself, so reaching this through it means the fetch was skipped or failed.'
+		);
+	}
+
+	return { tag: previous.tag, sha };
 }
 
 function urlToVersion(url) {
-	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1]; // eslint-disable-line security/detect-child-process
+	return /-(\d+\.\d+\.\d+)\.zip$/.exec(url)[1];
 }
 
 function gatherModules() {
@@ -146,28 +153,34 @@ function getFilteredShaListing(from) {
 	return new Set(stdout.split(/\r?\n/));
 }
 
-const filteredCommitSHAs = getFilteredShaListing(previousBranch);
+const filteredCommitSHAs = getFilteredShaListing(previous.sha);
 
-module.exports = {
+export default {
 	gitRawCommitsOpts: {
 		// 'right-only': true, // --right-only
 		// 'cherry-pick': true, // --cherry-pick
 		// merges: false, // --no-merges
 		// NOTE: This does a 9_0_X..HEAD comparison, but we need a 9_0_X...HEAD comparison with cherry-picks removed
 		// We do that above by getting the hashes of that subset and then skip anythign this collects that don't fall into that set
-		from: previousBranch,
+		from: previous.sha,
 		// We override to include authorName and authorEmail!
 		format: '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae'
 	},
 	writerOpts: {
 		transform: function (commit) {
+			// conventional-changelog now freezes commit objects; clone before mutating
+			commit = {
+				...commit,
+				notes: (commit.notes || []).map(note => ({ ...note })),
+				references: [ ...(commit.references || []) ],
+			};
 			// skip commits that may have cherry-picks on both sides
 			if (!filteredCommitSHAs.has(commit.hash)) {
 				return;
 			}
 
 			let discard = true;
-			let community = false;
+			let community = true;
 			let breaking = false;
 
 			// Special handling of breaking changes. We gather them in a separate array
@@ -178,23 +191,17 @@ module.exports = {
 				breaking = true;
 			});
 
-			// check authorName/authorEmail against known axway employee list or some whitelist or something to determine community credits?
-			if (commit.authorEmail) {
-				const emailParts = commit.authorEmail.split('@');
-				const domain = emailParts[1];
-				if (!KNOWN_EMPLOYEE_EMAIL_DOMAINS.includes(domain)
-					&& !KNOWN_EMPLOYEE_EMAILS.includes(commit.authorEmail)
-					&& !commit.authorEmail.includes('greenkeeper[bot]')
-					&& !commit.authorEmail.includes('dependabot')) {
-					// If this is a noreply github email address, strip it to username so we can link to them
-					// if (domain === 'users.noreply.github.com') {
-					// 	const usernameParts = emailParts[0].split('+'); // may be ID+username, or just username
-					// 	const username = usernameParts[usernameParts.length - 1];
-					// 	// TODO: Record username so we can provide link in changelog?
-					// }
-					// This is a community contribution! Add name to a community credits section
-					community = true;
-				}
+			// A breaking change announced in the header rather than a footer, as
+			// in `[Breaking change] Android: Ti.UI.Color parity`. The parser only
+			// looks for note keywords in footers — it already matches them without
+			// regard to case — so a header says nothing to it at any casing, and
+			// the commit reaches here with no note, no type and no subject.
+			// Recover what the author meant and let the subject stand on its own
+			// under the heading, which supplies the `[Breaking change]` part.
+			const breakingHeader = /^\s*\[breaking[ -]?changes?\]:?\s*/i;
+			if (typeof commit.header === 'string' && breakingHeader.test(commit.header)) {
+				commit.subject = commit.header.replace(breakingHeader, '');
+				breaking = true;
 			}
 
 			// ensure scope is lowercase
@@ -274,20 +281,22 @@ module.exports = {
 				const commits = communityContributions.get(commit.authorName) || [];
 				commits.push(commit);
 				communityContributions.set(commit.authorName, commits);
-				// We may have a commit that community provided that we wanted to massage for community credits but not include in the overall listing
-				if (discard) {
-					return;
-				}
 			}
 
 			// was this a breaking change? We have a special place for that!
 			if (breaking) {
 				breakingChanges.push(commit);
-				// it may have been a refactoring or other change we don't normally list,
-				// so don't include whatever random category it was
-				if (discard) {
-					return;
-				}
+			}
+
+			// Both sections above hold their own reference to the commit, so all
+			// `discard` decides is whether it *also* belongs in the normal type
+			// listings — it may have been a refactoring or other change we don't
+			// normally list, or one we wanted to massage for community credits
+			// only. Each block used to check it and return, which meant a
+			// community author's breaking change stopped at the credits and never
+			// reached the breaking section.
+			if (discard) {
+				return;
 			}
 
 			return commit;
@@ -295,7 +304,7 @@ module.exports = {
 		finalizeContext: function (context) {
 			// Control how the version compare link is generated
 			context.linkCompare = true;
-			context.previousTag = previousBranch;
+			context.previousTag = previous.tag;
 			context.currentTag = packageJSON.version;
 
 			// Here we hack the generated commitGroups which sorted commits by type (feature, bug fix, etc)
@@ -314,17 +323,21 @@ module.exports = {
 			});
 
 			// HACK the breaking change commits into one heading with sub-headings by platform
-			const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
-			const scopeGroups = [];
-			grouped.forEach((val, key) => {
-				scopeGroups.push({ title: key, commits: val });
-			});
-			context.noteGroups = [
-				{
-					title: 'BREAKING CHANGES',
-					scopeGroups
-				}
-			];
+			if (breakingChanges.length > 0) {
+				const grouped = groupBy(breakingChanges, commit => prettifiedScope(commit.scope));
+				const scopeGroups = [];
+				grouped.forEach((val, key) => {
+					scopeGroups.push({ title: key, commits: val });
+				});
+				context.noteGroups = [
+					{
+						title: 'BREAKING CHANGES',
+						scopeGroups
+					}
+				];
+			} else {
+				context.noteGroups = null;
+			}
 
 			// convert communityContributions from map to array of objects!
 			context.communityContributions = [];
@@ -340,17 +353,23 @@ module.exports = {
 				context.isMajor = !context.isPatch && semver.minor(context.version) === 0;
 			}
 
+			// The identifier `ti sdk install` takes: version and channel, e.g.
+			// `14.0.0.GA`. release-notes.js passes the channel it was asked for;
+			// reaching here without one means `npm run build:changelog`, which
+			// only ever describes a GA release.
+			context.sdkVersion = `${context.version}.${process.env.TI_RELEASE_CHANNEL || 'GA'}`;
+
 			// Set End of Support date based on whether this is mjaor or minor/patch.
 			// Major means EoS 12 months from now for last major line.
 			// Minor/Patch means EoS 6 months from now for last minor
 			const eosDate = new Date();
 			if (context.isMajor) {
 				eosDate.setMonth(eosDate.getMonth() + 12);
-				// if isMajor, subtract one from major, add '.x', i.e. 8.0.0 -> '7.x'
+				// if isMajor, subtract one from major, add '.x', e.g. 8.0.0 -> '7.x'
 				context.eosBranch = `${semver.major(context.version) - 1}.x`;
 			} else {
 				if (!context.isPatch) { // should be minor!
-					// if isMinor, subtract one from minor, add .x, i.e. 8.1.0 -> 8.0.x
+					// if isMinor, subtract one from minor, add .x, e.g. 8.1.0 -> 8.0.x
 					context.eosBranch = `${semver.major(context.version)}.${semver.minor(context.version) - 1}.x`;
 					context.patchBranch = `${semver.major(context.version)}.${semver.minor(context.version)}.x`;
 					context.majorBranch = `${semver.major(context.version)}.x`;

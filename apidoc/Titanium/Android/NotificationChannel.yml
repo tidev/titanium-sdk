@@ -25,7 +25,7 @@ examples:
                 icon: Ti.Android.R.drawable.ic_dialog_info,
                 contentTitle: 'TITLE',
                 contentText : 'This is a test',
-                channelId: channel.getId()
+                channelId: channel.id
             });
 
         Ti.Android.NotificationManager.notify(100, notification);
@@ -72,7 +72,7 @@ properties:
     type: Number
 
   - name: lockscreenVisibility
-    summary: Whether or not notifications posted to this channel are shown on the lockscreen in full or redacted form.
+    summary: Whether or not notifications posted to this channel are shown on the lock screen in full or redacted form.
     type: Number
     constants: [Titanium.Android.VISIBILITY_*]
 

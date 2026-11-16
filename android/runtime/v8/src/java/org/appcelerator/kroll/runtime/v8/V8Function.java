@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -50,6 +50,10 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 	{
 		if (KrollRuntime.isDisposed()) {
 			Log.w(TAG, "Runtime disposed, cannot call function.");
+			return null;
+		}
+		if (isStale() || ((krollObject instanceof V8Object) && ((V8Object) krollObject).isStale())) {
+			Log.w(TAG, "Runtime restarted, cannot call function from previous runtime.");
 			return null;
 		}
 		return nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);

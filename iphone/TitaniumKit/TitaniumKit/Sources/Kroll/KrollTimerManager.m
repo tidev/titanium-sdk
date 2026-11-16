@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -89,11 +89,15 @@
 
 - (void)dealloc
 {
-  if (self.timers != nil) {
+  // `timers` is a strong property: release the ivar once instead of releasing and then assigning
+  // nil through the setter, which released the map table a second time. The manager is only
+  // deallocated once the JS VM drops the setTimeout/setInterval blocks that capture it, so this
+  // double release surfaced when the VM was torn down during Ti.App._restart().
+  if (_timers != nil) {
     [self invalidateAllTimers];
-    [self.timers removeAllObjects];
-    [self.timers release];
-    self.timers = nil;
+    [_timers removeAllObjects];
+    [_timers release];
+    _timers = nil;
   }
 
   [super dealloc];

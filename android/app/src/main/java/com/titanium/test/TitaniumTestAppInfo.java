@@ -60,11 +60,6 @@ public final class TitaniumTestAppInfo implements ITiAppInfo
 		return "appicon.png";
 	}
 
-	public boolean isAnalyticsEnabled()
-	{
-		return true;
-	}
-
 	public String getGUID()
 	{
 		return "edf09efc-69ef-46fd-9777-35d6aaa2d7b5";

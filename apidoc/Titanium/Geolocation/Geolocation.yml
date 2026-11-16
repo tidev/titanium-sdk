@@ -93,7 +93,7 @@ description: |
 
     On Android, two different location service modes are supported: *simple*, and *manual*.
 
-    *   *Simple mode* provides a compromise mode that provides adaquate support for
+    *   *Simple mode* provides a compromise mode that provides adequate support for
         undemanding location applications without requiring developers to
         write a lot of Android-specific code. To use simple mode:
 
@@ -231,10 +231,14 @@ methods:
       type: Promise<HeadingResponse>
 
   - name: getCurrentPosition
-    summary: Retrieves the last known location from the device.
+    summary: Retrieves the current location from the device.
     description: |
-        On Android, the radios are not turned on to update the location, and a cached
-        location is used.
+        On Android, a cached location is returned immediately if it is less than 30 seconds old.
+        Otherwise a single fresh fix is requested, through the Google Play Services fused location
+        provider when available or the platform location manager otherwise, using the priority
+        selected by <Titanium.Geolocation.accuracy>. The request gives up after 30 seconds, in
+        which case the callback receives an error and the Promise is rejected, so the call
+        always completes.
 
         On iOS the radios **may** be used if the location is too "old".
     parameters:
@@ -277,7 +281,7 @@ methods:
         their permissions from "When in Use" to "Always". In order to get the best usability for iOS 11 and later, request "When in Use" first
         and upgrade your location-permissions by requesting "Always" permissions later if required. If this permission-flow is not used, iOS
         will still ask the user to select between "When in Use", "Always", and "Don't Allow" (primary action) on iOS 11 when asking for "Always"
-        permissions, which can lead to a higher frequence of denied permissions, so be careful requesting location permissions.
+        permissions, which can lead to a higher frequency of denied permissions, so be careful requesting location permissions.
         The iOS 11 related upgrade-flow is available in Titanium SDK 6.3.0 and later.
 
         Finally, iOS 11 and later will require you to *always* include the `NSLocationWhenInUseUsageDescription` permission and Titanium will throw a
@@ -598,7 +602,7 @@ properties:
   - name: AUTHORIZATION_RESTRICTED
     summary: |
         A [locationServicesAuthorization](Titanium.Geolocation.locationServicesAuthorization) value
-        indicating that the application is not authorized to use location servies *and*
+        indicating that the application is not authorized to use location services *and*
         the user cannot change this application's status.
     type: Number
     permission: read-only
@@ -748,13 +752,13 @@ properties:
         `ACCURACY_NEAREST_TEN_METERS`, `ACCURACY_HUNDRED_METERS`, `ACCURACY_KILOMETER`, or
         `ACCURACY_THREE_KILOMETERS`.
 
-        For finer-grained control on Android, use *manual mode*, instead of specifing an accuracy.
+        For finer-grained control on Android, use *manual mode*, instead of specifying an accuracy.
         This mode requires more active management on the part of the application, but it
         is recommended to maximize accuracy and battery life.
         See <Titanium.Geolocation.Android> for details on using manual mode.
     type: Number
     constants: [Titanium.Geolocation.ACCURACY_HIGH, Titanium.Geolocation.ACCURACY_BEST_FOR_NAVIGATION, Titanium.Geolocation.ACCURACY_LOW, Titanium.Geolocation.ACCURACY_BEST, Titanium.Geolocation.ACCURACY_NEAREST_TEN_METERS,
-    Titanium.Geolocation.ACCURACY_HUNDRED_METERS, Titanium.Geolocation.ACCURACY_KILOMETER, Titanium.Geolocation.ACCURACY_THREE_KILOMETERS, Titanium.Geolocation.ACCURACY_REDUCED]
+        Titanium.Geolocation.ACCURACY_HUNDRED_METERS, Titanium.Geolocation.ACCURACY_KILOMETER, Titanium.Geolocation.ACCURACY_THREE_KILOMETERS, Titanium.Geolocation.ACCURACY_REDUCED]
 
   - name: distanceFilter
     summary: The minimum change of position (in meters) before a 'location' event is fired.

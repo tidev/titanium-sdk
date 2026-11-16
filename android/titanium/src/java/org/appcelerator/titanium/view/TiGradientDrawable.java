@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -10,6 +10,7 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.common.Log;
+import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.TiPoint;
 import org.appcelerator.titanium.util.TiConvert;
@@ -299,7 +300,7 @@ public class TiGradientDrawable extends ShapeDrawable
 				// We were given a Titanium "GradientColorRef" dictionary. Fetch its color.
 				@SuppressWarnings({ "rawtypes", "unchecked" })
 				HashMap<String, Object> colorRefObject = (HashMap) color;
-				this.colors[i] = TiConvert.toColor(colorRefObject, "color");
+				this.colors[i] = TiConvert.toColor(colorRefObject, "color", TiApplication.getAppCurrentActivity());
 
 				// Fetch the offset from the "GradientColorRef" dictionary.
 				// Note: Make sure value does not exceed the 0.0 - 1.0 normalized range.
@@ -319,7 +320,7 @@ public class TiGradientDrawable extends ShapeDrawable
 				}
 			} else {
 				// Fetch the color value from the array.
-				this.colors[i] = TiConvert.toColor(color.toString());
+				this.colors[i] = TiConvert.toColor(color.toString(), TiApplication.getAppCurrentActivity());
 			}
 		}
 

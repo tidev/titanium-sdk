@@ -21,7 +21,7 @@
 /**
  * Node's lib/internal/util.js modified for Axway Titanium
  *
- * @see https://github.com/nodejs/node/blob/master/lib/internal/util.js
+ * @see https://github.com/nodejs/node/blob/main/lib/internal/util.js
  */
 
 import { isNativeError } from './util/types';

@@ -3,20 +3,18 @@
  * and then configures them in the Xcode project
  */
 
-// TO DO: Can we merge storyboard.js and farmework.js
+// TODO: Can we merge storyboard.js and framework.js
 
-'use strict';
+import fs from 'fs-extra';
+import { IncrementalFileTask } from 'appc-tasks';
+import path from 'node:path';
 
-const fs = require('fs-extra');
-const IncrementalFileTask = require('appc-tasks').IncrementalFileTask;
-const path = require('path');
+export const cliVersion = '>=3.2.1';
 
-exports.cliVersion = '>=3.2.1';
-
-exports.init = function (logger, config, cli) {
+export function init(logger, config, cli) {
 	const storyboardManager = new StoryboardManager(logger, config, cli);
 	storyboardManager.initialize();
-};
+}
 
 /**
  * Manages all available storyboards from modules.

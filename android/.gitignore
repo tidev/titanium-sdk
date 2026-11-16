@@ -14,3 +14,4 @@ build/
 /kroll-apt/bin/
 /local.properties
 /titanium/assets/Resources/ti.internal/build.properties
+/.idea/

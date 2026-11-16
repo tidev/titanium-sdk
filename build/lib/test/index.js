@@ -1,11 +1,11 @@
-'use strict';
+import path from 'node:path';
+import fs from 'fs-extra';
+import { fileURLToPath } from 'node:url';
+import { test, outputResults } from './test.js';
 
-const path = require('path');
-const fs = require('fs-extra');
-
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.join(__dirname, '../../..');
 const LOCAL_TESTS = path.join(ROOT_DIR, 'tests');
-const { test, outputResults } = require('./test');
 
 /**
  * Runs our unit testing script against the supplied platforms for the currently select SDK in `ti` cli.
@@ -16,16 +16,20 @@ const { test, outputResults } = require('./test');
  * @param {string} [program.deviceId] Titanium device id target to run the tests on
  * @param {string} [program.deployType] 'development' || 'test'
  * @param {string} [program.deviceFamily] 'ipad' || 'iphone'
+ * @param {string} [program.junitPrefix] A prefix for the junit filename
+ * @param {string} [program.onlyFailedTests] boolean
+ * @param {string} [program.sdkVersion] The SDK version to use
+ * @param {string} [program.logLevel] The log level
  * @returns {Promise<object>} returns an object whose keys are platform names
  */
-async function runTests(platforms, program) {
+export async function runTests(platforms, program) {
 	const snapshotDir = path.join(LOCAL_TESTS, 'Resources');
 	// wipe generated images and diffs from previous run
 	await Promise.all([
 		fs.emptyDir(path.join(snapshotDir, '..', 'generated')),
 		fs.emptyDir(path.join(snapshotDir, '..', 'diffs'))
 	]);
-	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir);
+	return test(platforms, program.target, program.deviceId, program.deployType, program.deviceFamily, program.junitPrefix, snapshotDir, program.onlyFailedTests, program.sdkVersion, program.logLevel);
 }
 
 /**
@@ -33,7 +37,7 @@ async function runTests(platforms, program) {
  * @param {object} results Dictionary of test results to be outputted.
  * @returns {Promise<void>}
  */
-async function outputMultipleResults(results) {
+export async function outputMultipleResults(results) {
 	const platforms = Object.keys(results);
 	for (const p of platforms) {
 		console.log();
@@ -43,5 +47,3 @@ async function outputMultipleResults(results) {
 		await outputResults(results[p].results);
 	}
 }
-
-module.exports = { runTests, outputMultipleResults };

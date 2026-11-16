@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2011-2016 by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -46,7 +46,7 @@ describe('Titanium.UI.AlertDialog', () => {
 			should(bar.title).eql('this is my value'); // fails on iOS, gives undefined
 			bar.titleid = 'other text';
 			should(bar.titleid).eql('other text');
-			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira.appcelerator.org/browse/TIMOB-23498
+			should(bar.title).eql('this is my value'); // retains old value if key not found: https://jira-archive.titaniumsdk.com/TIMOB-23498
 		});
 
 		it('has no accessors', () => {
@@ -106,6 +106,58 @@ describe('Titanium.UI.AlertDialog', () => {
 		it('has no accessors', () => {
 			const bar = Ti.UI.createAlertDialog({});
 			should(bar).not.have.accessors('cancel');
+		});
+	});
+
+	describe.android('.androidView', function () {
+		this.timeout(10000);
+		let win;
+
+		afterEach(done => {
+			if (win && !win.closed) {
+				win.addEventListener('close', function listener () {
+					win.removeEventListener('close', listener);
+					win = null;
+					done();
+				});
+				win.close();
+			} else {
+				win = null;
+				done();
+			}
+		});
+
+		it('replacing it while shown keeps the replacement view usable', finish => {
+			win = Ti.UI.createWindow();
+			win.addEventListener('open', () => {
+				const firstView = Ti.UI.createView({ height: 50 });
+				const secondView = Ti.UI.createView({ height: 50 });
+				const dialog = Ti.UI.createAlertDialog({
+					title: 'androidView',
+					buttonNames: [ 'OK' ],
+					androidView: firstView
+				});
+				try {
+					dialog.show();
+					// Dismisses the first dialog and assigns the replacement in the same JS turn.
+					// The pending OnDismiss callback of the first dialog must not release this view.
+					dialog.androidView = secondView;
+				} catch (err) {
+					return finish(err);
+				}
+				// Let the queued OnDismiss callback run before the replacement view is used again.
+				setTimeout(() => {
+					try {
+						should(dialog.androidView).eql(secondView);
+						dialog.show();
+						dialog.hide();
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				}, 500);
+			});
+			win.open();
 		});
 	});
 

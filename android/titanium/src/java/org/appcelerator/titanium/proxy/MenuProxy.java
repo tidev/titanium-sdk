@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -207,7 +207,7 @@ public class MenuProxy extends KrollProxy
 		if (mi != null) {
 			MenuItemProxy mip = menuMap.remove(mi);
 			if (mip != null) {
-				//TODO release mip items
+				mip.release();
 			}
 			menu.removeItem(itemId);
 		}
@@ -289,7 +289,9 @@ public class MenuProxy extends KrollProxy
 			menu.close();
 			menu = null;
 		}
-		//TODO walk the items and release the natives
+		for (MenuItemProxy mip : menuMap.values()) {
+			mip.release();
+		}
 		menuMap.clear();
 	}
 

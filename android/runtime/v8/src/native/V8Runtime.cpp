@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -404,7 +404,7 @@ JNIEXPORT jboolean JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Runtime_nati
 }
 
 /*
- * Called by V8Runtime.java, this passes a KrollSourceCodeProvider java class instance
+ * Called by V8Runtime.java, this passes a KrollSourceCodeProvider Java class instance
  * to KrollBindings, where it's stored and later used to retrieve an external CommonJS module's
  * Javascript code when require(moduleName) occurs in Javascript.
  * "External" CommonJS modules are CommonJS modules stored in external modules.

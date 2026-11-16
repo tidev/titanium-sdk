@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -463,7 +463,11 @@ DEFINE_EXCEPTIONS
   [dummyView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
   [dummyView addSubview:self];
 
-  [[[[[UIApplication sharedApplication] keyWindow] rootViewController] view] addSubview:dummyView];
+  UIWindow *sceneWindow = self.window;
+  if (sceneWindow == nil) {
+    sceneWindow = UIApplication.sharedApplication.keyWindow;
+  }
+  [[[sceneWindow rootViewController] view] addSubview:dummyView];
 
   [self updateWidthAndHeight];
   [self layoutChildren];

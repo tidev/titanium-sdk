@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -32,10 +32,9 @@ typedef enum {
   CGGradientRef cachedGradient;
 
   CFMutableArrayRef colorValues;
-  CGFloat *colorOffsets; //A -1 indicates a lack of entry.
+  CGFloat *colorOffsets; // A -1 indicates a lack of entry.
   NSUInteger arraySize;
   int offsetsDefined;
-  @private
 }
 
 @property (nonatomic, readwrite, assign) BOOL backfillStart;

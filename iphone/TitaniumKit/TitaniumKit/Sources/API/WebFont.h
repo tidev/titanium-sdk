@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -29,7 +29,6 @@
 
 /**
  Provides access to the font family which is the official font name.
- @see http://developer.appcelerator.com/apidoc/mobile/latest/Font-object.html
  */
 @property (nonatomic, retain) NSString *family;
 

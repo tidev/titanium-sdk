@@ -64,12 +64,12 @@ methods:
     since: {android: "8.1.0", iphone: "0.8", ipad: "0.8"}
     parameters:
       - name: url
-        summary: The url to check.
+        summary: The URL to check.
         type: String
 
   - name: cpus
     summary: |
-        Returns an array of basic cpu information for all logical processors
+        Returns an array of basic CPU information for all logical processors
     description: |
         This is intended to provide an implementation similar to Node's `os.cpus()`.
     returns:
@@ -117,7 +117,7 @@ methods:
         type: Boolean
     parameters:
       - name: url
-        summary: The url to open.
+        summary: The URL to open.
         type: String
       - name: options
         summary: |
@@ -271,6 +271,18 @@ properties:
     permission: read-only
     since: "7.0.0"
 
+  - name: isTranslatedBinaryOnAppleSilicon
+    summary: |
+        A Boolean value that indicates whether the current app is running as a translated
+        binary using Rosetta on an Apple Silicon device.
+    description: |
+        Use this utility property to guard API's that may not be available on a non-iOS
+        device, e.g. motion activity or some authorization components.
+    platforms: [iphone, ipad, macos]
+    type: Boolean
+    permission: read-only
+    since: "12.0.0"
+
   - name: locale
     summary: System's default language.
     description: |
@@ -347,7 +359,7 @@ properties:
 
   - name: osname
     summary: |
-        Short name of the system's Operating System. Returns `android` for the Android platfrom,
+        Short name of the system's Operating System. Returns `android` for the Android platform,
         `iphone` for the iPhone or iPod Touch, `ipad` for the iPad, `windowsphone` for Windows Phone, and `windowsstore` for Windows Store
         platform.
     type: String
@@ -380,6 +392,9 @@ properties:
 
   - name: uptime
     summary: System uptime since last boot in seconds.
+    description: |
+        **Important**: When developing for the Apple ecosystem, using this API requires the `NSPrivacyAccessedAPICategorySystemBootTime`
+        property set in the privacy manifest that was introduced in iOS 17. You can learn more about it [here](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api).
     type: Number
     permission: read-only
     platforms: [android, iphone, ipad, macos]
@@ -456,7 +471,7 @@ properties:
 
 ---
 name: CPUTimes
-summary: Simple object holding the data for a logical cpu execution times.
+summary: Simple object holding the data for a logical CPU execution times.
 properties:
 
   - name: user

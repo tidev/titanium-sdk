@@ -44,6 +44,15 @@ properties:
     type: Number
     permission: read-only
 
+methods:
+  - name: stopListener
+    summary: Stops the gesture listener.
+    description: |
+        In case you use `Titanium.Gesture.landscape` or `Titanium.Gesture.portrait` it will attach the orientation
+        listener automatically. If you just use it once you can use this method to stop the listener.
+    since: "12.1.0"
+    platforms: [android]
+
 events:
   - name: orientationchange
     summary: Fired when the device orientation changes.

@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -52,7 +52,7 @@ public class TiPoint
 		}
 	}
 
-	/*
+	/**
 	 * Create a new point with the 'x' and 'y'
 	 * coordinates as string.
 	 * @param x the x value as string.

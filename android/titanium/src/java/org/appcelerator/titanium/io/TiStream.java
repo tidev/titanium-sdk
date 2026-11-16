@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -15,8 +15,8 @@ import java.io.IOException;
 public interface TiStream {
 	/**
 	 * Implementing classes should use this method to read data into a buffer.
-	 * Refer to <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a> for more details.
-	 * @param args  arguments passed in. Must match the arguments listed in the <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a>.
+	 * Refer to Stream Spec for more details.
+	 * @param args  arguments passed in. Must match the arguments listed in the Stream Spec.
 	 * @return number of bytes read, -1 if no data is available.
 	 * @throws Exception on error.
 	 */
@@ -34,8 +34,8 @@ public interface TiStream {
 
 	/**
 	 * Implementing classes should use this method to write data from a buffer to this stream.
-	 * Refer to <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a> for more details.
-	 * @param args arguments passed in. Must match the arguments listed in the <a href="https://wiki.appcelerator.org/display/guides/Stream+Spec">Stream Spec</a>.
+	 * Refer to Stream Spec for more details.
+	 * @param args arguments passed in. Must match the arguments listed in the Stream Spec.
 	 * @return number of bytes written, -1 if no data is available.
 	 * @throws Exception on error.
 	 */

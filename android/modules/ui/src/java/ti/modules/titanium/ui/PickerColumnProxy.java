@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -7,22 +7,20 @@
 package ti.modules.titanium.ui;
 
 import android.util.Log;
-import java.util.ArrayList;
+
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.titanium.TiC;
 
+import java.util.ArrayList;
+
 @Kroll.proxy(creatableInModule = UIModule.class,
 	propertyAccessors = {
 		TiC.PROPERTY_WIDTH,
-})
+	})
 public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnChangedListener
 {
-	public interface OnChangedListener {
-		void onChanged(PickerColumnProxy proxy);
-	}
-
 	private static final String TAG = "PickerColumnProxy";
 	private final ArrayList<PickerRowProxy> rowList = new ArrayList<>();
 	private final ArrayList<PickerColumnProxy.OnChangedListener> listeners = new ArrayList<>();
@@ -133,11 +131,10 @@ public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnCh
 	public void removeRow(Object value)
 	{
 		// Validate argument.
-		if (!(value instanceof PickerRowProxy)) {
+		if (!(value instanceof PickerRowProxy rowProxy)) {
 			Log.w(TAG, "Unable to remove given row. Must be of type: Ti.UI.PickerRow");
 			return;
 		}
-		PickerRowProxy rowProxy = (PickerRowProxy) value;
 
 		// Fetch index of given row by reference.
 		int index = this.rowList.indexOf(rowProxy);
@@ -221,5 +218,9 @@ public class PickerColumnProxy extends KrollProxy implements PickerRowProxy.OnCh
 	public String getApiName()
 	{
 		return "Ti.UI.PickerColumn";
+	}
+
+	public interface OnChangedListener {
+		void onChanged(PickerColumnProxy proxy);
 	}
 }

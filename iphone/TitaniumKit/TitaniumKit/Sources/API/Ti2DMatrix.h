@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -13,6 +13,9 @@
 @interface Ti2DMatrix : TiProxy {
   @protected
   CGAffineTransform matrix;
+  BOOL hasRotationAnimationValues;
+  CGFloat rotationAnimationFromDegrees;
+  CGFloat rotationAnimationToDegrees;
 }
 
 /**
@@ -45,5 +48,21 @@
 @property (nonatomic, readwrite, retain) NSNumber *d;
 @property (nonatomic, readwrite, retain) NSNumber *tx;
 @property (nonatomic, readwrite, retain) NSNumber *ty;
+
+/**
+ YES if this matrix was created via rotate(fromAngle, toAngle) and therefore
+ carries explicit start/end angles for a rotation animation.
+ */
+@property (nonatomic, readonly) BOOL hasRotationAnimationValues;
+
+/**
+ Starting angle, in degrees, of a rotate(fromAngle, toAngle) animation.
+ */
+@property (nonatomic, readonly) CGFloat rotationAnimationFromDegrees;
+
+/**
+ Ending angle, in degrees, of a rotate(fromAngle, toAngle) animation.
+ */
+@property (nonatomic, readonly) CGFloat rotationAnimationToDegrees;
 
 @end

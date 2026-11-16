@@ -1,6 +1,5 @@
 package ti.modules.titanium.android.quicksettings;
 
-import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.graphics.drawable.Icon;
@@ -16,7 +15,7 @@ import org.appcelerator.titanium.proxy.IntentProxy;
 import org.appcelerator.titanium.proxy.ServiceProxy;
 import org.appcelerator.titanium.view.TiDrawableReference;
 
-@TargetApi(24)
+@androidx.annotation.RequiresApi(24)
 @Kroll.proxy
 public class QuickSettingsServiceProxy extends ServiceProxy
 {

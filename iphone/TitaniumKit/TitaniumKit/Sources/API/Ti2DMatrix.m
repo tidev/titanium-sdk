@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -10,6 +10,10 @@
 #import "TiDimension.h"
 
 @implementation Ti2DMatrix
+
+@synthesize hasRotationAnimationValues;
+@synthesize rotationAnimationFromDegrees;
+@synthesize rotationAnimationToDegrees;
 
 - (id)init
 {
@@ -52,6 +56,15 @@
   return matrix;
 }
 
+- (Ti2DMatrix *)matrixWithTransform:(CGAffineTransform)newTransform
+{
+  Ti2DMatrix *newMatrix = [[[Ti2DMatrix alloc] initWithMatrix:newTransform] autorelease];
+  newMatrix->hasRotationAnimationValues = hasRotationAnimationValues;
+  newMatrix->rotationAnimationFromDegrees = rotationAnimationFromDegrees;
+  newMatrix->rotationAnimationToDegrees = rotationAnimationToDegrees;
+  return newMatrix;
+}
+
 - (Ti2DMatrix *)translate:(id)args
 {
   // Fetch given coordinates.
@@ -64,7 +77,7 @@
 
   // Return a new matrix with the given translation applied to this matrix.
   CGAffineTransform newtransform = CGAffineTransformTranslate(matrix, tx, ty);
-  return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
+  return [self matrixWithTransform:newtransform];
 }
 
 - (Ti2DMatrix *)scale:(id)args
@@ -77,7 +90,7 @@
   if (sy == 0)
     sy = 0.0001;
   CGAffineTransform newtransform = CGAffineTransformScale(matrix, sx, sy);
-  return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
+  return [self matrixWithTransform:newtransform];
 }
 
 - (Ti2DMatrix *)rotate:(id)args
@@ -85,6 +98,17 @@
   ENSURE_ARG_COUNT(args, 1);
 
   CGFloat angle = [[args objectAtIndex:0] floatValue];
+  if ([args count] >= 2) {
+    // rotate(fromAngle, toAngle): the matrix expresses the final ("toAngle")
+    // transform; the angles are kept so TiAnimation can follow the full angular
+    // path (e.g. 0 -> 360) instead of the shortest one.
+    CGFloat toAngle = [[args objectAtIndex:1] floatValue];
+    Ti2DMatrix *newMatrix = [[[Ti2DMatrix alloc] initWithMatrix:CGAffineTransformRotate(matrix, degreesToRadians(toAngle))] autorelease];
+    newMatrix->hasRotationAnimationValues = YES;
+    newMatrix->rotationAnimationFromDegrees = angle;
+    newMatrix->rotationAnimationToDegrees = toAngle;
+    return newMatrix;
+  }
   CGAffineTransform newtransform = CGAffineTransformRotate(matrix, degreesToRadians(angle));
   return [[[Ti2DMatrix alloc] initWithMatrix:newtransform] autorelease];
 }

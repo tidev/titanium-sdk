@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -23,6 +23,7 @@ import org.appcelerator.titanium.TiFileProxy;
 import org.appcelerator.titanium.io.TiBaseFile;
 import org.appcelerator.titanium.io.TiFile;
 import org.appcelerator.titanium.io.TiFileFactory;
+import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.content.Context;
@@ -45,13 +46,29 @@ public class DatabaseModule extends KrollModule
 	@Kroll.constant
 	public static final int FIELD_TYPE_DOUBLE = 3;
 
+	@Kroll.constant
+	public static final int CREATE_IF_NECESSARY = SQLiteDatabase.CREATE_IF_NECESSARY;
+	@Kroll.constant
+	public static final int NO_LOCALIZED_COLLATORS = SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+	@Kroll.constant
+	public static final int ENABLE_WRITE_AHEAD_LOGGING = SQLiteDatabase.ENABLE_WRITE_AHEAD_LOGGING;
+	@Kroll.constant
+	public static final int OPEN_READWRITE = SQLiteDatabase.OPEN_READWRITE;
+	@Kroll.constant
+	public static final int OPEN_READONLY = SQLiteDatabase.OPEN_READONLY;
+
 	public DatabaseModule()
 	{
 		super();
 	}
 
-	@Kroll.method
 	public TiDatabaseProxy open(Object file)
+	{
+		return open(file, null);
+	}
+
+	@Kroll.method
+	public TiDatabaseProxy open(Object file, @Kroll.argument(optional = true) Object flags)
 	{
 		// Acquire database name or file object providing full file path from argument.
 		TiBaseFile dbTiBaseFile = null;
@@ -59,8 +76,7 @@ public class DatabaseModule extends KrollModule
 		if (file instanceof TiFileProxy) {
 			// We were given a file proxy. Fetch its file object.
 			dbTiBaseFile = ((TiFileProxy) file).getBaseFile();
-		} else if (file instanceof String) {
-			String fileString = (String) file;
+		} else if (file instanceof String fileString) {
 			if (fileString.startsWith(File.separator)) {
 				// Assume we were given an absolute file system path.
 				dbTiBaseFile = TiFileFactory.createTitaniumFile(fileString, false);
@@ -73,7 +89,7 @@ public class DatabaseModule extends KrollModule
 					throw new IllegalArgumentException("Ti.Database.open() was given invalid URL: " + fileString);
 				}
 			} else {
-				// Assume we were given a databas file name only. (This is the most common case.)
+				// Assume we were given a database file name only. (This is the most common case.)
 				dbName = fileString;
 			}
 		} else if (file != null) {
@@ -98,8 +114,7 @@ public class DatabaseModule extends KrollModule
 				throw new IllegalArgumentException(message);
 			}
 			Log.d(TAG, "Opening database from filesystem: " + absolutePath);
-			SQLiteDatabase db = SQLiteDatabase.openDatabase(
-				absolutePath, null, SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
+			SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, null, toOpenFlags(flags));
 			if (db != null) {
 				dbp = new TiDatabaseProxy(db);
 			} else {
@@ -107,7 +122,19 @@ public class DatabaseModule extends KrollModule
 			}
 		} else if (dbName != null) {
 			// We were given a database name only. Open it under app's default database directory.
-			SQLiteDatabase db = TiApplication.getInstance().openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null);
+			SQLiteDatabase db;
+			if (flags != null) {
+				// Custom open flags were given. Resolve the name to a path since
+				// Context.openOrCreateDatabase() cannot accept them.
+				File dbFile = TiApplication.getInstance().getDatabasePath(dbName);
+				File dbDirectory = dbFile.getParentFile();
+				if (dbDirectory != null) {
+					dbDirectory.mkdirs();
+				}
+				db = SQLiteDatabase.openDatabase(dbFile.getAbsolutePath(), null, toOpenFlags(flags));
+			} else {
+				db = TiApplication.getInstance().openOrCreateDatabase(dbName, Context.MODE_PRIVATE, null);
+			}
 			if (db != null) {
 				dbp = new TiDatabaseProxy(dbName, db);
 			} else {
@@ -120,6 +147,20 @@ public class DatabaseModule extends KrollModule
 		// Return a proxy to the opened database.
 		Log.d(TAG, "Opened database: " + dbp.getName(), Log.DEBUG_MODE);
 		return dbp;
+	}
+
+	/**
+	 * Converts the optional "flags" argument of open() to SQLiteDatabase open flags.
+	 * Note that the given flags replace the defaults rather than being OR'd with them.
+	 * @param flags The flags argument given to open(). Can be null.
+	 * @return Returns the flags to pass to SQLiteDatabase.openDatabase().
+	 */
+	private static int toOpenFlags(Object flags)
+	{
+		if (flags == null) {
+			return SQLiteDatabase.CREATE_IF_NECESSARY | SQLiteDatabase.NO_LOCALIZED_COLLATORS;
+		}
+		return TiConvert.toInt(flags);
 	}
 
 	@Kroll.method
@@ -144,7 +185,7 @@ public class DatabaseModule extends KrollModule
 
 		// Fetch a path to the source database file. This is the file to be copied/installed.
 		// Throw an exception if the source database was not found.
-		Log.d(TAG, "db url is = " + url, Log.DEBUG_MODE);
+		Log.d(TAG, "database URL is = " + url, Log.DEBUG_MODE);
 		String resolveUrl = url;
 		if (invocation != null) {
 			TiUrl tiUrl = TiUrl.createProxyUrl(invocation.getSourceUrl());
@@ -178,7 +219,7 @@ public class DatabaseModule extends KrollModule
 
 		// Set up the destination path that the source database file will be copied to.
 		File dbPath = ctx.getDatabasePath(name);
-		Log.d(TAG, "db path is = " + dbPath, Log.DEBUG_MODE);
+		Log.d(TAG, "database path is = " + dbPath, Log.DEBUG_MODE);
 
 		// Create the destination directory tree if it doesn't exist.
 		dbPath.getParentFile().mkdirs();

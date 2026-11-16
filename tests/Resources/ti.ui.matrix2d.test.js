@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2018-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -15,7 +15,7 @@ describe('Titanium.UI.Matrix2D', function () {
 	it.iosBroken('apiName', function () {
 		var matrix = Ti.UI.createMatrix2D();
 		should(matrix).have.readOnlyProperty('apiName').which.is.a.String();
-		should(matrix.apiName).be.eql('Ti.UI.Matrix2D'); // ios still reports Ti.UI.2DMatrix
+		should(matrix.apiName).be.eql('Ti.UI.Matrix2D'); // iOS still reports Ti.UI.2DMatrix
 	});
 
 	it('#invert()', function () {
@@ -62,6 +62,106 @@ describe('Titanium.UI.Matrix2D', function () {
 		should(matrix1.rotate(-180)).be.an.Object();
 		should(matrix1.rotate(-720)).be.an.Object();
 		should(matrix1.rotate(-0)).be.an.Object();
+	});
+
+	it('#rotate(fromAngle, toAngle)', function () {
+		var matrix1 = Ti.UI.createMatrix2D();
+		should(matrix1.rotate(0, 360)).be.an.Object();
+		should(matrix1.rotate(90, -90)).be.an.Object();
+		should(matrix1.rotate(-360, 720)).be.an.Object();
+		if (utilities.isIOS()) {
+			// The resulting matrix expresses the final ("toAngle") transform.
+			var rotated = matrix1.rotate(0, 90);
+			should(rotated.a).be.approximately(0, 0.0001);
+			should(rotated.b).be.approximately(1, 0.0001);
+			should(rotated.c).be.approximately(-1, 0.0001);
+			should(rotated.d).be.approximately(0, 0.0001);
+		}
+	});
+
+	describe('rotation animations', function () {
+		let win;
+		afterEach(function () {
+			if (win) {
+				win.close();
+				win = null;
+			}
+		});
+
+		it.ios('an ordinary transform interrupts a full-turn animation', function (finish) {
+			win = Ti.UI.createWindow();
+			const view = Ti.UI.createView({ width: 100, height: 100, backgroundColor: 'red' });
+			win.add(view);
+			win.addEventListener('open', function () {
+				let interrupted = false;
+				view.animate({
+					transform: Ti.UI.createMatrix2D().rotate(0, 360),
+					duration: 400,
+					repeat: 2,
+					autoreverse: true
+				}, function () {
+					interrupted = true;
+				});
+				setTimeout(function () {
+					view.animate({ transform: Ti.UI.createMatrix2D().rotate(90), duration: 100 }, function () {
+						try {
+							should(interrupted).be.true();
+							should(view.transform.b).be.approximately(1, 0.0001);
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				}, 50);
+			});
+			win.open();
+		});
+
+		[
+			{ name: 'full turns', autoreverse: false, combined: false },
+			{ name: 'full turns with autoreverse', autoreverse: true, combined: false },
+			{ name: 'full turns with scale and translation', autoreverse: false, combined: true }
+		].forEach(function (test) {
+			it.ios(test.name + ' complete once after the delay and repeats', function (finish) {
+				this.timeout(5000);
+				win = Ti.UI.createWindow();
+				const view = Ti.UI.createView({ width: 100, height: 100, backgroundColor: 'red' });
+				win.add(view);
+				win.addEventListener('open', function () {
+					let transform = Ti.UI.createMatrix2D().rotate(0, 360);
+					if (test.combined) {
+						transform = transform.scale(2).translate(100, 0);
+					}
+					const animation = Ti.UI.createAnimation({
+						transform,
+						duration: 300,
+						delay: 100,
+						repeat: 2,
+						autoreverse: test.autoreverse,
+						curve: Ti.UI.ANIMATION_CURVE_LINEAR
+					});
+					let completions = 0;
+					animation.addEventListener('complete', function () {
+						completions++;
+					});
+					const started = Date.now();
+					view.animate(animation, function () {
+						try {
+							should(completions).eql(1);
+							should(Date.now() - started).be.above(test.autoreverse ? 1200 : 600);
+							if (test.combined) {
+								should(view.transform.a).be.approximately(2, 0.0001);
+								should(view.transform.tx).be.approximately(200, 0.0001);
+							}
+						} catch (err) {
+							return finish(err);
+						}
+						finish();
+					});
+				});
+				win.open();
+			});
+		});
 	});
 
 	it('#scale()', function () {

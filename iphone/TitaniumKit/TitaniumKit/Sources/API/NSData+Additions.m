@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -11,12 +11,12 @@
 #pragma mark Hex
 
 /* HEX specific routines are copyright:
- 
+
  Copyright (c) 2006, Big Nerd Ranch, Inc.
  All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- 
+
  Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
  Neither the name of Big Nerd Ranch, Inc. nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
@@ -76,7 +76,7 @@ NSString *stringWithHexString(NSString *hexString)
 // some commentary on the 128 bit issue:
 //
 // Assuming that one could build a machine that could recover a DES
-// key in a second (i.e., try 255 keys per second), it would take that
+// key in a second (e.g., try 255 keys per second), it would take that
 // machine approximately 149 thousand billion (149 trillion) years to
 // crack a 128-bit AES key. To put that into perspective, the universe
 // is believed to be fewer than 20 billion years old.
@@ -94,9 +94,9 @@ NSData *AES128EncryptWithKey(NSData *thedata, NSString *key)
 
   NSUInteger dataLength = [thedata length];
 
-  //See the doc: For block ciphers, the output size will always be less than or
-  //equal to the input size plus the size of one block.
-  //That's why we need to add the size of one block here
+  // See the doc: For block ciphers, the output size will always be less than or
+  // equal to the input size plus the size of one block.
+  // That's why we need to add the size of one block here
   size_t bufferSize = dataLength + kCCBlockSizeAES128;
   void *buffer = malloc(bufferSize);
   if (buffer == NULL) {
@@ -110,11 +110,11 @@ NSData *AES128EncryptWithKey(NSData *thedata, NSString *key)
       buffer, bufferSize, /* output */
       &numBytesEncrypted);
   if (cryptStatus == kCCSuccess) {
-    //the returned NSData takes ownership of the buffer and will free it on deallocation
+    // the returned NSData takes ownership of the buffer and will free it on deallocation
     return [NSData dataWithBytesNoCopy:buffer length:numBytesEncrypted];
   }
 
-  free(buffer); //free the buffer;
+  free(buffer); // free the buffer;
   return nil;
 }
 #endif

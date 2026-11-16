@@ -21,7 +21,7 @@
 /**
  * Node's lib/internal/util/inspec.js modified for Axway Titanium
  *
- * @see https://github.com/nodejs/node/blob/master/lib/internal/util/inspect.js
+ * @see https://github.com/nodejs/node/blob/main/lib/internal/util/inspect.js
  */
 
 import {

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -49,7 +49,7 @@ static NSOperationQueue *_operationQueue = nil;
   [super _configure];
   // default to unknown network type on startup until reachability has figured it out
   state = TiNetworkConnectionStateUnknown;
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:kReachabilityChangedNotification object:nil];
   // wait until done is important to get the right state
   TiThreadPerformOnMainThread(
@@ -66,7 +66,7 @@ static NSOperationQueue *_operationQueue = nil;
         [self stopReachability];
       },
       YES);
-  WARN_IF_BACKGROUND_THREAD_OBJ; //NSNotificationCenter is not threadsafe!
+  WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   [[NSNotificationCenter defaultCenter] removeObserver:self name:kReachabilityChangedNotification object:nil];
   RELEASE_TO_NIL(pushNotificationCallback);
   RELEASE_TO_NIL(pushNotificationError);
@@ -243,8 +243,8 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
 
   UIApplication *app = [UIApplication sharedApplication];
 
-  //for iOS8 or greater only
-  //Note adviced to register user notification settings in Ti.App.iOS first before register for remote notifications
+  // for iOS 8 or greater only
+  // Note advised to register user notification settings in Ti.App.iOS first before register for remote notifications
   [app registerForRemoteNotifications];
 
   if ([args objectForKey:@"types"] != nil) {
@@ -258,6 +258,9 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     [event setObject:currentNotification forKey:@"data"];
     [event setObject:NUMBOOL(YES) forKey:@"inBackground"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+
+    // Clear notification data once it's delivered to the app.
+    [[TiApp app] clearRemoteNotification];
   }
 }
 
@@ -293,6 +296,14 @@ MAKE_SYSTEM_NUMBER(PROGRESS_UNKNOWN, NUMINT(-1));
     BOOL inBackground = (application.applicationState != UIApplicationStateActive);
     [event setObject:NUMBOOL(inBackground) forKey:@"inBackground"];
     [self _fireEventToListener:@"remote" withObject:event listener:pushNotificationCallback thisObject:nil];
+
+    // A callback is already registered, so this notification was just delivered live via
+    // `userInfo` above, not from the cache. Clear the cache TiApp just populated for it so a
+    // later registerForPushNotifications call (e.g. after a subsequent login) does not replay
+    // this same, already-handled notification again. When no callback is registered yet (cold
+    // start), this block does not run, leaving the cache intact for registerForPushNotifications
+    // to deliver once JS registers.
+    [[TiApp app] clearRemoteNotification];
   }
 }
 

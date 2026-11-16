@@ -1,5 +1,5 @@
 /**
- * TiDev Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -14,9 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -99,8 +99,8 @@ public class TiUIHelper
 	public static final String MIME_TYPE_PNG = "image/png";
 
 	private static Method overridePendingTransition;
-	private static final Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<>());
-	private static final Map<String, Typeface> mCustomTypeFaces = Collections.synchronizedMap(new HashMap<>());
+	private static final Map<String, String> resourceImageKeys = new ConcurrentHashMap<>();
+	private static final Map<String, Typeface> mCustomTypeFaces = new ConcurrentHashMap<>();
 
 	public static OnClickListener createDoNothingListener()
 	{
@@ -142,14 +142,19 @@ public class TiUIHelper
 			negativeListener = createKillListener();
 		}
 
-		new MaterialAlertDialogBuilder(context)
+		AlertDialog dialog = new MaterialAlertDialogBuilder(context)
 			.setTitle(title)
 			.setMessage(message)
 			.setPositiveButton("Continue", positiveListener)
 			.setNegativeButton("Kill", negativeListener)
 			.setCancelable(false)
-			.create()
-			.show();
+			.create();
+
+		// Check if the context is an Activity and if it's finishing to avoid WindowLeaked error
+		if (context instanceof Activity && ((Activity) context).isFinishing()) {
+			return;
+		}
+		dialog.show();
 	}
 
 	public static void linkifyIfEnabled(TextView tv, Object autoLink)
@@ -430,7 +435,7 @@ public class TiUIHelper
 
 	private static Typeface loadTypeface(Context context, String fontFamily, String fontWeight)
 	{
-		if (context == null) {
+		if (context == null || fontFamily == null) {
 			return null;
 		}
 		String fontFamilyName = fontFamily;
@@ -438,15 +443,16 @@ public class TiUIHelper
 		if (fontWeight != null && !fontWeight.equals("")) {
 			fontFamilyName = fontFamily + "_" + fontWeight;
 		}
-		if (mCustomTypeFaces.containsKey(fontFamilyName)) {
-			return mCustomTypeFaces.get(fontFamilyName);
+		Typeface cached = mCustomTypeFaces.get(fontFamilyName);
+		if (cached != null) {
+			return cached;
 		}
 
 		AssetManager mgr = context.getAssets();
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
-				if (f.toLowerCase().equals(fontFamily.toLowerCase())
+				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
 
 					Typeface tf;
@@ -482,10 +488,11 @@ public class TiUIHelper
 						tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
 					}
 
-					synchronized (mCustomTypeFaces)
-					{
-						mCustomTypeFaces.put(fontFamilyName, tf);
+					if (tf == null) {
+						// ConcurrentHashMap does not accept null values.
+						return null;
 					}
+					mCustomTypeFaces.put(fontFamilyName, tf);
 					return tf;
 				}
 			}
@@ -493,7 +500,6 @@ public class TiUIHelper
 			Log.e(TAG, "Unable to load 'fonts' assets. Perhaps doesn't exist? " + e.getMessage());
 		}
 
-		mCustomTypeFaces.put(fontFamily, null);
 		return null;
 	}
 
@@ -674,7 +680,7 @@ public class TiUIHelper
 		return buildBackgroundDrawable(color, imageDrawable, tileImage, gradientDrawable, null);
 	}
 
-	public static Drawable buildBackgroundDrawable(String color, Drawable imageDrawable, boolean tileImage,
+	public static Drawable buildBackgroundDrawable(Object color, Drawable imageDrawable, boolean tileImage,
 												   Drawable gradientDrawable, Context context)
 	{
 		// Create an array of the layers that will compose this background.
@@ -757,7 +763,7 @@ public class TiUIHelper
 			/**
 			 * Loads the given image and returns it's decode bitmap wrapped in a drawable.
 			 * @param filePath Path or URL to the image file to be loaded. Can be null.
-			 * @return Returns a drawble object used to draw the give image file.
+			 * @return Returns a drawable object used to draw the give image file.
 			 *         <p>
 			 *         Returns null if failed to load the image or if given a null argument.
 			 */
@@ -896,7 +902,7 @@ public class TiUIHelper
 			}
 
 			if (view.getParent() == null) {
-				Log.i(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
+				Log.d(TAG, "View does not have parent, calling layout", Log.DEBUG_MODE);
 				view.layout(0, 0, width, height);
 			}
 
@@ -1041,8 +1047,8 @@ public class TiUIHelper
 	}
 
 	/**
-	 * Creates and returns a bitmap from its url.
-	 * @param url the bitmap url.
+	 * Creates and returns a bitmap from its URL.
+	 * @param url the bitmap URL.
 	 * @return a new bitmap instance
 	 */
 	public static Bitmap getResourceBitmap(String url)
@@ -1300,8 +1306,12 @@ public class TiUIHelper
 				// Get the backgroundDrawable background as a StateListDrawable.
 				StateListDrawable stateListDrawable = (StateListDrawable) simpleDrawable;
 				// Get the reflection methods.
+				String methodName = "getStateDrawableIndex";
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+					methodName = "findStateDrawableIndex";
+				}
 				Method getStateDrawableIndexMethod =
-					StateListDrawable.class.getMethod("getStateDrawableIndex", int[].class);
+					StateListDrawable.class.getMethod(methodName, int[].class);
 				Method getStateDrawableMethod = StateListDrawable.class.getMethod("getStateDrawable", int.class);
 				// Get the disabled state's (as defined in TiUIHelper) index.
 				int index = (int) getStateDrawableIndexMethod.invoke(stateListDrawable, state);

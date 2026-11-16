@@ -1,6 +1,6 @@
 /*
- * Appcelerator Titanium Mobile
- * Copyright (c) 2015-Present by Appcelerator, Inc. All Rights Reserved.
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
@@ -139,7 +139,7 @@ describe.ios('Titanium.UI.iOS.CollisionBehavior', () => {
 			}
 		});
 
-		// FIXME: intermittent crashes on macOS (and rarely iPad) https://jira.appcelerator.org/browse/TIMOB-28339
+		// FIXME: intermittent crashes on macOS (and rarely iPad) https://jira-archive.titaniumsdk.com/TIMOB-28339
 		it.macBroken('works', finish => {
 			win = Ti.UI.createWindow({
 				backgroundColor: 'white',

@@ -1,5 +1,5 @@
 /**
- * Appcelerator Titanium Mobile
+ * Titanium SDK
  * Copyright TiDev, Inc. 04/07/2022-Present. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
@@ -136,7 +136,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     [self contentsWillChange];
     TiThreadPerformOnMainThread(
         ^{
-          //Make sure the text widget is in view when editing.
+          // Make sure the text widget is in view when editing.
           [(TiUITextWidget *)[self view] updateKeyboardStatus];
         },
         NO);
@@ -160,15 +160,15 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 {
   ENSURE_UI_THREAD_1_ARG(value);
   keyboardAccessoryHeight = [TiUtils floatValue:value];
-  //TODO: If we're focused or the toolbar is otherwise onscreen, we need to let the root view controller know and update.
+  // TODO: If we're focused or the toolbar is otherwise onscreen, we need to let the root view controller know and update.
 }
 
 - (void)setKeyboardToolbarColor:(id)value
 {
-  //Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
+  // Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
   ENSURE_UI_THREAD_1_ARG(value);
   [self replaceValue:value forKey:@"keyboardToolbarColor" notification:YES];
-  if (keyboardUIToolbar != nil) { //It already exists, update it.
+  if (keyboardUIToolbar != nil) { // It already exists, update it.
     UIColor *newColor = [[TiUtils colorValue:value] _color];
     [keyboardUIToolbar setBarTintColor:newColor];
   }
@@ -219,7 +219,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
     }
   }
 
-  //Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
+  // Because views aren't lock-protected, ANY and all references, even checking if non-nil, should be done in the main thread.
 
   // TODO: ENSURE_UI_THREAD needs to be deprecated in favor of more effective and concicse mechanisms
   // which use the main thread only when necessary to reduce latency.
@@ -259,7 +259,7 @@ DEFINE_DEF_BOOL_PROP(suppressReturn, YES);
 
   if ([value isKindOfClass:[TiViewProxy class]]) {
     TiUIView *valueView = [(TiViewProxy *)value view];
-    if (valueView == keyboardTiView) { //Nothing to do here.
+    if (valueView == keyboardTiView) { // Nothing to do here.
       return;
     }
     RELEASE_TO_NIL(keyboardTiView);

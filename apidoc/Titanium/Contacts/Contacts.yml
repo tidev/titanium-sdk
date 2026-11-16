@@ -201,7 +201,7 @@ properties:
     summary: A boolean value that indicates whether to fetch the notes stored in contacts or not.
     description:  |
         This  property need to be set before calling contacts APIs.
-        From iOS 13 or later if your app fetch note field from contact, the app must have to set key 'com.apple.developer.contacts.notes' to 'true' in entitelements section of tiapp.xml.
+        From iOS 13 or later if your app fetch note field from contact, the app must have to set key 'com.apple.developer.contacts.notes' to 'true' in entitlements section of tiapp.xml.
 
         ``` xml
         <key>com.apple.developer.contacts.notes</key>
