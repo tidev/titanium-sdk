@@ -64,7 +64,15 @@ The V8 binding template installs a named property interceptor for a proxy class 
 
 ### Question 5: finalizers
 
-The destructor of the `jsi::NativeState` runs when Hermes collects the JS object. One call to `collectGarbage` released all 20,000 test proxies. Every destructor ran on the JS thread, also with the concurrent garbage collector (`hades`). The runtime teardown released the remaining objects. The spike measured this with two devices and one workload. Keep the thread assertion in the real runtime.
+The destructor of the `jsi::NativeState` runs when Hermes collects the JS object. It does not always run on the JS thread. Hermes finalizes objects of the young generation on the JS thread. It finalizes older objects on its garbage collection thread. In one run, 20,001 of 60,013 destructors ran off the JS thread. A destructor must therefore only queue a notice for the JS thread.
+
+One call to `collectGarbage` does not always finish the finalization of old objects. The tests call it more than once.
+
+### Proxy lifetime: the wrapper model does not work
+
+The V8 runtime revives a JS proxy object in a weak callback when JS dropped it but Java still uses it. Hermes cannot do that. The spike tested one replacement: native code holds a backing object with all state, and JS code holds an ES `Proxy` wrapper in front of it. The `wrapper:` tests pass, but the model leaks. A listener closure on the backing object refers to its own wrapper, the backing object is a root, and so the wrapper is never collected.
+
+The runtime in `../src/native` uses a different model: a Java finalizer detects that Java dropped the proxy and revives it. See the class comment of `titanium::Proxy` in `../src/native/Proxy.h` and the tests in `../harness`.
 
 ### Question 6: constructors
 

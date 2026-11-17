@@ -128,6 +128,98 @@ test('garbage collection runs the native finalizers', () => {
 	return finalized >= created * 0.9 ? `created ${created}, finalized ${finalized} after one collection, create and set took ${loopMs} ms` : false;
 });
 
+// --- Lifetime model: an ES Proxy wrapper in front of a backing object ---------------------------
+// V8 revives a proxy object in a weak callback when JS drops it but Java still uses it.
+// Hermes cannot do that. In this model, native code holds the backing object and JS holds a wrapper.
+
+function makeBacking() {
+	const backing = new Label();
+	Object.defineProperty(backing, '__ti__', { value: backing });
+	return backing;
+}
+
+function wrap(backing) {
+	return new Proxy(backing, __token());
+}
+
+test('wrapper: accessor, method, expando, instanceof', () => {
+	const view = wrap(makeBacking());
+	view.text = 'via wrapper';
+	view.custom = 7;
+	return view.text === 'via wrapper' && typeof view.nativeId() === 'number' && view.custom === 7
+		&& view instanceof Label && view instanceof View && Object.keys(view).join() === 'custom';
+});
+
+test('wrapper: JS drops it, native code keeps the state, a new wrapper sees it', () => {
+	const backing = makeBacking(); // stands in for the strong reference that native code holds
+	const finalizedBefore = __tokensFinalized();
+	(function () {
+		const view = wrap(backing);
+		view.custom = 'kept';
+		view.text = 'kept too';
+	}());
+	// An old-generation collection finalizes on a background thread, so one __gc() call is not always enough.
+	let rounds = 0;
+	while (__tokensFinalized() === finalizedBefore && rounds < 20) {
+		__gc();
+		rounds++;
+	}
+	const collected = __tokensFinalized() - finalizedBefore;
+	const again = wrap(backing);
+	return collected >= 1 && again.custom === 'kept' && again.text === 'kept too'
+		? `wrappers collected: ${collected} after ${rounds} collections` : `collected ${collected} after ${rounds} collections`;
+});
+
+test('wrapper: a live wrapper is not collected', () => {
+	// Collect the wrappers that the earlier tests left behind, then count again.
+	for (let i = 0; i < 5; i++) {
+		__gc();
+	}
+	const view = wrap(makeBacking());
+	const finalizedBefore = __tokensFinalized();
+	for (let i = 0; i < 5; i++) {
+		__gc();
+	}
+	return __tokensFinalized() === finalizedBefore && view.nativeId() > 0;
+});
+
+test('wrapper: cost against a plain proxy object', () => {
+	const count = 20000;
+	const reads = 200000;
+	function measure(make) {
+		let start = Date.now();
+		const objects = [];
+		for (let i = 0; i < count; i++) {
+			const o = make();
+			o.text = 'x' + i;
+			objects.push(o);
+		}
+		const createMs = Date.now() - start;
+		const one = objects[0];
+		one.custom = 1;
+		start = Date.now();
+		let sum = 0;
+		for (let i = 0; i < reads; i++) {
+			sum += one.custom;
+		}
+		const expandoMs = Date.now() - start;
+		start = Date.now();
+		for (let i = 0; i < reads; i++) {
+			sum += one.text.length;
+		}
+		const accessorMs = Date.now() - start;
+		start = Date.now();
+		for (let i = 0; i < reads; i++) {
+			sum += one.nativeId();
+		}
+		const methodMs = Date.now() - start;
+		return `create+set ${createMs} ms, ${reads} expando reads ${expandoMs} ms, accessor reads ${accessorMs} ms, method calls ${methodMs} ms`;
+	}
+	log('INFO plain object:  ' + measure(() => new Label()));
+	log('INFO with wrapper:  ' + measure(() => wrap(makeBacking())));
+	return true;
+});
+
 // --- Microtasks: the native side reads this flag before and after drainMicrotasks() -----------
 
 globalThis.__microtaskRan = false;

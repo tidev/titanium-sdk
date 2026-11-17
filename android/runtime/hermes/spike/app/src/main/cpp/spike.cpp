@@ -87,16 +87,33 @@ static void attachNewJavaProxy(jsi::Runtime& rt, const jsi::Object& target)
 	env->DeleteLocalRef(local);
 }
 
+static std::atomic<int> gTokensCreated{0};
+static std::atomic<int> gTokensFinalized{0};
+
+/** Hangs on the handler object of an ES Proxy wrapper. Its destructor reports that JS dropped the wrapper. */
+struct WrapperToken : public jsi::NativeState {
+	WrapperToken() { gTokensCreated++; }
+	~WrapperToken() override { gTokensFinalized++; }
+};
+
 static std::shared_ptr<JavaRef> javaRefOf(jsi::Runtime& rt, const jsi::Value& thisVal)
 {
 	if (!thisVal.isObject()) {
 		throw jsi::JSError(rt, "Receiver is not an object");
 	}
 	jsi::Object object = thisVal.asObject(rt);
-	if (!object.hasNativeState<JavaRef>(rt)) {
-		throw jsi::JSError(rt, "Receiver is not a proxy");
+	if (object.hasNativeState<JavaRef>(rt)) {
+		return object.getNativeState<JavaRef>(rt);
 	}
-	return object.getNativeState<JavaRef>(rt);
+	// The receiver can be an ES Proxy wrapper. The backing object links to itself through "__ti__".
+	jsi::Value target = object.getProperty(rt, "__ti__");
+	if (target.isObject()) {
+		jsi::Object backing = target.asObject(rt);
+		if (backing.hasNativeState<JavaRef>(rt)) {
+			return backing.getNativeState<JavaRef>(rt);
+		}
+	}
+	throw jsi::JSError(rt, "Receiver is not a proxy");
 }
 
 static jsi::Function hostFunction(jsi::Runtime& rt, const char* name, unsigned int argCount, jsi::HostFunctionType fn)
@@ -198,6 +215,18 @@ static void installBindings(jsi::Runtime& rt)
 			jsi::Object object = jsi::Object::create(rt, proto);
 			attachNewJavaProxy(rt, object);
 			return object;
+		}));
+
+	// __token(): an empty object whose native state reports its own collection.
+	global.setProperty(rt, "__token", hostFunction(rt, "__token", 0,
+		[](jsi::Runtime& rt, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+			jsi::Object token(rt);
+			token.setNativeState(rt, std::make_shared<WrapperToken>());
+			return token;
+		}));
+	global.setProperty(rt, "__tokensFinalized", hostFunction(rt, "__tokensFinalized", 0,
+		[](jsi::Runtime&, const jsi::Value&, const jsi::Value*, size_t) -> jsi::Value {
+			return jsi::Value(gTokensFinalized.load());
 		}));
 
 	global.setProperty(rt, "__gc", hostFunction(rt, "__gc", 0,
