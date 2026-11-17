@@ -46,7 +46,36 @@ const require = createRequire(import.meta.url);
 const afs = appc.fs;
 const version = appc.version;
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
+// The Chrome version that Babel gets as its target for the Hermes engine. See validate().
+const HERMES_BABEL_CHROME_TARGET = 62;
+// The first module API version whose native modules contain binding code for Hermes.
+const HERMES_MIN_MODULE_API_VERSION = 5;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
+
+/**
+ * Reads the <engine> element of the <android> section from a "tiapp.xml" file.
+ * @param {string} tiappPath path to the "tiapp.xml" file
+ * @returns {string|null} the text of the element, or null if the file has no such element
+ */
+function readAndroidEngine(tiappPath) {
+	try {
+		const doc = new DOMParser().parseFromString(fs.readFileSync(tiappPath, 'utf8'), 'text/xml');
+		const elementChildren = node => Array.from(node.childNodes || []).filter(child => child.nodeType === 1);
+		for (const section of elementChildren(doc.documentElement)) {
+			if (section.tagName !== 'android') {
+				continue;
+			}
+			for (const child of elementChildren(section)) {
+				if (child.tagName === 'engine') {
+					return (child.textContent || '').trim() || null;
+				}
+			}
+		}
+	} catch (err) {
+		// The Titanium CLI already validated the file. Without the element, the default engine applies.
+	}
+	return null;
+}
 
 class AndroidBuilder extends Builder {
 	constructor() {
@@ -894,9 +923,11 @@ class AndroidBuilder extends Builder {
 		}
 
 		// The JS engine comes from the <engine> element in the <android> section of tiapp.xml.
-		// Note: "lib/tiappxml.js" of the "node-titanium-sdk" package must know the element.
-		// Until it does, "cli.tiapp.android.engine" is undefined and the engine is "v8".
-		this.jsEngine = (cli.tiapp.android && cli.tiapp.android.engine) || 'v8';
+		// The "node-titanium-sdk" parser drops child elements of <android> that it does not know,
+		// so read the element from the file if the parser did not deliver it.
+		this.jsEngine = (cli.tiapp.android && cli.tiapp.android.engine)
+			|| readAndroidEngine(path.join(cli.argv['project-dir'], 'tiapp.xml'))
+			|| 'v8';
 		if (this.jsEngine !== 'v8' && this.jsEngine !== 'hermes') {
 			logger.error(`Invalid <engine> value "${this.jsEngine}" in the <android> section of the tiapp.xml.`);
 			logger.error('The value must be "v8" or "hermes".\n');
@@ -907,6 +938,11 @@ class AndroidBuilder extends Builder {
 		const v8Version = this.packageJson.v8.version;
 		const found = v8Version.match(V8_STRING_VERSION_REGEXP);
 		this.chromeVersion = parseInt(found[1] + found[2]); // concat the first two numbers as string, then turn to int
+		if (this.jsEngine === 'hermes') {
+			// Babel has no Hermes target. Hermes cannot parse async generators and "for await",
+			// which Chrome supports since version 63. Chrome 62 as the target makes Babel transform them.
+			this.chromeVersion = HERMES_BABEL_CHROME_TARGET;
+		}
 
 		// manually inject the build profile settings into the tiapp.xml
 		switch (this.deployType) {
@@ -1521,6 +1557,16 @@ class AndroidBuilder extends Builder {
 		for (const module of this.modules) {
 			// Flag object as either a native JAR/AAR module or a scripted CommonJS module for fast if-checks later.
 			module.native = (module.platform.indexOf('commonjs') < 0);
+
+			// A native module contains compiled binding code for the JS engine.
+			// Only a module that was built with module API version 5 or higher contains code for Hermes.
+			if (module.native && this.jsEngine === 'hermes' && (~~module.manifest.apiversion < HERMES_MIN_MODULE_API_VERSION)) {
+				this.logger.error(`The module "${module.manifest.moduleid.cyan}" does not support the Hermes engine.`);
+				this.logger.error(`Its "apiversion" is ${module.manifest.apiversion}. Hermes needs "apiversion" ${HERMES_MIN_MODULE_API_VERSION} or greater.`);
+				this.logger.error('Build the module again with this Titanium SDK, or set <engine>v8</engine> in the <android> section of the tiapp.xml.');
+				this.logger.log();
+				process.exit(1);
+			}
 
 			// For native modules, verify they are built with API version 2.0 or higher.
 			if (module.native && (~~module.manifest.apiversion < 2)) {
@@ -2207,6 +2253,11 @@ class AndroidBuilder extends Builder {
 		// Add a reference to the core Titanium library.
 		this.mavenRepositoryUrls.push(pathToFileURL(path.join(this.platformPath, 'm2repository')).href);
 		this.libDependencyStrings.push(`org.appcelerator:titanium:${this.titaniumSdkVersion}`);
+		if (this.jsEngine === 'hermes') {
+			// The Titanium library does not pull in the Hermes engine, so that a V8 app does not carry it.
+			this.libDependencyStrings.push(`com.facebook.hermes:hermes-android:${this.packageJson.hermes.version}`);
+			this.libDependencyStrings.push(`com.facebook.soloader:nativeloader:${this.packageJson.hermes.nativeloader}`);
+		}
 
 		// Check if the app developer opted out of adding module defined Maven repositories to the app project.
 		const isModuleRepoMergeEnabled = await this.shouldMergeModuleMavenRepositories();
@@ -2495,6 +2546,7 @@ class AndroidBuilder extends Builder {
 			libDependencyStrings: this.libDependencyStrings,
 			mavenRepositoryUrls: this.mavenRepositoryUrls,
 			ndkAbiArray: this.abis,
+			jsEngine: this.jsEngine,
 			proguardFilePaths: this.proguardConfigFile ? [ this.proguardConfigFile ] : null,
 			tiSdkAndroidDir: this.platformPath
 		});

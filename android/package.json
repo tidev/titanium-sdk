@@ -19,6 +19,7 @@
 	},
 	"hermes": {
 		"version": "250829098.0.19",
+		"nativeloader": "0.10.5",
 		"jsi": {
 			"decorator.h": "5ddabd0cd776afe4a0803d38bc2e2e9f39593e8104b54177c07fd6f59490c5f8",
 			"hermes-interfaces.h": "2cd4b50cdcdb9cf61bd5940b257d7878ceb018438cc2ea8b34acdb552d56d56d",

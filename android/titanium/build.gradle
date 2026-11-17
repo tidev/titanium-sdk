@@ -316,7 +316,7 @@ dependencies {
 	// from its own build file, so that an app with the V8 engine does not carry them.
 	def hermesInfo = new JsonSlurper().parse(file("${projectDir}/../package.json")).hermes
 	implementation "com.facebook.hermes:hermes-android:${hermesInfo.version}"
-	implementation 'com.facebook.soloader:nativeloader:0.10.5'
+	implementation "com.facebook.soloader:nativeloader:${hermesInfo.nativeloader}"
 
 	// AndroidX Library dependencies.
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
