@@ -45,18 +45,7 @@ private:
 
 static double toNumber(jsi::Runtime& rt, const jsi::Value& value)
 {
-	if (value.isNumber()) {
-		return value.getNumber();
-	}
-	if (value.isBool()) {
-		return value.getBool() ? 1 : 0;
-	}
-	if (value.isNull() || value.isUndefined()) {
-		return 0;
-	}
-	// Number(value) for strings and objects.
-	jsi::Value result = rt.global().getPropertyAsFunction(rt, "Number").call(rt, value);
-	return result.isNumber() ? result.getNumber() : 0;
+	return JSUtil::toNumber(rt, value);
 }
 
 static bool isArray(jsi::Runtime& rt, const jsi::Value& value)

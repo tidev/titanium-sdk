@@ -59,6 +59,7 @@ import org.json.simple.JSONValue;
 	KrollJSONGenerator.OPTION_OUTPUT_JAR_JSON_FILE_NAME,
 	KrollJSONGenerator.OPTION_OUTPUT_JSON_FILE_PATH,
 	KrollJSONGenerator.OPTION_CPP_DIR_PATH,
+	KrollJSONGenerator.OPTION_HERMES_CPP_DIR_PATH,
 	KrollJSONGenerator.OPTION_JS_MODULE_NAME,
 	KrollJSONGenerator.OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME
 })
@@ -99,6 +100,8 @@ public class KrollJSONGenerator extends AbstractProcessor
 	protected static final String OPTION_OUTPUT_JAR_JSON_FILE_NAME = "kroll.outputJarJsonFileName";
 	protected static final String OPTION_OUTPUT_JSON_FILE_PATH = "kroll.outputJsonFilePath";
 	protected static final String OPTION_CPP_DIR_PATH = "kroll.outputCppDirPath";
+	// Directory for the C++ files of the Hermes engine. No files are generated if the option is not set.
+	protected static final String OPTION_HERMES_CPP_DIR_PATH = "kroll.outputHermesCppDirPath";
 	protected static final String OPTION_JS_MODULE_NAME = "kroll.jsModuleName";
 	protected static final String OPTION_TI_BINDINGS_JSON_FILE_PATH_NAME = "kroll.tiBindingsJsonFilePath";
 
@@ -336,6 +339,21 @@ public class KrollJSONGenerator extends AbstractProcessor
 					proxyProperties.put("genClassName", genClassName);
 					proxyProperties.put("sourceName", sourceName);
 					proxyProperties.put("proxyAttrs", proxyAttrs);
+
+					// The Hermes engine has no indexed property handler for all objects. Its bindings must
+					// know which classes implement indexed properties. KrollProxy only has the defaults.
+					if (!(packageName + "." + proxyClassName).equals("org.appcelerator.kroll.KrollProxy")) {
+						for (Element enclosed : element.getEnclosedElements()) {
+							if (enclosed instanceof ExecutableElement) {
+								String enclosedName = enclosed.getSimpleName().toString();
+								if (enclosedName.equals("getIndexedProperty")
+									|| enclosedName.equals("setIndexedProperty")) {
+									proxyProperties.put("indexed", true);
+									break;
+								}
+							}
+						}
+					}
 
 					if (isModule) {
 						Map<Object, Object> module = getModule(packageName + "." + proxyClassName);
@@ -826,8 +844,18 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 	private void generateCppFiles()
 	{
-		// Fetch the directory path that we'll write the C++ files too.
-		String directoryPath = this.processingEnv.getOptions().get(OPTION_CPP_DIR_PATH);
+		generateCppFiles(this.processingEnv.getOptions().get(OPTION_CPP_DIR_PATH), KrollBindingGenerator.ENGINE_V8);
+		generateCppFiles(this.processingEnv.getOptions().get(OPTION_HERMES_CPP_DIR_PATH),
+			KrollBindingGenerator.ENGINE_HERMES);
+	}
+
+	/**
+	 * Generates the C++ binding files for one JS engine.
+	 * @param directoryPath The directory path that we'll write the C++ files to. Can be null.
+	 * @param engine KrollBindingGenerator.ENGINE_V8 or KrollBindingGenerator.ENGINE_HERMES.
+	 */
+	private void generateCppFiles(String directoryPath, String engine)
+	{
 		if ((directoryPath == null) || directoryPath.isEmpty()) {
 			return;
 		}
@@ -844,7 +872,7 @@ public class KrollJSONGenerator extends AbstractProcessor
 
 		// Generate the C++ files.
 		try {
-			KrollBindingGenerator generator = new KrollBindingGenerator(directoryPath, jsModuleName);
+			KrollBindingGenerator generator = new KrollBindingGenerator(directoryPath, jsModuleName, engine);
 			generator.loadBindingsFrom(this.properties);
 			if (tiBindingsJsonFilePath != null) {
 				// Load Titanium SDK library's bindings. We only do this for module builds.

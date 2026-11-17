@@ -56,6 +56,13 @@ public:
 
 	static std::string jsonStringify(jsi::Runtime& rt, const jsi::Value& value);
 
+	// Number(value), with 0 for null and undefined.
+	static double toNumber(jsi::Runtime& rt, const jsi::Value& value);
+
+	// The test that generated code applies to an argument for a Java number.
+	// False if Number(value) is NaN and the value is not undefined, or if String(value) is empty.
+	static bool isNumberArgument(jsi::Runtime& rt, const jsi::Value& value);
+
 	// True for a number that fits a Java int without loss.
 	static bool isInt32(const jsi::Value& value);
 

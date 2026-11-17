@@ -1,0 +1,59 @@
+/**
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/** This is generated, do not edit by hand. **/
+#pragma once
+<#import "ProxyBinding.fm" as Proxy>
+
+#include <jni.h>
+#include <jsi/jsi.h>
+
+#include "Proxy.h"
+
+<@Proxy.openNamespace/>
+<#assign className = Proxy.className(proxyClassName)>
+
+// Binds the Java class ${packageName}.${proxyClassName} to the Hermes runtime.
+class ${className}
+{
+public:
+	// Describes the class for the runtime. See titanium::ProxyClass in Proxy.h.
+	static titanium::ProxyClass& getProxyClass();
+
+	static void bindProxy(facebook::jsi::Runtime& rt, const facebook::jsi::Object& exports);
+	static void dispose(facebook::jsi::Runtime& rt);
+
+private:
+	<#if superProxyClassName??>
+	static titanium::ProxyClass* parentClass();
+	</#if>
+	static void install(titanium::ClassBuilder& builder);
+
+	// Methods -----------------------------------------------------------
+	<@Proxy.listMethods ; isFirst, name, method>
+	static facebook::jsi::Value ${method.apiName}(facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal,
+		const facebook::jsi::Value* args, size_t count);
+	</@Proxy.listMethods>
+
+	// Dynamic property accessors ----------------------------------------
+	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+	<#if property.get>
+	static facebook::jsi::Value getter_${name}(facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal);
+	</#if>
+	<#if property.set>
+	static void setter_${name}(facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal,
+		const facebook::jsi::Value& value);
+	</#if>
+	</@Proxy.listDynamicProperties>
+	<#if interceptor??>
+
+	static facebook::jsi::Value interceptor(facebook::jsi::Runtime& rt, titanium::Proxy* proxy,
+		const facebook::jsi::String& property);
+	</#if>
+};
+
+<@Proxy.closeNamespace/>

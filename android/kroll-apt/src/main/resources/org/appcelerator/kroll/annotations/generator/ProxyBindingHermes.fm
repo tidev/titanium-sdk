@@ -1,0 +1,211 @@
+<#--
+Macros for the Hermes binding templates. They do the jobs of the V8-specific macros in
+"ProxyBinding.fm". The lists, the type table and the JNI signatures come from that file.
+
+JSI differences that shape this file:
+- A JS value is always a "facebook::jsi::Value". There is no handle type per JS type.
+- An error is a C++ exception. Generated code does not "return" after it reports an error.
+- "args" is a plain array, so an index must be compared with "count" before it is read.
+-->
+<#import "ProxyBinding.fm" as Proxy>
+
+<#-- Expression that is true if a jsi::Value has the JS type that the type table names. -->
+<#function typeCheck expr jsType>
+	<#if jsType == "Object">
+		<#return expr + ".isObject()">
+	<#elseif jsType == "Array">
+		<#return "(" + expr + ".isObject() && " + expr + ".getObject(rt).isArray(rt))">
+	<#elseif jsType == "ArrayBuffer">
+		<#return "(" + expr + ".isObject() && " + expr + ".getObject(rt).isArrayBuffer(rt))">
+	<#elseif jsType == "Boolean">
+		<#return expr + ".isBool()">
+	<#elseif jsType == "Number">
+		<#return expr + ".isNumber()">
+	</#if>
+	<#return "true">
+</#function>
+
+<#--------------------------------------------------------------
+Verify and convert a JS value into a JNI value. "expr" must be a
+"const facebook::jsi::Value&". The converted value is stored in
+the jvalue array "jArguments". If validation fails, a JS
+exception is thrown, or only logged if "logOnly" is true.
+---------------------------------------------------------------->
+<#macro verifyAndConvertArgument expr index info logOnly isOptional>
+	<#if !isOptional && info.typeValidation!true>
+	if (!${typeCheck(expr, info.jsType)} && !${expr}.isNull()) {
+		const char *error = "Invalid value, expected type ${info.jsType}.";
+		LOGE(TAG, "%s", error);
+		<#if !(logOnly!false)>
+		titanium::JSException::Error(rt, error);
+		</#if>
+	}
+	</#if>
+<#t>
+	<#local checkNew = (info?keys?seq_contains("javaDeleteLocalRef") && info.javaToJsConverter == "javaObjectToJsValue")>
+	<#if checkNew>bool isNew_${index} = false;</#if>
+<#t>
+	<#if isOptional>
+	if (count <= ${index}) {
+		<#local defValue = info.defaultValue>
+		<#if defValue == "null">
+			<#local defValue = "NULL">
+		</#if>
+		jArguments[${index}].${info.jvalue} = ${defValue};
+	} else {
+	</#if>
+<#t>
+	<#if info.jsType == "Number">
+	if (!titanium::JSUtil::isNumberArgument(rt, ${expr})) {
+		const char *error = "Invalid value, expected type Number.";
+		LOGE(TAG, "%s", error);
+		<#if !(logOnly!false)>
+		titanium::JSException::Error(rt, error);
+		</#if>
+	}
+	</#if>
+<#t>
+	if (!${expr}.isNull()) {
+		jArguments[${index}].${info.jvalue} =
+			titanium::TypeConverter::${info.jsToJavaConverter}(
+		<#if info.jsToJavaConverter?matches("^js(Number|Boolean)To.+")>
+				rt, ${expr});
+		<#else>
+				rt, env, ${expr}<#if checkNew>, &isNew_${index}</#if>);
+		</#if>
+	} else {
+		jArguments[${index}].${info.jvalue} = NULL;
+	}
+<#t>
+	<#if isOptional>
+	}
+	</#if>
+</#macro>
+
+<#macro convertToVarArgs args start>
+	size_t varArgCount = count > ${start} ? count - ${start} : 0;
+	jobjectArray varArgs = env->NewObjectArray((jsize) varArgCount, titanium::JNIUtil::objectClass, NULL);
+	for (size_t i = 0; i < varArgCount; ++i) {
+		bool isNew = false;
+		jobject arg = titanium::TypeConverter::jsValueToJavaObject(rt, env, args[i + ${start}], &isNew);
+		env->SetObjectArrayElement(varArgs, (jsize) i, arg);
+		if (isNew) {
+			env->DeleteLocalRef(arg);
+		}
+	}
+	jArguments[${start}].l = varArgs;
+</#macro>
+
+<#macro verifyAndConvertArguments args method>
+	<#-- Verify the correct argument count was provided. -->
+	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
+	<#if requiredCount &gt; 0>
+	if (count < ${requiredCount}) {
+		char errorStringBuffer[100];
+		snprintf(errorStringBuffer, sizeof(errorStringBuffer),
+			"${method.apiName}: Invalid number of arguments. Expected ${requiredCount} but got %d", (int) count);
+		titanium::JSException::Error(rt, errorStringBuffer);
+	}
+	</#if>
+	</@Proxy.getRequiredArgumentCount>
+
+	jvalue jArguments[${args?size}];
+	// "args" has "count" elements. A missing argument reads as undefined.
+	const facebook::jsi::Value undefinedArgument;
+
+	<#local varArgsIndex = -1>
+	<#list args as arg>
+		<#if arg.type == "java.lang.Object[]" && arg_index = args?size - 1>
+			<#local varArgsIndex = arg_index>
+		</#if>
+	</#list>
+
+	<#if method.hasInvocation>
+	// The first JS argument is the ScopeVars object of the caller. It holds the source URL.
+	jstring sourceUrl = NULL;
+	if (count > 0 && args[0].isObject()) {
+		sourceUrl = titanium::TypeConverter::jsValueToJavaString(rt, env, args[0].getObject(rt).getProperty(rt, "sourceUrl"));
+	}
+	jArguments[0].l = env->NewObject(titanium::JNIUtil::krollInvocationClass,
+		titanium::JNIUtil::krollInvocationInitMethod, sourceUrl);
+	if (sourceUrl) {
+		env->DeleteLocalRef(sourceUrl);
+	}
+	</#if>
+
+	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
+	<#if type != "org.appcelerator.kroll.KrollInvocation">
+		<#if index = varArgsIndex>
+			<@convertToVarArgs args=args start=index/>
+		<#else>
+	const facebook::jsi::Value& arg_${index} = count > ${index} ? args[${index}] : undefinedArgument;
+			<@verifyAndConvertArgument expr="arg_" + index index=index info=info logOnly=false isOptional=isOptional/>
+		</#if>
+	</#if>
+
+	</@Proxy.listMethodArguments>
+</#macro>
+
+<#--------------------------------------------------------------
+Generate a JNI method call with the given return type, method ID,
+and jobject reference. A Java exception becomes a JS exception.
+The nested section receives the name of the variable with the
+converted result.
+---------------------------------------------------------------->
+<#macro callJNIMethod methodArgs hasInvocation returnType methodID jobjectVar argsVar hasResult>
+	<#local info = Proxy.getTypeInfo(returnType)
+			callExpr = "Call${info.javaCallMethodType}MethodA"
+			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
+			resultExpr = "${info.javaReturnType} jResult = (${info.javaReturnType})">
+	<#if hasResult>
+	${resultExpr}env->${callExpr}(${argExpr});
+	<#else>
+	env->${callExpr}(${argExpr});
+	</#if>
+
+	<#-- Delete java proxy reference once done making the call. -->
+	proxy->unreferenceJavaObject(${jobjectVar});
+
+	<@Proxy.cleanupMethodArguments args=methodArgs hasInvocation=hasInvocation/>
+
+	titanium::JSException::checkJavaException(rt, env);
+
+	<#if hasResult && info.javaValidation!false>
+	if (jResult == NULL) {
+		return facebook::jsi::Value::null();
+	}
+	</#if>
+
+	<#if hasResult>
+	facebook::jsi::Value jsResult = titanium::TypeConverter::${info.javaToJsConverter}(rt, env, jResult);
+
+	<#if info.javaDeleteLocalRef!false>
+	env->DeleteLocalRef(jResult);
+	</#if>
+	</#if>
+
+	<#nested hasResult "jsResult">
+</#macro>
+
+<#macro initJNIEnv>
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		titanium::JSException::GetJNIEnvironmentError(rt);
+	}
+</#macro>
+
+<#macro initMethodID className name signature logOnly>
+	<#-- Lazy initialize method ID for the Java proxy. -->
+	static jmethodID methodID = NULL;
+	if (!methodID) {
+		methodID = env->GetMethodID(${className}::getProxyClass().javaClass, "${name}", "${signature}");
+		if (!methodID) {
+			env->ExceptionClear();
+			const char *error = "Couldn't find proxy method '${name}' with signature '${signature}'";
+			LOGE(TAG, "%s", error);
+			<#if !(logOnly!false)>
+			titanium::JSException::Error(rt, error);
+			</#if>
+		}
+	}
+</#macro>

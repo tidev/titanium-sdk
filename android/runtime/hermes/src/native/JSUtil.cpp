@@ -160,6 +160,40 @@ std::string JSUtil::jsonStringify(jsi::Runtime& rt, const jsi::Value& value)
 	return "ERROR";
 }
 
+double JSUtil::toNumber(jsi::Runtime& rt, const jsi::Value& value)
+{
+	if (value.isNumber()) {
+		return value.getNumber();
+	}
+	if (value.isBool()) {
+		return value.getBool() ? 1 : 0;
+	}
+	if (value.isNull() || value.isUndefined()) {
+		return 0;
+	}
+	// Number(value) for strings and objects.
+	jsi::Value result = rt.global().getPropertyAsFunction(rt, "Number").call(rt, value);
+	return result.isNumber() ? result.getNumber() : 0;
+}
+
+bool JSUtil::isNumberArgument(jsi::Runtime& rt, const jsi::Value& value)
+{
+	if (value.isUndefined() || value.isNull() || value.isBool()) {
+		return true;
+	}
+	if (value.isNumber()) {
+		return !std::isnan(value.getNumber());
+	}
+	if (value.isString() && value.getString(rt).utf8(rt).empty()) {
+		return false;
+	}
+	jsi::Value result = rt.global().getPropertyAsFunction(rt, "Number").call(rt, value);
+	if (!result.isNumber() || std::isnan(result.getNumber())) {
+		return false;
+	}
+	return !toUtf8(rt, value).empty();
+}
+
 bool JSUtil::isInt32(const jsi::Value& value)
 {
 	if (!value.isNumber()) {

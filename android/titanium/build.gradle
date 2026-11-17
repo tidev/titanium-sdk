@@ -63,6 +63,7 @@ android {
 				arguments = [
 					'kroll.outputJsonFilePath': "${projectDir}/../../dist/android/titanium.bindings.json".toString(),
 					'kroll.outputCppDirPath'  : "${projectDir}/../runtime/v8/generated".toString(),
+					'kroll.outputHermesCppDirPath': "${projectDir}/../runtime/hermes/generated".toString(),
 					'kroll.jsModuleName'      : 'titanium'
 				]
 			}
