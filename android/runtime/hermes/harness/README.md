@@ -14,7 +14,7 @@ The classes in `app/src/main/java/org/appcelerator/kroll/runtime/hermes` are fir
 
 You need the Android SDK with NDK `28.1.13356709` and CMake `3.22.1`. Run all commands in this directory.
 
-1. Download the JSI sources: `../spike/fetch-jsi.sh`
+1. Download the JSI sources: `node ../../../titanium/hermes-services.js update-jsi`
 2. Build the app: `ANDROID_HOME=$ANDROID_SDK ../../../gradlew -p . :app:assembleRelease`
 3. Find the serial of your device: `adb devices`
 4. Install the app and print the report: `./run.sh <serial> release`

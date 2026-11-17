@@ -130,6 +130,15 @@ export class AndroidBuilder {
 		const LIBV8_INCLUDE_PATH = path.join(DIST_ANDROID_PATH, 'libv8', v8Props.version, v8Props.mode, 'include');
 		await globCopy('**/*.h', LIBV8_INCLUDE_PATH, ZIP_HEADER_INCLUDE_PATH);
 
+		// Copy the C/C++ header files of the Hermes runtime to their own directory.
+		// Its headers have the same names as the V8 ones, for example "Proxy.h".
+		// The JSI headers go to a "jsi" subdirectory, because the code includes them as <jsi/jsi.h>.
+		const ZIP_HERMES_INCLUDE_PATH = path.join(ZIP_ANDROID_PATH, 'native', 'hermes', 'include');
+		await fs.mkdirs(ZIP_HERMES_INCLUDE_PATH);
+		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'hermes', 'src', 'native'), ZIP_HERMES_INCLUDE_PATH);
+		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'hermes', 'generated'), ZIP_HERMES_INCLUDE_PATH);
+		await globCopy('**/*.h', path.join(TITANIUM_ANDROID_PATH, 'runtime', 'hermes', 'src', 'jsi'), ZIP_HERMES_INCLUDE_PATH);
+
 		// Copy our C/C++ "*.so" libraries to the destination.
 		const TITANIUM_NATIVE_LIBS_PATH = path.join(TITANIUM_ANDROID_PATH, 'titanium', 'build', 'outputs', 'jniLibs');
 		const ZIP_NATIVE_LIBS_PATH = path.join(ZIP_ANDROID_PATH, 'native', 'libs');

@@ -2,10 +2,10 @@ plugins {
 	id 'com.android.application'
 }
 
-// Keep this version equal to HERMES_TAG in "../spike/fetch-jsi.sh".
+// Keep this version equal to "hermes.version" in "android/package.json".
 def hermesVersion = '250829098.0.19'
 def runtimeDir = file('../../src/native')
-def jsiDir = file('../../spike/app/src/main/cpp/third_party/jsi')
+def jsiDir = file('../../src/jsi')
 
 android {
 	namespace = 'ti.harness'

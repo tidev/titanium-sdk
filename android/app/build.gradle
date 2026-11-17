@@ -25,6 +25,12 @@ android {
 	buildFeatures {
 		buildConfig = true
 	}
+	packagingOptions {
+		jniLibs {
+			// The Titanium library and the libraries of the Hermes engine each bring this file.
+			pickFirsts += ['lib/*/libc++_shared.so']
+		}
+	}
 	sourceSets {
 		main {
 			assets.srcDirs = [

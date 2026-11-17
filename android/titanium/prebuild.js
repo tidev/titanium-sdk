@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const exec = util.promisify(child_process.exec);
 const runtimeV8DirPath = path.join(__dirname, '..', 'runtime', 'v8');
+const runtimeHermesDirPath = path.join(__dirname, '..', 'runtime', 'hermes');
 
 // Determine if we're running on a Windows machine.
 const isWindows = process.platform === 'win32';
@@ -179,7 +180,29 @@ async function generateSourceCode() {
 	const headerFilePath = path.join(outDir, 'KrollJS.h');
 	const tempFilePath = headerFilePath + '.temp';
 	await js2c(tempFilePath, files);
-	return replaceFileIfDifferent(tempFilePath, headerFilePath);
+	await replaceFileIfDifferent(tempFilePath, headerFilePath);
+
+	return generateHermesSourceCode(outDir);
+}
+
+/**
+ * Generates the same two headers for the Hermes runtime: "KrollJS.h" and "KrollGeneratedBindings.h".
+ * The files for V8 name no engine type, except for one include line. So this copies them.
+ * The proxy bindings in the Hermes directory come from the "kroll-apt" annotation processor.
+ * @param {string} v8OutDir directory with the generated files of the V8 runtime
+ */
+async function generateHermesSourceCode(v8OutDir) {
+	const outDir = path.join(runtimeHermesDirPath, 'generated');
+	await fs.mkdirs(outDir);
+
+	const krollJsTempPath = path.join(outDir, 'KrollJS.h.temp');
+	await fs.copyFile(path.join(v8OutDir, 'KrollJS.h'), krollJsTempPath);
+	await replaceFileIfDifferent(krollJsTempPath, path.join(outDir, 'KrollJS.h'));
+
+	const bindings = await fs.readFile(path.join(v8OutDir, 'KrollGeneratedBindings.h'), 'utf8');
+	const bindingsTempPath = path.join(outDir, 'KrollGeneratedBindings.h.temp');
+	await fs.writeFile(bindingsTempPath, bindings.replace(/^#include <v8\.h>\r?\n/m, ''));
+	return replaceFileIfDifferent(bindingsTempPath, path.join(outDir, 'KrollGeneratedBindings.h'));
 }
 
 if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url)) {

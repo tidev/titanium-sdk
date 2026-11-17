@@ -191,7 +191,6 @@ std::string KrollBindings::getMainSource()
 jsi::Value KrollBindings::instantiateBinding(jsi::Runtime& rt, bindings::BindEntry* binding, const std::string& key)
 {
 	if (!binding) {
-		LOGD(TAG, "No binding found/supplied for %s, returning undefined", key.c_str());
 		return jsi::Value::undefined();
 	}
 	jsi::Object exports(rt);
@@ -250,7 +249,11 @@ jsi::Value KrollBindings::getBinding(jsi::Runtime& rt, const std::string& bindin
 	}
 
 	// Try native modules by binding string
-	return instantiateBinding(rt, getExternalBinding(binding.c_str(), length), binding);
+	exports = instantiateBinding(rt, getExternalBinding(binding.c_str(), length), binding);
+	if (!exports.isObject()) {
+		LOGD(TAG, "No binding found for %s, returning undefined", binding.c_str());
+	}
+	return exports;
 }
 
 // Disposes what the generated and native bindings cached, and clears the module lookup cache.
