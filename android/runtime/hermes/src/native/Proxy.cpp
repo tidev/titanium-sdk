@@ -150,8 +150,8 @@ Proxy* Proxy::unwrap(jsi::Runtime& rt, const jsi::Value& value)
 	if (object.hasNativeState<ProxyState>(rt)) {
 		return object.getNativeState<ProxyState>(rt)->link->proxy;
 	}
-	// The value can be the ES Proxy in front of a real object, or an object that inherits
-	// from a proxy. The real object links to itself, and the lookup follows both.
+	// The value can be an object that inherits from a proxy, or the ES Proxy in front of a
+	// real object. Every real object links to itself, and the lookup follows both.
 	jsi::Value target = object.getProperty(rt, TiRuntime::state->backingProp);
 	if (target.isObject()) {
 		jsi::Object real = target.getObject(rt);
@@ -368,8 +368,14 @@ void ClassBuilder::accessor(const char* name, ProxyGetter getter, ProxySetter se
 {
 	std::string propertyName(name);
 
+	// The accessors are on the prototype, so JS code can reach them with a receiver that is not
+	// a proxy, for example "SomeProxy.prototype.title = value". In V8 the accessors are on each
+	// instance, and such code reads or writes a plain property. Do the same here.
 	jsi::Function jsGetter = JSUtil::hostFunction(rt, name, 0,
 		[getter, propertyName](jsi::Runtime& rt, const jsi::Value& thisVal, const jsi::Value*, size_t) -> jsi::Value {
+			if (thisVal.isObject() && Proxy::unwrap(rt, thisVal) == nullptr) {
+				return jsi::Value::undefined();
+			}
 			if (getter) {
 				return getter(rt, thisVal);
 			}
@@ -385,6 +391,11 @@ void ClassBuilder::accessor(const char* name, ProxyGetter getter, ProxySetter se
 		[setter, propertyName](jsi::Runtime& rt, const jsi::Value& thisVal, const jsi::Value* args, size_t count) -> jsi::Value {
 			jsi::Value undefined;
 			const jsi::Value& value = count > 0 ? args[0] : undefined;
+			if (thisVal.isObject() && Proxy::unwrap(rt, thisVal) == nullptr) {
+				LOGD(TAG, "Property '%s' was set on an object that is not a proxy", propertyName.c_str());
+				TiRuntime::state->defineOwn.call(rt, thisVal, jsi::String::createFromUtf8(rt, propertyName), value);
+				return jsi::Value::undefined();
+			}
 			if (setter) {
 				setter(rt, thisVal, value);
 			} else {
@@ -414,6 +425,7 @@ static jsi::Value hasListenersForEventType(jsi::Runtime& rt, const jsi::Value& t
 	}
 	Proxy* proxy = Proxy::unwrap(rt, thisVal);
 	if (proxy == nullptr) {
+		LOGE(TAG, "_hasListenersForEventType() was called on an object that is not a proxy");
 		JSException::Error(rt, "Failed to unwrap Proxy instance.");
 	}
 	if (count < 2) {
@@ -448,6 +460,7 @@ static jsi::Value onEventFired(jsi::Runtime& rt, const jsi::Value& thisVal, cons
 	}
 	Proxy* proxy = Proxy::unwrap(rt, thisVal);
 	if (proxy == nullptr) {
+		LOGE(TAG, "_onEventFired() was called on an object that is not a proxy");
 		JSException::Error(rt, "Failed to unwrap Proxy instance.");
 	}
 	if (count < 1) {
@@ -723,8 +736,13 @@ jsi::Value Proxy::construct(jsi::Runtime& rt, ProxyClass& proxyClass, const jsi:
 		// every instance gets a special "_properties" object for us to use internally for get/setProperty
 		state.defineHidden.call(rt, self, jsi::String::createFromAscii(rt, "_properties"), jsi::Object(rt));
 
+		// Link the object to itself under a hidden key. An object that inherits from a proxy finds
+		// the proxy through this link. The Titanium kernel makes such objects: each JS file gets a
+		// wrapper whose prototype is the real module. V8 does this lookup with
+		// FindInstanceInPrototypeChain().
+		state.linkBacking.call(rt, self);
+
 		if (needsTraps(&proxyClass)) {
-			state.linkBacking.call(rt, self);
 			jsi::Value getIndexed = jsi::Value::null();
 			jsi::Value setIndexed = jsi::Value::null();
 			jsi::Value intercept = jsi::Value::null();
@@ -865,6 +883,7 @@ void Proxy::onPropertyChanged(jsi::Runtime& rt, const jsi::Value& thisVal, const
 {
 	Proxy* proxy = unwrap(rt, thisVal);
 	if (!proxy) {
+		LOGE(TAG, "onPropertyChanged('%s') was called on an object that is not a proxy", name.c_str());
 		JSException::Error(rt, "Failed to unwrap Proxy instance.");
 	}
 	JNIEnv* env = JNIScope::getEnv();

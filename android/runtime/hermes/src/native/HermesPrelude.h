@@ -74,6 +74,11 @@ static const char kHermesPreludeSource[] = R"TIPRELUDE((function () {
 			defineProperty(target, name, { value: value, enumerable: true });
 		},
 
+		// A plain assignment: an own data property that shadows an inherited accessor.
+		defineOwn: function (target, name, value) {
+			defineProperty(target, name, { value: value, writable: true, enumerable: true, configurable: true });
+		},
+
 		defineHidden: function (target, name, value) {
 			defineProperty(target, name, { value: value, writable: true, configurable: true });
 		},

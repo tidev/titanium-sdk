@@ -47,6 +47,7 @@ struct RuntimeState {
 	jsi::Function setupPrototype;
 	jsi::Function defineNativeAccessor;
 	jsi::Function defineConstant;
+	jsi::Function defineOwn;
 	jsi::Function defineHidden;
 	jsi::Function linkBacking;
 	jsi::Function makeTrappedWrapper;

@@ -143,6 +143,31 @@
 		return typeof Titanium === 'object' && echo(4) === 4;
 	});
 
+	test('an object that inherits from a proxy acts as the proxy', () => {
+		// The Titanium kernel wraps each module this way, once per JS file.
+		const p = new TestProxy();
+		const wrapper = Object.create(p);
+		wrapper.text = 'via wrapper';
+		wrapper.title = 'stored';
+		let got = null;
+		wrapper.addEventListener('ping', e => {
+			got = e.n;
+		});
+		return p.text === 'via wrapper' && wrapper.text === 'via wrapper' && wrapper.echo(5) === 5
+			&& wrapper.emit('ping', { n: 1 }) === true && got === 1 && Object.keys(p).length === 0;
+	});
+
+	test('a property write on a prototype is a plain assignment', () => {
+		// The accessors are on the prototype. A write with a receiver that is not a proxy must not
+		// reach Java and must not throw.
+		const Child = TestProxy.inherit(function Child() {});
+		Child.prototype.title = 'on prototype';
+		Child.prototype.text = 'also plain';
+		const descriptor = Object.getOwnPropertyDescriptor(Child.prototype, 'title');
+		return descriptor.value === 'on prototype' && TestProxy.prototype.title === undefined
+			&& TestProxy.prototype.text === undefined;
+	});
+
 	test('indexed properties', () => {
 		const p = new IndexedProxy();
 		p[3] = 'x';
