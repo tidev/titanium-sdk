@@ -82,6 +82,8 @@ target_compile_options(
 	PRIVATE
 
 	-Wno-format-security
+	# macOS gperf 3.0.3 emits "register", which modern C++ rejects by default.
+	-Wno-register
 	-Wno-unused-result
 
 	# Limit stack protector to functions with buffer larger than 4 bytes instead 8. (See: TIMOB-24940)
