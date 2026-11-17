@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <atomic>
+#include <cstring>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -32,6 +33,7 @@ std::unique_ptr<RuntimeState> TiRuntime::state;
 jobject TiRuntime::javaInstance = NULL;
 bool TiRuntime::debuggerEnabled = false;
 bool TiRuntime::DBG = false;
+bool TiRuntime::bytecodeEnabled = false;
 std::thread::id TiRuntime::jsThread;
 
 int RuntimeScope::depth = 0;
@@ -83,6 +85,13 @@ RuntimeState::RuntimeState(jsi::Runtime& rt, const jsi::Object& prelude)
 	, prototypeProp(jsi::PropNameID::forAscii(rt, "prototype"))
 	, dontIntercept(rt)
 {
+}
+
+bool TiRuntime::isHermesBytecode(const uint8_t* data, size_t length)
+{
+	// The magic number 0x1F1903C103BC1FC6 at the start of every Hermes bytecode file, little-endian.
+	static const uint8_t magic[] = { 0xC6, 0x1F, 0xBC, 0x03, 0xC1, 0x03, 0x19, 0x1F };
+	return data != nullptr && length >= sizeof(magic) && memcmp(data, magic, sizeof(magic)) == 0;
 }
 
 bool TiRuntime::isJsThread()
@@ -289,6 +298,7 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_hermes_HermesRuntime_
 	titanium::JNIScope jniScope(env);
 
 	TiRuntime::DBG = DBG;
+	TiRuntime::bytecodeEnabled = false;
 	TiRuntime::jsThread = std::this_thread::get_id();
 	TiRuntime::javaInstance = env->NewGlobalRef(self);
 	JNIUtil::initCache();
@@ -324,7 +334,18 @@ JNIEXPORT void JNICALL Java_org_appcelerator_kroll_runtime_hermes_HermesRuntime_
 
 static jsi::Value bytesToSource(jsi::Runtime& rt, JNIEnv* env, jobject source)
 {
-	return TypeConverter::javaBytesToJsString(rt, env, (jbyteArray) source);
+	jbyteArray bytes = (jbyteArray) source;
+	if (bytes && env->GetArrayLength(bytes) >= 8) {
+		jbyte header[8];
+		env->GetByteArrayRegion(bytes, 0, 8, header);
+		if (TiRuntime::isHermesBytecode(reinterpret_cast<const uint8_t*>(header), sizeof(header))) {
+			// The script is Hermes bytecode, which cannot pass through a JS string. Without a
+			// source, Module.runModule() loads the file by its name, and the loader finds the bytecode.
+			TiRuntime::bytecodeEnabled = true;
+			return jsi::Value::null();
+		}
+	}
+	return TypeConverter::javaBytesToJsString(rt, env, bytes);
 }
 
 static jsi::Value stringToSource(jsi::Runtime& rt, JNIEnv* env, jobject source)

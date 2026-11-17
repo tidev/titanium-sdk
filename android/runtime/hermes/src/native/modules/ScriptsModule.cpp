@@ -4,11 +4,16 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "../AndroidUtil.h"
+#include "../JNIUtil.h"
 #include "../JSException.h"
 #include "../JSUtil.h"
+#include "../TiRuntime.h"
+#include "../TypeConverter.h"
 #include "ScriptsModule.h"
 
 #define TAG "ScriptsModule"
@@ -38,6 +43,80 @@ static jsi::Value runInThisContext(jsi::Runtime& rt, const jsi::Value&, const js
 	}
 }
 
+// The memory of a bytecode file while Hermes runs from it.
+class BytecodeBuffer : public jsi::Buffer
+{
+public:
+	explicit BytecodeBuffer(size_t size)
+		: bytes_(size)
+	{
+	}
+
+	size_t size() const override
+	{
+		return bytes_.size();
+	}
+
+	const uint8_t* data() const override
+	{
+		return bytes_.data();
+	}
+
+	uint8_t* writableData()
+	{
+		return bytes_.data();
+	}
+
+private:
+	std::vector<uint8_t> bytes_;
+};
+
+// Script.runBytecodeAsset(assetPath, filename)
+// Runs an asset if it is Hermes bytecode and returns { value: <result> }.
+// Returns undefined if the app has no bytecode or if the asset is not bytecode. The caller then
+// reads the asset as source text.
+static jsi::Value runBytecodeAsset(jsi::Runtime& rt, const jsi::Value&, const jsi::Value* args, size_t count)
+{
+	if (!TiRuntime::bytecodeEnabled || count < 1 || !args[0].isString()) {
+		return jsi::Value::undefined();
+	}
+
+	JNIEnv* env = JNIScope::getEnv();
+	if (!env) {
+		JSException::GetJNIEnvironmentError(rt);
+	}
+
+	jstring assetPath = TypeConverter::jsStringToJavaString(rt, env, args[0].getString(rt));
+	jbyteArray assetData = (jbyteArray) env->CallStaticObjectMethod(
+		JNIUtil::krollAssetHelperClass,
+		JNIUtil::krollAssetHelperReadAssetMethod,
+		assetPath);
+	env->DeleteLocalRef(assetPath);
+	if (env->ExceptionCheck()) {
+		env->ExceptionClear();
+		return jsi::Value::undefined();
+	}
+	if (!assetData) {
+		return jsi::Value::undefined();
+	}
+
+	jsize length = env->GetArrayLength(assetData);
+	std::shared_ptr<BytecodeBuffer> buffer = std::make_shared<BytecodeBuffer>((size_t) length);
+	if (length > 0) {
+		env->GetByteArrayRegion(assetData, 0, length, reinterpret_cast<jbyte*>(buffer->writableData()));
+	}
+	env->DeleteLocalRef(assetData);
+
+	if (!TiRuntime::isHermesBytecode(buffer->data(), buffer->size())) {
+		return jsi::Value::undefined();
+	}
+
+	std::string filename = count > 1 && args[1].isString() ? args[1].getString(rt).utf8(rt) : std::string("bytecode");
+	jsi::Object result(rt);
+	result.setProperty(rt, "value", rt.evaluateJavaScript(buffer, filename));
+	return result;
+}
+
 // Hermes has one global object per runtime. It cannot create a second script context.
 static jsi::Value unsupported(jsi::Runtime& rt, const jsi::Value&, const jsi::Value*, size_t)
 {
@@ -49,6 +128,7 @@ void ScriptsModule::Initialize(jsi::Runtime& rt, const jsi::Object& target)
 	// The kernel uses the static function only. "new Script(code)" is not supported.
 	jsi::Function script = JSUtil::hostFunction(rt, "Script", 1, unsupported);
 	JSUtil::setMethod(rt, script, "runInThisContext", 3, runInThisContext);
+	JSUtil::setMethod(rt, script, "runBytecodeAsset", 2, runBytecodeAsset);
 	JSUtil::setMethod(rt, script, "runInContext", 3, unsupported);
 	JSUtil::setMethod(rt, script, "runInNewContext", 3, unsupported);
 	JSUtil::setMethod(rt, script, "createContext", 1, unsupported);

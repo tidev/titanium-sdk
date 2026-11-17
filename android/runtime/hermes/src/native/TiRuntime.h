@@ -105,6 +105,13 @@ public:
 	static bool debuggerEnabled;
 	static bool DBG;
 
+	// True after the app ran a script that is Hermes bytecode. A production build stores each
+	// JS file as bytecode, so the module loader then looks for bytecode before it reads source.
+	static bool bytecodeEnabled;
+
+	// True if the data starts with the file header of Hermes bytecode.
+	static bool isHermesBytecode(const uint8_t* data, size_t length);
+
 	// The runtime of the current app session. Call this on the JS thread only.
 	static jsi::Runtime& rt()
 	{

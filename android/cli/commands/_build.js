@@ -33,6 +33,7 @@ import fields from 'fields';
 import fs from 'fs-extra';
 import i18n from 'node-titanium-sdk/lib/i18n.js';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
 import temp from 'temp';
 import ti from 'node-titanium-sdk';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
@@ -48,6 +49,12 @@ const version = appc.version;
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 // The Chrome version that Babel gets as its target for the Hermes engine. See validate().
 const HERMES_BABEL_CHROME_TARGET = 62;
+// The text that the JS kernel puts around the source of a module before it runs it.
+// Keep this equal to "Module.wrapper" in "common/Resources/ti.internal/kernel/module.js".
+const MODULE_WRAPPER = [
+	'(function (exports, require, module, __filename, __dirname, Titanium, Ti, global, kroll) {',
+	'\n});'
+];
 // The first module API version whose native modules contain a library for each JS engine.
 const MIN_MODULE_API_VERSION = 5;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
@@ -973,6 +980,11 @@ class AndroidBuilder extends Builder {
 				this.allowProfiling = true;
 				this.proguard = false;
 		}
+
+		// A Hermes app does not encrypt its JS files. The build compiles them to Hermes bytecode,
+		// which contains no source text. "encryptJS" stays set, because it also selects the
+		// build steps that collect the processed JS files. See encryptJSFiles().
+		this.hermesBytecode = (this.jsEngine === 'hermes') && this.encryptJS;
 
 		// Select the JavaScript asset encryption module. The open source 'ti.crypt'
 		// module is the default. Apps can opt in to the closed source 'ti.cloak'
@@ -2983,10 +2995,82 @@ class AndroidBuilder extends Builder {
 	/**
 	 * @returns {Promise<void>}
 	 */
+	/**
+	 * Finds the "hermesc" compiler of the "hermes-compiler" package for this computer.
+	 * @returns {string} path to the executable
+	 */
+	findHermesCompiler() {
+		const platformDir = { linux: 'linux64-bin', darwin: 'osx-bin', win32: 'win64-bin' }[process.platform];
+		if (!platformDir) {
+			throw new Error(`The Hermes compiler is not available for the platform "${process.platform}".`);
+		}
+		const packageDir = path.dirname(createRequire(import.meta.url).resolve('hermes-compiler/package.json'));
+		const hermescPath = path.join(packageDir, 'hermesc', platformDir, process.platform === 'win32' ? 'hermesc.exe' : 'hermesc');
+		if (!fs.existsSync(hermescPath)) {
+			throw new Error(`Could not find the Hermes compiler at "${hermescPath}".`);
+		}
+		return hermescPath;
+	}
+
+	/**
+	 * Compiles the processed JS files to Hermes bytecode and writes them to the assets of the app.
+	 * A bytecode file keeps the name of its JS file. The runtime detects bytecode by the file header.
+	 * Files that are not JS, for example "_app_props_.json", are copied as they are.
+	 * @returns {Promise<void>}
+	 */
+	async compileHermesBytecode() {
+		const hermescPath = this.findHermesCompiler();
+		this.logger.info(`Compiling JavaScript assets to Hermes bytecode with "${hermescPath}"`);
+
+		const tempDir = path.join(this.buildTiIncrementalDir, 'hermes-bytecode');
+		await fs.emptyDir(tempDir);
+
+		const compileFile = async (file) => {
+			const from = path.join(this.buildAssetsDir, file);
+			const to = path.join(this.buildAppMainAssetsResourcesDir, file);
+			await fs.ensureDir(path.dirname(to));
+			this.unmarkBuildDirFile(to);
+
+			if (!/\.(js|cjs)$/i.test(file)) {
+				return fs.copyFile(from, to);
+			}
+
+			// The JS kernel runs a module inside a wrapper function. Bytecode cannot be wrapped
+			// when the app runs, so compile the file with the wrapper around it.
+			// The compiler stores the path of its input file in the bytecode, and stack traces show it.
+			// Give it the path of the file inside the app, relative to a temporary directory.
+			this.logger.debug(`Compiling: ${from.cyan}`);
+			const relativePath = file.replace(/\\/g, '/');
+			const wrappedPath = path.join(tempDir, relativePath);
+			await fs.ensureDir(path.dirname(wrappedPath));
+			await fs.writeFile(wrappedPath, MODULE_WRAPPER[0] + await fs.readFile(from, 'utf8') + MODULE_WRAPPER[1]);
+			try {
+				// -O: optimize. -w: no warnings, Hermes does not know the Titanium globals.
+				await util.promisify(execFile)(hermescPath, [ '-emit-binary', '-O', '-w', '-out', to, relativePath ], { cwd: tempDir });
+			} catch (err) {
+				throw new Error(`Failed to compile "${file}" to Hermes bytecode.\n${err.stderr || err.message}`);
+			}
+		};
+
+		// Run a few compiler processes at a time.
+		const queue = this.jsFilesToEncrypt.slice();
+		const workers = Array.from({ length: Math.min(8, queue.length) }, async () => {
+			for (let next = queue.shift(); next; next = queue.shift()) {
+				await compileFile(next);
+			}
+		});
+		await Promise.all(workers);
+		await fs.remove(tempDir);
+	}
+
 	async encryptJSFiles() {
 		if (!this.jsFilesToEncrypt.length) {
 			// nothing to encrypt, continue
 			return;
+		}
+
+		if (this.hermesBytecode) {
+			return this.compileHermesBytecode();
 		}
 
 		// ti.cloak's default export is jacked... there's nested default exports
@@ -3244,7 +3328,7 @@ class AndroidBuilder extends Builder {
 				classname: this.classname,
 				customModules: moduleProxyArray,
 				deployType: this.deployType,
-				encryptJS: this.encryptJS,
+				encryptJS: this.encryptJS && !this.hermesBytecode,
 				jsEngine: this.jsEngine
 			});
 		await copyTemplate(
@@ -4004,7 +4088,7 @@ class AndroidBuilder extends Builder {
 				fullscreen: this.tiapp.fullscreen,
 				navbarHidden: this.tiapp['navbar-hidden'],
 				skipJSMinification: !!this.cli.argv['skip-js-minify'],
-				encryptJS: this.encryptJS,
+				encryptJS: this.encryptJS && !this.hermesBytecode,
 				encryptionModule: this.encryptionModule,
 				minSDK: this.minSDK,
 				targetSDK: this.targetSDK,
