@@ -5,7 +5,7 @@
   "version": "14.1.0",
   "moduleApiVersion": {
     "iphone": "2",
-    "android": "4"
+    "android": "5"
   },
   "keywords": [
     "tidev",

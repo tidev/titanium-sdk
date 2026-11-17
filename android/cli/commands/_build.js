@@ -48,8 +48,8 @@ const version = appc.version;
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 // The Chrome version that Babel gets as its target for the Hermes engine. See validate().
 const HERMES_BABEL_CHROME_TARGET = 62;
-// The first module API version whose native modules contain binding code for Hermes.
-const HERMES_MIN_MODULE_API_VERSION = 5;
+// The first module API version whose native modules contain a library for each JS engine.
+const MIN_MODULE_API_VERSION = 5;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 
 /**
@@ -1558,12 +1558,12 @@ class AndroidBuilder extends Builder {
 			// Flag object as either a native JAR/AAR module or a scripted CommonJS module for fast if-checks later.
 			module.native = (module.platform.indexOf('commonjs') < 0);
 
-			// A native module contains compiled binding code for the JS engine.
-			// Only a module that was built with module API version 5 or higher contains code for Hermes.
-			if (module.native && this.jsEngine === 'hermes' && (~~module.manifest.apiversion < HERMES_MIN_MODULE_API_VERSION)) {
-				this.logger.error(`The module "${module.manifest.moduleid.cyan}" does not support the Hermes engine.`);
-				this.logger.error(`Its "apiversion" is ${module.manifest.apiversion}. Hermes needs "apiversion" ${HERMES_MIN_MODULE_API_VERSION} or greater.`);
-				this.logger.error('Build the module again with this Titanium SDK, or set <engine>v8</engine> in the <android> section of the tiapp.xml.');
+			// A native module contains compiled binding code for each JS engine. Module API version 5
+			// added the library for the Hermes engine and changed the build of the V8 library.
+			if (module.native && (~~module.manifest.apiversion < MIN_MODULE_API_VERSION)) {
+				this.logger.error(`The module "${module.manifest.moduleid.cyan}" has the "apiversion" ${module.manifest.apiversion} in its manifest.`);
+				this.logger.error(`This Titanium SDK needs "apiversion" ${MIN_MODULE_API_VERSION} or greater.`);
+				this.logger.error('Build the module again with this Titanium SDK.');
 				this.logger.log();
 				process.exit(1);
 			}
@@ -2547,6 +2547,7 @@ class AndroidBuilder extends Builder {
 			mavenRepositoryUrls: this.mavenRepositoryUrls,
 			ndkAbiArray: this.abis,
 			jsEngine: this.jsEngine,
+			nativeModuleIds: this.modules.filter(module => module.native).map(module => module.manifest.moduleid),
 			proguardFilePaths: this.proguardConfigFile ? [ this.proguardConfigFile ] : null,
 			tiSdkAndroidDir: this.platformPath
 		});

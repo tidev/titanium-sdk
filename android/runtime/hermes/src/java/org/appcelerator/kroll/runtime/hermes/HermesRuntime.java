@@ -125,7 +125,8 @@ public final class HermesRuntime extends KrollRuntime implements Handler.Callbac
 
 			try {
 				if (!loadedLibs.contains(libName)) {
-					System.loadLibrary(libName);
+					// A module has one library per JS engine. The Hermes one has this suffix.
+					System.loadLibrary(libName + "-hermes");
 					loadedLibs.add(libName);
 				}
 
