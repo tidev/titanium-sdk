@@ -111,7 +111,8 @@ android {
 					"${projectDir}/../modules/utils/src/java",
 					"${projectDir}/../modules/xml/src/java",
 					"${projectDir}/../runtime/common/src/java",
-					"${projectDir}/../runtime/v8/src/java"
+					"${projectDir}/../runtime/v8/src/java",
+					"${projectDir}/../runtime/hermes/src/java"
 			]
 			res.srcDirs = [
 					'res',
@@ -283,6 +284,10 @@ dependencies {
 	// This reads our code's @Kroll annotations and generates code which interops between V8 and proxy classes.
 	annotationProcessor project(':kroll-apt')
 	compileOnly project(':kroll-apt')
+
+	// Only the Hermes runtime class uses this. An app that selects Hermes gets the library
+	// from its own build file, together with the Hermes engine.
+	compileOnly 'com.facebook.soloader:nativeloader:0.10.5'
 
 	// AndroidX Library dependencies.
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"

@@ -21,6 +21,7 @@ import org.appcelerator.kroll.KrollRuntime;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
 import org.appcelerator.kroll.common.Log;
 import org.appcelerator.kroll.common.TiDeployData;
+import org.appcelerator.kroll.util.GCWatcher;
 
 import android.os.Build;
 import android.os.Handler;

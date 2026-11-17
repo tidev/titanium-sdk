@@ -19,6 +19,11 @@ android {
 		versionName '1.0'
 		manifestPlaceholders = project.ext.tiManifestPlaceholders
 		manifestPlaceholders.put('localApplicationId', applicationId) // Legacy placeholder old AARs sometimes use.
+		// The JS engine of the test app: "v8" (default) or "hermes". Set it with "-PtiJsEngine=hermes".
+		buildConfigField 'String', 'JS_ENGINE', "\"${project.findProperty('tiJsEngine') ?: 'v8'}\""
+	}
+	buildFeatures {
+		buildConfig = true
 	}
 	sourceSets {
 		main {

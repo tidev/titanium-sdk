@@ -893,6 +893,16 @@ class AndroidBuilder extends Builder {
 			this.sourceMaps = this.deployType !== 'production';
 		}
 
+		// The JS engine comes from the <engine> element in the <android> section of tiapp.xml.
+		// Note: "lib/tiappxml.js" of the "node-titanium-sdk" package must know the element.
+		// Until it does, "cli.tiapp.android.engine" is undefined and the engine is "v8".
+		this.jsEngine = (cli.tiapp.android && cli.tiapp.android.engine) || 'v8';
+		if (this.jsEngine !== 'v8' && this.jsEngine !== 'hermes') {
+			logger.error(`Invalid <engine> value "${this.jsEngine}" in the <android> section of the tiapp.xml.`);
+			logger.error('The value must be "v8" or "hermes".\n');
+			process.exit(1);
+		}
+
 		// We get a string here like 6.2.414.36, we need to convert it to 62 (integer)
 		const v8Version = this.packageJson.v8.version;
 		const found = v8Version.match(V8_STRING_VERSION_REGEXP);
@@ -3181,7 +3191,8 @@ class AndroidBuilder extends Builder {
 				classname: this.classname,
 				customModules: moduleProxyArray,
 				deployType: this.deployType,
-				encryptJS: this.encryptJS
+				encryptJS: this.encryptJS,
+				jsEngine: this.jsEngine
 			});
 		await copyTemplate(
 			path.join(this.templatesDir, 'Activity.java'),

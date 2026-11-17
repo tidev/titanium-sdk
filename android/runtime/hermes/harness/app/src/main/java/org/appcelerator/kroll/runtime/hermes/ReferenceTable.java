@@ -112,7 +112,8 @@ public final class ReferenceTable
 	/** Called by the finalizer of a canary, on the finalizer thread. */
 	private static void resurrect(Canary canary)
 	{
-		synchronized (ReferenceTable.class) {
+		synchronized (ReferenceTable.class)
+		{
 			if (references.get(canary.key) != canary.armed) {
 				// The reference was destroyed or armed again. This canary is out of date.
 				return;
