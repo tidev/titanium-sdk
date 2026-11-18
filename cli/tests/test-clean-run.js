@@ -6,6 +6,7 @@
  */
 
 import { expect } from 'chai';
+import { rejects } from 'node:assert/strict';
 import fs from 'fs-extra';
 import os from 'node:os';
 import path from 'node:path';
@@ -48,6 +49,7 @@ function createCLI(argv) {
 describe('clean run()', () => {
 	let projectDir;
 	let buildDir;
+	const removeSync = fs.removeSync;
 
 	beforeEach(() => {
 		projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ti-clean-'));
@@ -59,8 +61,89 @@ describe('clean run()', () => {
 	});
 
 	afterEach(() => {
+		fs.removeSync = removeSync;
 		fs.removeSync(projectDir);
 	});
+
+	// Reproduce a writer adding a file after traversal, before the final rmdir.
+	// Only intercept the command's removal boundary; rmdir raises the real OS error.
+	function interruptRemoval(dir, raceDir, interruptions) {
+		let attempts = 0;
+		fs.ensureDirSync(raceDir);
+		fs.writeFileSync(path.join(raceDir, 'initial'), 'build output');
+		fs.removeSync = function (file) {
+			if (file === dir && ++attempts <= interruptions) {
+				for (const child of fs.readdirSync(raceDir)) {
+					removeSync(path.join(raceDir, child));
+				}
+				fs.writeFileSync(path.join(raceDir, 'late'), 'concurrent output');
+				fs.rmdirSync(raceDir);
+			}
+			return removeSync(file);
+		};
+		return () => attempts;
+	}
+
+	for (const platforms of [ [ 'android' ], null ]) {
+		const mode = platforms ? 'with a platform' : 'without platforms';
+		for (const [ platform, subdir ] of [
+			[ 'android', 'app/build' ],
+			[ 'iphone', 'DerivedData/Index.noindex/DataStore/v5' ]
+		]) {
+			it(`retries a full removal after ENOTEMPTY in ${platform} ${mode}`, async () => {
+				const dir = path.join(buildDir, platform);
+				const attempts = interruptRemoval(dir, path.join(dir, subdir), 2);
+				const cli = createCLI({ 'project-dir': projectDir, platforms: platforms && [ platform ] });
+
+				await run(noopLogger, {}, cli);
+
+				expect(attempts()).to.equal(3);
+				expect(fs.existsSync(dir)).to.equal(false);
+				expect(cli.events.filter(event => event === `clean.${platform}.pre`)).to.have.lengthOf(1);
+				expect(cli.events.filter(event => event === `clean.${platform}.post`)).to.have.lengthOf(1);
+				if (platforms) {
+					expect(fs.existsSync(path.join(buildDir, `build_${platform}.log`))).to.equal(false);
+				}
+			});
+		}
+
+		it(`stops retrying persistent ENOTEMPTY ${mode} without reporting success`, async function () {
+			this.timeout(10000);
+			const dir = path.join(buildDir, 'android');
+			const raceDir = path.join(dir, 'app/build');
+			const attempts = interruptRemoval(dir, raceDir, Infinity);
+			const cli = createCLI({ 'project-dir': projectDir, platforms });
+			const messages = [];
+			const logger = { ...noopLogger, info: message => messages.push(message) };
+
+			await rejects(run(logger, {}, cli), error => error.code === 'ENOTEMPTY' && error.path === raceDir);
+
+			expect(attempts()).to.equal(6);
+			expect(fs.existsSync(raceDir)).to.equal(true);
+			expect(cli.events).not.to.include('clean.android.post');
+			expect(cli.events).not.to.include('clean.post');
+			expect(messages).to.deep.equal([]);
+		});
+
+		it(`propagates unrelated filesystem errors immediately ${mode}`, async () => {
+			const dir = path.join(buildDir, 'android');
+			const error = Object.assign(new Error('Access denied'), { code: 'EACCES', path: dir });
+			let attempts = 0;
+			fs.removeSync = function (file) {
+				if (file === dir) {
+					attempts++;
+					throw error;
+				}
+				return removeSync(file);
+			};
+			const cli = createCLI({ 'project-dir': projectDir, platforms });
+
+			await rejects(run(noopLogger, {}, cli), caught => caught === error);
+
+			expect(attempts).to.equal(1);
+			expect(cli.events).not.to.include('clean.android.post');
+		});
+	}
 
 	it('completes every platform sequence before resolving', async () => {
 		const cli = createCLI({ 'project-dir': projectDir, platforms: [ 'android', 'iphone' ] });

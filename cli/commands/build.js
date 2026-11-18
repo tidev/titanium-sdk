@@ -137,8 +137,10 @@ export function config(logger, config, cli) {
 									// make sure the tiapp.xml is sane
 									ti.validateTiappXml(logger, config, tiapp);
 
-									// check that the Titanium SDK version is correct
-									if (!ti.validateCorrectSDK(logger, config, cli, 'build')) {
+									// An explicit CLI SDK selection takes precedence over the project version.
+									const sdkOverride = cli.argv.$_?.some(arg => /^(?:--sdk(?:=|$)|-s)/.test(arg));
+									tiapp['sdk-version'] ||= cli.sdk.name;
+									if ((cli.argv.legacy || !sdkOverride) && !ti.validateCorrectSDK(logger, config, cli, 'build')) {
 										throw new cli.GracefulShutdown();
 									}
 
