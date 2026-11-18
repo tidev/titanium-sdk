@@ -53,7 +53,7 @@ public:
 
 	~LogTimer()
 	{
-		LOGE(tag, "Finished %s (%d ms)", description, AndroidUtil::getCurrentMillis() - start);
+		LOGE(tag, "Finished %s (%ld ms)", description, (long) (AndroidUtil::getCurrentMillis() - start));
 	}
 private:
 	long start;
