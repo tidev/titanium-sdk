@@ -217,6 +217,13 @@ void Proxy::arm()
 	if (owner_ != JAVA_DECIDES || refTableKey_ == 0) {
 		return;
 	}
+	if (class_->isModule) {
+		// A module lives as long as the runtime, so both references stay strong. The canary
+		// must not revive a module: the garbage collector runs the finalizers of all objects
+		// that only the module holds in the same pass, for example the TLS context of an
+		// HTTP client.
+		return;
+	}
 	ReferenceTable::armReference(refTableKey_, id_);
 	usedSinceArm_ = false;
 }
