@@ -27,6 +27,10 @@ public final class ReferenceTable
 	private static final long RESURRECT_TIMEOUT_MS = 2000;
 
 	private static final HashMap<Long, Object> references = new HashMap<>(1024);
+	// The HermesObject that holds the canary of a key. A proxy drops its HermesObject in
+	// KrollProxy.release(), and getKrollObject() then creates a new one. It can block on the
+	// runtime thread to do that, so this class must not call it for a proxy that it knows already.
+	private static final HashMap<Long, WeakReference<HermesObject>> canaryHolders = new HashMap<>(1024);
 	private static long lastKey = 1;
 
 	/** A weak reference that a canary watches. */
@@ -45,13 +49,15 @@ public final class ReferenceTable
 		private final long proxyId;
 		private final Object proxy;
 		private final ArmedReference armed;
+		private final HermesObject holder;
 
-		Canary(long key, long proxyId, Object proxy, ArmedReference armed)
+		Canary(long key, long proxyId, Object proxy, ArmedReference armed, HermesObject holder)
 		{
 			this.key = key;
 			this.proxyId = proxyId;
 			this.proxy = proxy;
 			this.armed = armed;
+			this.holder = holder;
 		}
 
 		@Override
@@ -85,8 +91,8 @@ public final class ReferenceTable
 
 	public static synchronized void destroyReference(long key)
 	{
-		Object object = resolve(references.get(key));
-		HermesObject hermesObject = hermesObjectOf(object);
+		WeakReference<HermesObject> holder = canaryHolders.remove(key);
+		HermesObject hermesObject = (holder != null) ? holder.get() : null;
 		if (hermesObject != null) {
 			hermesObject.setPointer(0);
 			hermesObject.canary = null;
@@ -103,7 +109,14 @@ public final class ReferenceTable
 		if (object == null) {
 			return;
 		}
-		HermesObject hermesObject = hermesObjectOf(object);
+		WeakReference<HermesObject> holder = canaryHolders.get(key);
+		HermesObject hermesObject = (holder != null) ? holder.get() : null;
+		if (hermesObject == null) {
+			hermesObject = hermesObjectOf(object);
+			if (hermesObject != null) {
+				canaryHolders.put(key, new WeakReference<>(hermesObject));
+			}
+		}
 		if (hermesObject == null) {
 			// No place for the canary. The reference stays strong, and the pair lives until
 			// the runtime shuts down.
@@ -112,7 +125,7 @@ public final class ReferenceTable
 		}
 		ArmedReference armed = new ArmedReference(object);
 		references.put(key, armed);
-		hermesObject.canary = new Canary(key, proxyId, object, armed);
+		hermesObject.canary = new Canary(key, proxyId, object, armed, hermesObject);
 	}
 
 	/** Called by the finalizer of a canary, on the finalizer thread. */
@@ -125,9 +138,9 @@ public final class ReferenceTable
 				return;
 			}
 			references.put(canary.key, canary.proxy);
-			HermesObject hermesObject = hermesObjectOf(canary.proxy);
-			if (hermesObject != null && hermesObject.canary == canary) {
-				hermesObject.canary = null;
+			// Do not ask the proxy for its HermesObject here. See "canaryHolders".
+			if (canary.holder.canary == canary) {
+				canary.holder.canary = null;
 			}
 			ReferenceTable.class.notifyAll();
 		}
