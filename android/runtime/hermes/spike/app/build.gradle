@@ -3,7 +3,7 @@ plugins {
 }
 
 // Keep this version equal to HERMES_TAG in "fetch-jsi.sh".
-def hermesVersion = '250829098.0.19'
+def hermesVersion = '260318099.0.8'
 
 android {
 	namespace = 'ti.hermes.spike'

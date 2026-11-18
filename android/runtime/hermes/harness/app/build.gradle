@@ -3,7 +3,7 @@ plugins {
 }
 
 // Keep this version equal to "hermes.version" in "android/package.json".
-def hermesVersion = '250829098.0.19'
+def hermesVersion = '260318099.0.8'
 def runtimeDir = file('../../src/native')
 def jsiDir = file('../../src/jsi')
 

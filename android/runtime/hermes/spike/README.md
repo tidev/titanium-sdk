@@ -15,9 +15,9 @@ The report has one line per test. A line starts with `PASS`, `FAIL`, `LANG` or `
 
 ## Pinned versions
 
-- Hermes engine: `com.facebook.hermes:hermes-android:250829098.0.19` from Maven Central.
-- JSI sources: tag `hermes-v250829098.0.19` of `facebook/hermes`, directory `API/jsi/jsi`.
-- Compiler: npm package `hermes-compiler@250829098.0.19`.
+- Hermes engine: `com.facebook.hermes:hermes-android:260318099.0.8` from Maven Central.
+- JSI sources: tag `hermes-v260318099.0.8` of `facebook/hermes`, directory `API/jsi/jsi`.
+- Compiler: npm package `hermes-compiler@260318099.0.8`.
 
 The older Maven coordinate `com.facebook.react:hermes-android` stops at version 0.82.1. Do not use it.
 
@@ -41,7 +41,7 @@ The Java side must call `NativeLoader.initIfUninitialized(new SystemDelegate())`
 
 ### Question 3: the hermesc compiler
 
-The npm package `hermes-compiler` contains `hermesc` for Linux (`linux64-bin`), macOS (`osx-bin`) and Windows (`win64-bin`). Its version numbers match the Maven versions of the engine. The engine reports bytecode version 98.
+The npm package `hermes-compiler` contains `hermesc` for Linux (`linux64-bin`), macOS (`osx-bin`) and Windows (`win64-bin`). Its version numbers match the Maven versions of the engine. The engine reports bytecode version 99.
 
 Not tested: the spike did not run `hermesc` and did not load a bytecode file. Do this test before Phase 4.
 
