@@ -39,6 +39,14 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_hermes_HermesFunct
 		// "thisPointer" is the id of the proxy that is "this" of the call.
 		Proxy* proxy = thisPointer != 0 ? Proxy::fromId(thisPointer) : nullptr;
 		jsi::Value thisValue = proxy ? proxy->jsObject(rt) : jsi::Value::undefined();
+		if (proxy && !thisValue.isObject()) {
+			// Hermes collected the JS object, and Java still holds the proxy. Make a new JS object.
+			jobject javaProxy = proxy->getJavaObject();
+			if (javaProxy != NULL) {
+				thisValue = TypeConverter::javaObjectToJsValue(rt, env, javaProxy);
+				proxy->unreferenceJavaObject(javaProxy);
+			}
+		}
 		if (!thisValue.isObject()) {
 			LOGE(TAG, "!!!Received a bad pointer to the Proxy for 'this' in HermesFunction.nativeInvoke. Proxy may have been destroyed already. Returning undefined.");
 			return JNIUtil::undefinedObject;

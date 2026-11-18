@@ -117,6 +117,8 @@ Proxy::Proxy(jsi::Runtime& rt, const jsi::Object& jsObject, const ProxyClass* pr
 	, strong_(new jsi::Object(copyObject(rt, jsObject)))
 	, refTableKey_(0)
 	, usedSinceArm_(false)
+	, stateful_(false)
+	, javaFirst_(false)
 {
 	std::shared_ptr<ProxyLink> link = std::make_shared<ProxyLink>(this);
 	state_ = link;
@@ -130,9 +132,40 @@ Proxy::~Proxy()
 	registry.erase(id_);
 	if (refTableKey_ != 0) {
 		LOGD(TAG, "Deleting ref in ReferenceTable for key: %lld, proxy id: %lld", (long long) refTableKey_, (long long) id_);
+		unlinkJavaObject();
 		ReferenceTable::destroyReference(refTableKey_);
 		refTableKey_ = 0;
 	}
+}
+
+// Java code can still hold the Java proxy when Hermes collected the JS object. Clear the id in
+// its HermesObject, so that Java asks for a new JS object and does not use an id that is gone.
+void Proxy::unlinkJavaObject()
+{
+	if (owner_ != JS_DECIDES) {
+		// The table holds a weak reference. ReferenceTable.destroyReference() clears the id.
+		return;
+	}
+	JNIEnv* env = JNIUtil::getJNIEnv();
+	if (!env) {
+		return;
+	}
+	jobject javaProxy = ReferenceTable::getReference(refTableKey_);
+	if (!javaProxy) {
+		return;
+	}
+	if (env->IsInstanceOf(javaProxy, JNIUtil::krollProxyClass)) {
+		jobject krollObject = env->GetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField);
+		if (krollObject) {
+			// A new JS object can exist already. Its HermesObject has another id.
+			if (env->IsInstanceOf(krollObject, JNIUtil::jsObjectClass)
+				&& env->GetLongField(krollObject, JNIUtil::jsObjectPtrField) == id_) {
+				env->SetLongField(krollObject, JNIUtil::jsObjectPtrField, 0);
+			}
+			env->DeleteLocalRef(krollObject);
+		}
+	}
+	env->DeleteLocalRef(javaProxy);
 }
 
 Proxy* Proxy::fromId(jlong id)
@@ -193,8 +226,10 @@ jsi::Value Proxy::jsObject(jsi::Runtime& rt)
 		// Hermes collected the object. The notice from its native state deletes this proxy soon.
 		return jsi::Value::undefined();
 	}
-	// Java passes the proxy to JS, so Java holds it now.
-	javaDecides(rt);
+	if (stateful_) {
+		// Java passes the proxy to JS, so Java holds it now.
+		javaDecides(rt);
+	}
 	return locked;
 }
 
@@ -224,8 +259,26 @@ void Proxy::arm()
 		// HTTP client.
 		return;
 	}
+	if (!stateful_) {
+		// A new JS object can replace this one, so the Java proxy is never revived.
+		jsDecides(TiRuntime::rt());
+		return;
+	}
 	ReferenceTable::armReference(refTableKey_, id_);
 	usedSinceArm_ = false;
+}
+
+void Proxy::markStateful(jsi::Runtime& rt)
+{
+	if (stateful_) {
+		return;
+	}
+	stateful_ = true;
+	if (owner_ == JS_DECIDES) {
+		// JS code holds the object now, because it just wrote to it.
+		javaDecides(rt);
+	}
+	// In the other states, arm() runs later and reads the flag, or the proxy is a module.
 }
 
 jobject Proxy::getJavaObject()
@@ -233,7 +286,7 @@ jobject Proxy::getJavaObject()
 	if (refTableKey_ == 0) {
 		return NULL;
 	}
-	if (owner_ == JS_DECIDES) {
+	if (owner_ == JS_DECIDES && stateful_) {
 		// The proxy crosses to Java as a receiver or as an argument. Java can keep it.
 		javaDecides(TiRuntime::rt());
 	}
@@ -576,7 +629,17 @@ void Proxy::initBaseClasses(jsi::Runtime& rt)
 		if (parent) {
 			state.setupPrototype.call(rt, ctor, *parent);
 		} else {
-			state.setupPrototype.call(rt, ctor, jsi::Value::null());
+			// The prototype chain of every proxy ends in an object that reports the first write
+			// of a property that only JS knows.
+			jsi::Function noteState = JSUtil::hostFunction(rt, "noteState", 1,
+				[](jsi::Runtime& rt, const jsi::Value&, const jsi::Value* args, size_t count) -> jsi::Value {
+					Proxy* proxy = count > 0 ? Proxy::unwrap(rt, args[0]) : nullptr;
+					if (proxy) {
+						proxy->markStateful(rt);
+					}
+					return jsi::Value::undefined();
+				});
+			state.setupPrototype.call(rt, ctor, jsi::Value::null(), state.makeStateRoot.call(rt, noteState));
 		}
 		return ctor;
 	};
@@ -738,6 +801,10 @@ jsi::Value Proxy::construct(jsi::Runtime& rt, ProxyClass& proxyClass, const jsi:
 	jobject javaProxy = pendingJavaProxy;
 	pendingJavaProxy = NULL;
 	bool createdJavaProxy = false;
+	proxy->javaFirst_ = javaProxy != NULL;
+	// attach() can make the handle of the proxy weak. This value keeps the JS object alive
+	// until the constructor returns it.
+	jsi::Value publicObject;
 
 	try {
 		// every instance gets a special "_properties" object for us to use internally for get/setProperty
@@ -775,6 +842,7 @@ jsi::Value Proxy::construct(jsi::Runtime& rt, ProxyClass& proxyClass, const jsi:
 		}
 
 		// A Java object from createJsProxy() has no HermesObject yet. createJsProxy() arms it.
+		publicObject = proxy->jsObject(rt);
 		proxy->attach(javaProxy, createdJavaProxy);
 
 		// Copy the creation properties. The constructor gets them either directly, or in the
@@ -825,7 +893,7 @@ jsi::Value Proxy::construct(jsi::Runtime& rt, ProxyClass& proxyClass, const jsi:
 		}
 	}
 
-	return proxy->jsObject(rt);
+	return publicObject;
 }
 
 void Proxy::bindClass(jsi::Runtime& rt, const jsi::Object& exports, ProxyClass& proxyClass)
@@ -867,8 +935,33 @@ jsi::Value Proxy::getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const
 		LOGE(TAG, "Proxy.prototype.getProperty is not a Function!");
 		return jsi::Value::undefined();
 	}
-	return getPropertyValue.getObject(rt).getFunction(rt)
+	jsi::Value value = getPropertyValue.getObject(rt).getFunction(rt)
 		.callWithThis(rt, object, jsi::String::createFromUtf8(rt, name));
+	if (!value.isUndefined() || !JNIUtil::krollProxyGetPropertyMethod) {
+		return value;
+	}
+
+	// A JS object that was made for a Java proxy has no copy of the properties. Ask Java.
+	Proxy* proxy = unwrap(rt, thisVal);
+	JNIEnv* env = JNIScope::getEnv();
+	if (!proxy || !proxy->isJavaFirst() || !env) {
+		return value;
+	}
+	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		return value;
+	}
+	jstring javaName = env->NewStringUTF(name.c_str());
+	jobject javaValue = env->CallObjectMethod(javaProxy, JNIUtil::krollProxyGetPropertyMethod, javaName);
+	env->DeleteLocalRef(javaName);
+	proxy->unreferenceJavaObject(javaProxy);
+	JSException::checkJavaException(rt, env);
+	if (javaValue == NULL) {
+		return value;
+	}
+	jsi::Value result = TypeConverter::javaObjectToJsValue(rt, env, javaValue);
+	env->DeleteLocalRef(javaValue);
+	return result;
 }
 
 void Proxy::setProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name, const jsi::Value& value)

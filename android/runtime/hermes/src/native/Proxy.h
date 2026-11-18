@@ -85,14 +85,24 @@ public:
 // The pair must live as long as JS code or Java code can reach it. No garbage collector sees
 // the two heaps together, so exactly one side holds the other with a strong reference at a time:
 //
+// - JS_DECIDES: The Java reference is strong. This class holds the JS object with a weak handle.
+//   When Hermes collects the JS object, the pair is deleted. If Java code still holds the Java
+//   proxy, the proxy gets a new JS object when Java uses it again.
 // - JAVA_DECIDES: This class holds the JS object with a strong handle. The Java ReferenceTable
 //   holds the Java proxy with a weak reference and a "canary" object. When Java code drops the
 //   proxy, the finalizer of the canary puts the proxy back into the table with a strong reference
 //   and reports it with nativeJavaUnreachable().
-// - JS_DECIDES: The Java reference is strong. This class holds the JS object with a weak handle.
-//   When Hermes collects the JS object, the pair is deleted.
 //
-// A proxy goes back to JAVA_DECIDES when it crosses to Java again, because Java can keep it then.
+// JAVA_DECIDES has a cost. The garbage collector must see the Java proxy as dead before the
+// canary can revive it. In that same pass, it runs the finalizers of all objects that only the
+// proxy holds (a database, a stream, a TLS context) and clears the weak references to them.
+// So a proxy uses JAVA_DECIDES only if its JS object has state that a new JS object cannot get
+// back from Java: an event listener or a custom property. See markStateful(). All other proxies
+// stay in JS_DECIDES, and their Java objects are never revived.
+//
+// A stateful proxy goes back to JAVA_DECIDES when it crosses to Java again, because Java can
+// keep it then. A module is the exception: it lives as long as the runtime, and both references
+// stay strong.
 //
 // The V8 runtime does the same job from the other side. V8 can revive a JS object in a weak
 // callback, and Hermes cannot. A Java finalizer can revive a Java object, so the roles are swapped.
@@ -138,16 +148,29 @@ public:
 	// a module method without a receiver, for example after "const { info } = Ti.API;".
 	static Proxy* unwrap(jsi::Runtime& rt, const jsi::Value& value, const ProxyClass& proxyClass);
 
-	// The object that JS code holds. Returns undefined if Hermes collected it.
-	// Use this when Java passes the proxy to JS: Java holds the proxy at that time, so the
-	// proxy goes back to JAVA_DECIDES.
+	// The object that JS code holds. Returns undefined if Hermes collected it. The caller must
+	// make a new JS object for the Java proxy then.
+	// Use this when Java passes the proxy to JS: Java holds the proxy at that time, so a
+	// stateful proxy goes back to JAVA_DECIDES.
 	jsi::Value jsObject(jsi::Runtime& rt);
 
-	// Attaches the Java proxy. Call this once. The proxy is in JAVA_DECIDES after the call.
+	// Attaches the Java proxy. Call this once. Both references are strong until arm() runs.
 	// Pass "arm" as false if the Java proxy does not have its HermesObject yet, and call arm()
 	// when it does. The canary lives in the HermesObject.
 	void attach(jobject javaObject, bool arm = true);
+	// Selects the owner: JAVA_DECIDES with a canary for a stateful proxy, JS_DECIDES for all others.
 	void arm();
+
+	// Called when the JS object got an event listener or a property that only JS knows.
+	// From then on, the JS object must live as long as Java holds the proxy.
+	void markStateful(jsi::Runtime& rt);
+
+	// True if the JS object was made for a Java proxy that existed already. The JS object has
+	// no copy of the properties then, and a read falls back to KrollProxy.getProperty().
+	bool isJavaFirst() const
+	{
+		return javaFirst_;
+	}
 
 	// Returns a local reference to the Java proxy, or NULL if it is gone.
 	// Pair each call with unreferenceJavaObject().
@@ -226,6 +249,7 @@ private:
 	void javaDecides(jsi::Runtime& rt);
 	void jsDecides(jsi::Runtime& rt);
 	void onJavaUnreachable(jsi::Runtime& rt);
+	void unlinkJavaObject();
 
 	static jsi::Function buildClass(jsi::Runtime& rt, ProxyClass& proxyClass);
 	static jsi::Value construct(jsi::Runtime& rt, ProxyClass& proxyClass, const jsi::Value* args, size_t count);
@@ -244,6 +268,8 @@ private:
 	// True if the proxy crossed to Java after the Java reference became weak. Java can hold the
 	// proxy then, so a notice from the canary is not proof that Java dropped it.
 	bool usedSinceArm_;
+	bool stateful_;
+	bool javaFirst_;
 };
 
 } // namespace titanium

@@ -175,6 +175,7 @@ public:
 	static jmethodID krollProxyGetIndexedPropertyMethod;
 	static jmethodID krollProxyOnPropertyChangedMethod;
 	static jmethodID krollProxyOnPropertiesChangedMethod;
+	static jmethodID krollProxyGetPropertyMethod;
 
 	// KrollLogging
 	static jmethodID krollLoggingLogWithDefaultLoggerMethod;

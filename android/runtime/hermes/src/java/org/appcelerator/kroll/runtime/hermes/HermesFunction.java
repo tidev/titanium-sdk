@@ -56,7 +56,15 @@ public class HermesFunction extends HermesObject implements KrollFunction, Handl
 			Log.w(TAG, "Runtime restarted, cannot call function from previous runtime.");
 			return null;
 		}
-		return nativeInvoke(((HermesObject) krollObject).getPointer(), getPointer(), args);
+		HermesObject thisObject = (HermesObject) krollObject;
+		if (thisObject.getPointer() == 0) {
+			// Hermes collected the JS object of the proxy. The proxy gets a new one.
+			HermesObject renewed = thisObject.renew();
+			if (renewed != null) {
+				thisObject = renewed;
+			}
+		}
+		return nativeInvoke(thisObject.getPointer(), getPointer(), args);
 	}
 
 	public void callAsync(KrollObject krollObject, HashMap args)

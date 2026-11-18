@@ -1,6 +1,7 @@
 package org.appcelerator.kroll.runtime.hermes;
 
 import org.appcelerator.kroll.KrollObject;
+import org.appcelerator.kroll.KrollProxy;
 
 /** Harness version of the class that Phase 2 adds to the SDK. */
 public class HermesObject extends KrollObject
@@ -24,6 +25,24 @@ public class HermesObject extends KrollObject
 	public void setPointer(long ptr)
 	{
 		this.ptr = ptr;
+	}
+
+	/**
+	 * Makes a new JS object for the proxy of this object. The native runtime sets the pointer
+	 * to 0 when Hermes collected the JS object while Java code still held the proxy.
+	 */
+	HermesObject renew()
+	{
+		Object proxy = (this.proxySupport != null) ? this.proxySupport.get() : null;
+		if (!(proxy instanceof KrollProxy)) {
+			return null;
+		}
+		KrollObject current = ((KrollProxy) proxy).getKrollObject();
+		if (current == this || current == null) {
+			nativeInitObject(proxy.getClass(), proxy);
+			current = ((KrollProxy) proxy).getKrollObject();
+		}
+		return (current instanceof HermesObject) ? (HermesObject) current : null;
 	}
 
 	public boolean fireEvent(String type, Object data)

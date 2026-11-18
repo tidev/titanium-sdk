@@ -3,6 +3,7 @@ package ti.harness;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 
 import org.appcelerator.kroll.JSError;
@@ -18,6 +19,12 @@ public class TestProxy extends KrollProxy
 	private static final ReferenceQueue<TestProxy> collected = new ReferenceQueue<>();
 	private static final HashSet<PhantomReference<TestProxy>> phantoms = new HashSet<>();
 	static TestProxy kept;
+
+	// Stands for an object that only the proxy holds, like a database handle. If the garbage
+	// collector sees the proxy as dead, it clears this weak reference, also when a canary
+	// revives the proxy afterwards.
+	static WeakReference<Object> watchedResource = new WeakReference<>(null);
+	private final Object resource = new Object();
 
 	private String text = "";
 
@@ -64,6 +71,9 @@ public class TestProxy extends KrollProxy
 	public void setText(String value)
 	{
 		this.text = value;
+		if ("watch".equals(value)) {
+			watchedResource = new WeakReference<>(this.resource);
+		}
 	}
 
 	public void keepInJava()

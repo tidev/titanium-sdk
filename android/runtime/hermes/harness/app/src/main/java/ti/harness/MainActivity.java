@@ -199,11 +199,58 @@ public class MainActivity extends Activity
 		check("dropped proxies that Java created first or that use inherit() are collected",
 			TestProxy.liveCount() == before, "live " + TestProxy.liveCount() + " (expected " + before + ")");
 
+		// 9. JS holds a proxy that has no JS state. The Java proxy must never look dead to the
+		// garbage collector, because that finalizes the objects that only the proxy holds.
+		eval("globalThis.s = new TestProxy({ title: 'plain' }); s.text = 'watch';");
+		collect(4);
+		check("JS-held proxy without JS state is never revived",
+			TestProxy.watchedResource.get() != null && "watch,plain".equals(eval("s.text + ',' + s.title")),
+			String.valueOf(eval("s.text + ',' + s.title")));
+		eval("globalThis.s = undefined;");
+		collect(4);
+		check("JS-held proxy without JS state is collected after JS dropped it", TestProxy.liveCount() == before,
+			"live " + TestProxy.liveCount() + " (expected " + before + ")");
+
+		// 10. Java holds a proxy that has no JS state, and JS drops it. Hermes collects the JS
+		// object, and the proxy gets a new one when Java uses it again.
+		useJavaHeldProxyWithoutState(before, data);
+		// Its HermesObject holds the canary, and the canary holds the proxy. The method above
+		// returned, so no local variable holds the HermesObject anymore.
+		TestProxy.kept = null;
+		collect(5);
+		check("the proxy is collected after Java dropped it", TestProxy.liveCount() == before,
+			"live " + TestProxy.liveCount() + " (expected " + before + ")");
+
 		line("INFO proxies that JS still holds: " + eval("Object.keys(globalThis).filter(function (k) {"
 			+ " return globalThis[k] instanceof Ti.Proxy; }).join()"));
 
 		runtime.nativeDispose();
 		check("nativeDispose", ReferenceTable.size() == 0, "table " + ReferenceTable.size());
+	}
+
+	private void useJavaHeldProxyWithoutState(int before, java.util.HashMap<String, Object> data)
+	{
+		eval("(function () { var p = new TestProxy(); p.title = 'abc'; p.text = 'watch'; p.keepInJava(); }())");
+		collect(4);
+		HermesObject oldObject = (HermesObject) TestProxy.kept.getKrollObject();
+		check("Java-held proxy without JS state survives, and Hermes collects its JS object",
+			TestProxy.liveCount() == before + 1 && TestProxy.watchedResource.get() != null
+				&& oldObject.getPointer() == 0,
+			"live " + TestProxy.liveCount() + " (expected " + (before + 1) + "), pointer " + oldObject.getPointer());
+		Object reader = eval("(function (a) { return [this.title, this.text, a, this instanceof TestProxy].join(); })");
+		Object read = TestProxy.kept.callBack(reader, 5);
+		HermesObject newObject = (HermesObject) TestProxy.kept.getKrollObject();
+		check("the proxy gets a new JS object that reads its properties from Java",
+			"abc,watch,5,true".equals(read) && newObject != oldObject && newObject.getPointer() != 0,
+			String.valueOf(read));
+		check("a method call from Java reaches the new JS object",
+			Integer.valueOf(7).equals(newObject.callProperty("echo", new Object[] { 7 })), null);
+		Object listen = eval("(function () { this.addEventListener('ping', function (e) { globalThis.got2 = e.n; }); })");
+		TestProxy.kept.callBack(listen, null);
+		collect(4);
+		boolean handled = ((HermesObject) TestProxy.kept.getKrollObject()).fireEvent("ping", data);
+		check("a listener on the new JS object survives while Java holds the proxy",
+			handled && Integer.valueOf(8).equals(eval("got2")), String.valueOf(eval("got2")));
 	}
 
 	private String readAsset(String name) throws IOException

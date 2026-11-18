@@ -50,15 +50,28 @@ static const char kHermesPreludeSource[] = R"TIPRELUDE((function () {
 		},
 
 		// Links a child prototype to its parent and gives it an own accessor table.
-		setupPrototype: function (ctor, parentCtor) {
+		setupPrototype: function (ctor, parentCtor, root) {
 			var parentProto = parentCtor ? parentCtor.prototype : null;
-			var proto = parentProto ? Object.create(parentProto) : {};
+			var proto = parentProto ? Object.create(parentProto) : (root ? Object.create(root) : {});
 			defineProperty(proto, 'constructor', { value: ctor, writable: true, configurable: true });
 			defineProperty(proto, accessorsKey, {
 				value: Object.create(parentProto && parentProto[accessorsKey] ? parentProto[accessorsKey] : null)
 			});
 			ctor.prototype = proto;
 			return proto;
+		},
+
+		// Makes the object at the end of the prototype chain of all proxies. An assignment that
+		// finds the property nowhere in the chain arrives here, before JS creates the property on
+		// the receiver. The runtime learns this way that a proxy got a property that only JS knows:
+		// a custom property, or the "_events" table of its first listener. See Proxy::markStateful().
+		makeStateRoot: function (noteState) {
+			return new Proxy({}, {
+				set: function (target, key, value, receiver) {
+					noteState(receiver);
+					return reflectSet(target, key, value, receiver);
+				}
+			});
 		},
 
 		defineNativeAccessor: function (proto, name, getter, setter) {

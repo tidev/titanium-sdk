@@ -86,6 +86,21 @@ jsi::Value ProxyFactory::createJsProxy(jsi::Runtime& rt, const std::string& clas
 		// Store the id of the native Proxy on the Java side. Java uses it to find the JS object again.
 		jobject javaHermesObject = env->NewObject(JNIUtil::jsObjectClass, JNIUtil::jsObjectInitMethod, proxy->id());
 		env->SetObjectField(javaProxy, JNIUtil::krollProxyKrollObjectField, javaHermesObject);
+
+		// Link the HermesObject back to the Java proxy, like KrollProxy.setupProxy() does for a
+		// proxy that JS creates. The proxy learns about new listeners through this link, and the
+		// runtime finds the proxy again if Hermes collects this JS object too.
+		static jclass weakReferenceClass = NULL;
+		static jmethodID weakReferenceInitMethod = NULL;
+		if (!weakReferenceClass) {
+			jclass localClass = env->FindClass("java/lang/ref/WeakReference");
+			weakReferenceClass = (jclass) env->NewGlobalRef(localClass);
+			weakReferenceInitMethod = env->GetMethodID(localClass, "<init>", "(Ljava/lang/Object;)V");
+			env->DeleteLocalRef(localClass);
+		}
+		jobject proxySupport = env->NewObject(weakReferenceClass, weakReferenceInitMethod, javaProxy);
+		env->SetObjectField(javaHermesObject, JNIUtil::krollObjectProxySupportField, proxySupport);
+		env->DeleteLocalRef(proxySupport);
 		env->DeleteLocalRef(javaHermesObject);
 
 		// The Java proxy has its HermesObject now, so the canary has a place to live.

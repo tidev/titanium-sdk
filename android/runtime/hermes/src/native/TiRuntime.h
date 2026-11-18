@@ -45,6 +45,7 @@ struct RuntimeState {
 	// Helper functions from HermesPrelude.h.
 	jsi::Function makeConstructor;
 	jsi::Function setupPrototype;
+	jsi::Function makeStateRoot;
 	jsi::Function defineNativeAccessor;
 	jsi::Function defineConstant;
 	jsi::Function defineOwn;

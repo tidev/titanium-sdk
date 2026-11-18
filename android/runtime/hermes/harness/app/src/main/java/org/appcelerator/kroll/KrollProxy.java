@@ -27,6 +27,11 @@ public class KrollProxy
 		return this.krollObject;
 	}
 
+	public Object getProperty(String name)
+	{
+		return this.changed.get(name);
+	}
+
 	public Object getIndexedProperty(int index)
 	{
 		return index * 2;

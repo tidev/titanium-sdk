@@ -10,6 +10,13 @@ public class HermesFunction extends HermesObject
 
 	public Object call(HermesObject thisObject, Object[] args)
 	{
+		if (thisObject.getPointer() == 0) {
+			// Hermes collected the JS object of the proxy. The proxy gets a new one.
+			HermesObject renewed = thisObject.renew();
+			if (renewed != null) {
+				thisObject = renewed;
+			}
+		}
 		return nativeInvoke(thisObject.getPointer(), getPointer(), args);
 	}
 
