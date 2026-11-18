@@ -18,6 +18,9 @@
   BOOL isThinWeight;
   BOOL isLightWeight;
   BOOL isUltraLightWeight;
+  BOOL isMediumWeight;
+  BOOL isHeavyWeight;
+  BOOL isBlackWeight;
   BOOL isNormalWeight;
   BOOL isItalicStyle;
   BOOL isNormalStyle;
@@ -67,6 +70,21 @@
  Whether or not the font weight is ultra light.
  */
 @property (nonatomic) BOOL isUltraLightWeight;
+
+/**
+ Whether or not the font weight is medium.
+ */
+@property (nonatomic) BOOL isMediumWeight;
+
+/**
+ Whether or not the font weight is heavy.
+ */
+@property (nonatomic) BOOL isHeavyWeight;
+
+/**
+ Whether or not the font weight is black.
+ */
+@property (nonatomic) BOOL isBlackWeight;
 
 /**
  Whether or not the font style is italic.

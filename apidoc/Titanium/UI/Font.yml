@@ -58,6 +58,9 @@ properties:
           * If the requested family name does not match an existing font, the default font family is used.
           * On Android, the generic names "sans-serif," "serif," and "monospace" (or "monospaced")
             are mapped to system fonts. On iOS, only "monospace" is supported.
+          * On iOS, "system" uses the system font (San Francisco) without bundling it. A weight can be
+            appended, for example "system-medium" or "system-semibold". An explicit <Font.fontWeight>
+            takes precedence over the appended weight.
 
     type: String
     default: Uses the default system font.
@@ -87,11 +90,11 @@ properties:
   - name: fontWeight
     summary: |
         Font weight. Valid values are "bold", "semibold", "normal", "thin",
-        "light" and "ultralight".
+        "light", "ultralight", "medium", "heavy" and "black".
     description: |
-        The "semibold", "thin", "light" and "ultralight" weights are recognized
-        on iOS only. "thin", "light" and "ultralight" are only available on iOS 8.2
-        and later.
+        The "semibold", "thin", "light", "ultralight", "medium", "heavy" and "black"
+        weights are recognized on iOS only. "medium", "heavy" and "black" apply to the
+        system font only.
     type: String
     default: normal
   - name: fontStyle
