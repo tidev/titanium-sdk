@@ -74,7 +74,7 @@ exception is thrown, or only logged if "logOnly" is true.
 				rt, env, ${expr}<#if checkNew>, &isNew_${index}</#if>);
 		</#if>
 	} else {
-		jArguments[${index}].${info.jvalue} = NULL;
+		jArguments[${index}].${info.jvalue} = {};
 	}
 <#t>
 	<#if isOptional>
