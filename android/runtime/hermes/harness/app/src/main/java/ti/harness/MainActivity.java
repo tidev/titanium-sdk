@@ -101,6 +101,21 @@ public class MainActivity extends Activity
 		line(jsReport instanceof String ? (String) jsReport : "FAIL tests.js returned " + jsReport);
 		check("promise jobs run when the call from Java ends", "resolved:5".equals(eval("promiseResult")), null);
 
+		// --- Cost of strings and property accessors on the bridge ---
+		line("INFO bridge cost: " + eval("(function () { var p = new TestProxy(); var i; var x;"
+			+ " var ascii = 'hello world, a string'; var wide = 'h\u00e4llo w\u00f6rld, a string';"
+			+ " var longAscii = 'abcdefghij'.repeat(400); var longWide = 'abcdefgh\u00e4\u00f6'.repeat(400); var out = [];"
+			+ " function run(name, count, fn) { for (i = 0; i < count / 4; i++) { fn(); }"
+			+ " var t = Date.now(); for (i = 0; i < count; i++) { fn(); }"
+			+ " out.push(name + ' ' + (Date.now() - t) + ' ms'); }"
+			+ " run('short ASCII string to Java and back', 200000, function () { x = p.echo(ascii); });"
+			+ " run('short UTF-16 string to Java and back', 200000, function () { x = p.echo(wide); });"
+			+ " run('4000 ASCII characters to Java and back', 20000, function () { x = p.echo(longAscii); });"
+			+ " run('4000 UTF-16 characters to Java and back', 20000, function () { x = p.echo(longWide); });"
+			+ " run('property write', 200000, function () { p.title = ascii; });"
+			+ " run('property read', 200000, function () { x = p.title; });"
+			+ " return out.join(', '); }())"));
+
 		// --- Calls from Java ---
 		runtime.nativeRunModule("globalThis.fromModule = 6 * 7;", "app://mod.js", null);
 		check("nativeRunModule", Integer.valueOf(42).equals(eval("fromModule")) && "app://mod.js".equals(eval("lastModule")),

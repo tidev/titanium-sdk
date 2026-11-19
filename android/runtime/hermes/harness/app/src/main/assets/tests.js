@@ -168,6 +168,31 @@
 			&& TestProxy.prototype.text === undefined;
 	});
 
+	test('strings of each kind and length cross the bridge unchanged', () => {
+		const p = new TestProxy();
+		const samples = [
+			'', 'a', 'plain ascii', 'x'.repeat(256), 'x'.repeat(257), 'y'.repeat(5000),
+			'ä€', 'ä€'.repeat(128), 'ä€'.repeat(129), 'z'.repeat(300) + 'ä', 'a\u0000b', '\ud83d\ude00 emoji',
+			'\ud83d\ude00'.repeat(200), 'abc'.concat('def', 'ä'), ('left' + Date.now()).slice(0, 4),
+			'a'.repeat(100) + '\u0000' + 'b'.repeat(300), '\u0000'.repeat(3), 'q'.repeat(64) + 'ä'.repeat(300)
+		];
+		for (let i = 0; i < samples.length; i++) {
+			const sample = samples[i];
+			if (p.echo(sample) !== sample) {
+				return false;
+			}
+			p.text = sample;
+			if (p.text !== sample || p.describe(sample) !== 'String:' + sample) {
+				return false;
+			}
+			p.title = sample;
+			if (p.title !== sample) {
+				return false;
+			}
+		}
+		return true;
+	});
+
 	test('indexed properties', () => {
 		const p = new IndexedProxy();
 		p[3] = 'x';

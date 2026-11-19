@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #include <cstring>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -17,6 +18,10 @@
 #include "TypeConverter.h"
 
 #define TAG "TypeConverter"
+// A string up to this length is copied on the stack, without an allocation.
+#define STACK_STRING_LENGTH 256
+// The number of characters at the start of a long Java string that decide if the string can be ASCII.
+#define ASCII_SAMPLE_LENGTH 64
 
 namespace titanium {
 
@@ -133,6 +138,56 @@ jsi::Value TypeConverter::javaBooleanToJsBoolean(jsi::Runtime& rt, JNIEnv* env, 
 jstring TypeConverter::jsStringToJavaString(jsi::Runtime& rt, JNIEnv* env, const jsi::String& jsString)
 {
 	// Java and JS strings are both UTF-16, so no character is changed.
+	// Read the characters in place. Hermes stores a string as ASCII or as UTF-16 and passes it in
+	// one piece. A UTF-16 string goes to Java without a copy in between. An ASCII string goes to
+	// Java as bytes, because the Java VM stores such a string with one byte per character too.
+	struct Reader {
+		JNIEnv* env;
+		jstring result = NULL;
+		int pieces = 0;
+
+		void operator()(bool ascii, const void* data, size_t length)
+		{
+			if (pieces++ > 0) {
+				return;
+			}
+			if (!ascii) {
+				result = env->NewString(static_cast<const jchar*>(data), (jsize) length);
+				return;
+			}
+			if (memchr(data, 0, length) == NULL) {
+				// NewStringUTF() needs a 0 at the end, so the bytes are copied once.
+				char stackBytes[STACK_STRING_LENGTH + 1];
+				std::unique_ptr<char[]> heapBytes;
+				char* bytes = stackBytes;
+				if (length > STACK_STRING_LENGTH) {
+					heapBytes.reset(new char[length + 1]);
+					bytes = heapBytes.get();
+				}
+				memcpy(bytes, data, length);
+				bytes[length] = 0;
+				result = env->NewStringUTF(bytes);
+				return;
+			}
+			// A 0 character would end the string in NewStringUTF(). Make the characters wider.
+			const unsigned char* source = static_cast<const unsigned char*>(data);
+			std::unique_ptr<jchar[]> chars(new jchar[length]);
+			for (size_t i = 0; i < length; i++) {
+				chars[i] = source[i];
+			}
+			result = env->NewString(chars.get(), (jsize) length);
+		}
+	};
+	Reader reader { env };
+	jsString.getStringData(rt, reader);
+	if (reader.pieces == 1) {
+		return reader.result;
+	}
+
+	// An empty string has no piece. A string in more than one piece needs the copy of JSI.
+	if (reader.result) {
+		env->DeleteLocalRef(reader.result);
+	}
 	std::u16string chars = jsString.utf16(rt);
 	return env->NewString(reinterpret_cast<const jchar*>(chars.data()), (jsize) chars.length());
 }
@@ -154,6 +209,40 @@ jsi::Value TypeConverter::javaStringToJsString(jsi::Runtime& rt, JNIEnv* env, js
 		return jsi::Value::null();
 	}
 	jsize length = env->GetStringLength(javaString);
+	if (length <= STACK_STRING_LENGTH) {
+		// A copy to the stack needs no allocation. GetStringChars() allocates a buffer for
+		// each Java string that the VM stores in compressed form.
+		jchar chars[STACK_STRING_LENGTH];
+		char bytes[STACK_STRING_LENGTH];
+		env->GetStringRegion(javaString, 0, length, chars);
+		jchar all = 0;
+		for (jsize i = 0; i < length; i++) {
+			all |= chars[i];
+			bytes[i] = (char) chars[i];
+		}
+		if (all < 0x80) {
+			// Hermes stores an ASCII string with one byte per character.
+			return jsi::String::createFromAscii(rt, bytes, (size_t) length);
+		}
+		return jsi::String::createFromUtf16(rt, reinterpret_cast<const char16_t*>(chars), (size_t) length);
+	}
+
+	// A long string: look at its start first. GetStringUTFLength() is fast for a string that the
+	// Java VM stores with one byte per character, and it reads each character of all others.
+	jchar start[ASCII_SAMPLE_LENGTH];
+	env->GetStringRegion(javaString, 0, ASCII_SAMPLE_LENGTH, start);
+	jchar all = 0;
+	bool hasZero = false;
+	for (int i = 0; i < ASCII_SAMPLE_LENGTH; i++) {
+		all |= start[i];
+		hasZero = hasZero || start[i] == 0;
+	}
+	if (all < 0x80 && !hasZero && env->GetStringUTFLength(javaString) == length) {
+		// The lengths are equal only if each character is ASCII and none is 0.
+		std::unique_ptr<char[]> bytes(new char[length + 1]);
+		env->GetStringUTFRegion(javaString, 0, length, bytes.get());
+		return jsi::String::createFromAscii(rt, bytes.get(), (size_t) length);
+	}
 	const jchar* chars = env->GetStringChars(javaString, NULL);
 	jsi::String jsString = jsi::String::createFromUtf16(rt, reinterpret_cast<const char16_t*>(chars), (size_t) length);
 	env->ReleaseStringChars(javaString, chars);

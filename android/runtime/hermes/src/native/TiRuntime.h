@@ -7,6 +7,7 @@
 #ifndef TI_RUNTIME_H
 #define TI_RUNTIME_H
 
+#include <deque>
 #include <jni.h>
 #include <map>
 #include <memory>
@@ -91,6 +92,11 @@ struct RuntimeState {
 	// Constructor and module instance of each generated proxy class.
 	std::unordered_map<const ProxyClass*, jsi::Function> classConstructors;
 	std::unordered_map<const ProxyClass*, jsi::Value> moduleInstances;
+
+	// The name of each native accessor as a JS string. The accessor functions hold pointers
+	// into this list, so that a property read or write builds no new string. A deque keeps
+	// its elements in place when it grows.
+	std::deque<jsi::String> accessorNames;
 
 	// JS functions and promises that Java holds, by the id in the Java object.
 	std::map<int64_t, jsi::Function> functions;

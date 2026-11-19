@@ -222,15 +222,17 @@ public:
 	// --- Property helpers for generated code --------------------------------------------------
 
 	// Reads a value from "_properties" through Proxy.prototype.getProperty.
-	static jsi::Value getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name);
+	// "jsName" is the same name as a JS string. A caller that has it saves the conversion.
+	static jsi::Value getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name,
+		const jsi::String* jsName = nullptr);
 
 	// Stores a value in "_properties" through Proxy.prototype.setProperty.
 	static void setProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name,
-		const jsi::Value& value);
+		const jsi::Value& value, const jsi::String* jsName = nullptr);
 
 	// Reports a new value to KrollProxy.onPropertyChanged() and stores it in "_properties".
 	static void onPropertyChanged(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name,
-		const jsi::Value& value);
+		const jsi::Value& value, const jsi::String* jsName = nullptr);
 
 	static jsi::Value getIndexedProperty(jsi::Runtime& rt, Proxy* proxy, uint32_t index);
 	static void setIndexedProperty(jsi::Runtime& rt, Proxy* proxy, uint32_t index, const jsi::Value& value);

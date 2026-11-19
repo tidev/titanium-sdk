@@ -427,19 +427,23 @@ void ClassBuilder::method(const char* name, ProxyMethod function, unsigned int a
 void ClassBuilder::accessor(const char* name, ProxyGetter getter, ProxySetter setter, bool readOnly)
 {
 	std::string propertyName(name);
+	// The runtime state owns the JS string. It lives as long as the accessor functions can run.
+	RuntimeState& state = *TiRuntime::state;
+	state.accessorNames.push_back(jsi::String::createFromUtf8(rt, propertyName));
+	const jsi::String* jsName = &state.accessorNames.back();
 
 	// The accessors are on the prototype, so JS code can reach them with a receiver that is not
 	// a proxy, for example "SomeProxy.prototype.title = value". In V8 the accessors are on each
 	// instance, and such code reads or writes a plain property. Do the same here.
 	jsi::Function jsGetter = JSUtil::hostFunction(rt, name, 0,
-		[getter, propertyName](jsi::Runtime& rt, const jsi::Value& thisVal, const jsi::Value*, size_t) -> jsi::Value {
+		[getter, propertyName, jsName](jsi::Runtime& rt, const jsi::Value& thisVal, const jsi::Value*, size_t) -> jsi::Value {
 			if (thisVal.isObject() && Proxy::unwrap(rt, thisVal) == nullptr) {
 				return jsi::Value::undefined();
 			}
 			if (getter) {
 				return getter(rt, thisVal);
 			}
-			return Proxy::getProperty(rt, thisVal, propertyName);
+			return Proxy::getProperty(rt, thisVal, propertyName, jsName);
 		});
 
 	if (readOnly) {
@@ -448,18 +452,18 @@ void ClassBuilder::accessor(const char* name, ProxyGetter getter, ProxySetter se
 	}
 
 	jsi::Function jsSetter = JSUtil::hostFunction(rt, name, 1,
-		[setter, propertyName](jsi::Runtime& rt, const jsi::Value& thisVal, const jsi::Value* args, size_t count) -> jsi::Value {
+		[setter, propertyName, jsName](jsi::Runtime& rt, const jsi::Value& thisVal, const jsi::Value* args, size_t count) -> jsi::Value {
 			jsi::Value undefined;
 			const jsi::Value& value = count > 0 ? args[0] : undefined;
 			if (thisVal.isObject() && Proxy::unwrap(rt, thisVal) == nullptr) {
 				LOGD(TAG, "Property '%s' was set on an object that is not a proxy", propertyName.c_str());
-				TiRuntime::state->defineOwn.call(rt, thisVal, jsi::String::createFromUtf8(rt, propertyName), value);
+				TiRuntime::state->defineOwn.call(rt, thisVal, *jsName, value);
 				return jsi::Value::undefined();
 			}
 			if (setter) {
 				setter(rt, thisVal, value);
 			} else {
-				Proxy::onPropertyChanged(rt, thisVal, propertyName, value);
+				Proxy::onPropertyChanged(rt, thisVal, propertyName, value, jsName);
 			}
 			return jsi::Value::undefined();
 		});
@@ -922,7 +926,8 @@ void Proxy::disposeClass(jsi::Runtime& rt, ProxyClass& proxyClass)
 
 // --- Property helpers ---------------------------------------------------------------------------
 
-jsi::Value Proxy::getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name)
+jsi::Value Proxy::getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name,
+	const jsi::String* jsName)
 {
 	if (!thisVal.isObject()) {
 		return jsi::Value::undefined();
@@ -935,8 +940,10 @@ jsi::Value Proxy::getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const
 		LOGE(TAG, "Proxy.prototype.getProperty is not a Function!");
 		return jsi::Value::undefined();
 	}
-	jsi::Value value = getPropertyValue.getObject(rt).getFunction(rt)
-		.callWithThis(rt, object, jsi::String::createFromUtf8(rt, name));
+	jsi::Function getPropertyFunction = getPropertyValue.getObject(rt).getFunction(rt);
+	jsi::Value value = jsName
+		? getPropertyFunction.callWithThis(rt, object, *jsName)
+		: getPropertyFunction.callWithThis(rt, object, jsi::String::createFromUtf8(rt, name));
 	if (!value.isUndefined() || !JNIUtil::krollProxyGetPropertyMethod) {
 		return value;
 	}
@@ -964,7 +971,8 @@ jsi::Value Proxy::getProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const
 	return result;
 }
 
-void Proxy::setProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name, const jsi::Value& value)
+void Proxy::setProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name, const jsi::Value& value,
+	const jsi::String* jsName)
 {
 	if (!thisVal.isObject()) {
 		return;
@@ -975,11 +983,16 @@ void Proxy::setProperty(jsi::Runtime& rt, const jsi::Value& thisVal, const std::
 		LOGE(TAG, "Proxy.prototype.setProperty isn't a function!!!");
 		return;
 	}
-	setPropertyValue.getObject(rt).getFunction(rt)
-		.callWithThis(rt, object, jsi::String::createFromUtf8(rt, name), value);
+	jsi::Function setPropertyFunction = setPropertyValue.getObject(rt).getFunction(rt);
+	if (jsName) {
+		setPropertyFunction.callWithThis(rt, object, *jsName, value);
+	} else {
+		setPropertyFunction.callWithThis(rt, object, jsi::String::createFromUtf8(rt, name), value);
+	}
 }
 
-void Proxy::onPropertyChanged(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name, const jsi::Value& value)
+void Proxy::onPropertyChanged(jsi::Runtime& rt, const jsi::Value& thisVal, const std::string& name, const jsi::Value& value,
+	const jsi::String* jsName)
 {
 	Proxy* proxy = unwrap(rt, thisVal);
 	if (!proxy) {
@@ -1009,7 +1022,7 @@ void Proxy::onPropertyChanged(jsi::Runtime& rt, const jsi::Value& thisVal, const
 	JSException::checkJavaException(rt, env);
 
 	// Store new property value on JS internal map.
-	setProperty(rt, thisVal, name, value);
+	setProperty(rt, thisVal, name, value, jsName);
 }
 
 jsi::Value Proxy::getIndexedProperty(jsi::Runtime& rt, Proxy* proxy, uint32_t index)
