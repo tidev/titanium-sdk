@@ -79,7 +79,8 @@ export class ProcessJsTask extends IncrementalFileTask {
 			case 'android':
 				transform.Ti.Platform.osname = 'android';
 				transform.Ti.Platform.name = 'android';
-				transform.Ti.Platform.runtime = 'v8'; // override
+				// The Android builder knows the JS engine of the app: "v8" or "hermes".
+				transform.Ti.Platform.runtime = this.builder.jsEngine || 'v8'; // override
 				break;
 			case 'ios':
 				// if not 'universal' it is 'ipad' or 'iphone'

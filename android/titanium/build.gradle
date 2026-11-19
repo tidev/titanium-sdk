@@ -63,6 +63,7 @@ android {
 				arguments = [
 					'kroll.outputJsonFilePath': "${projectDir}/../../dist/android/titanium.bindings.json".toString(),
 					'kroll.outputCppDirPath'  : "${projectDir}/../runtime/v8/generated".toString(),
+					'kroll.outputHermesCppDirPath': "${projectDir}/../runtime/hermes/generated".toString(),
 					'kroll.jsModuleName'      : 'titanium'
 				]
 			}
@@ -78,11 +79,14 @@ android {
 	}
 	buildFeatures {
 		buildConfig = true
+		// The Hermes engine comes as an AAR with a "prefab" package for CMake.
+		prefab = true
 	}
 	externalNativeBuild {
 		cmake {
 			version = '3.22.1'
-			path "${projectDir}/../runtime/v8/src/native/CMakeLists.txt"
+			// This file builds the native runtimes of the V8 engine and of the Hermes engine.
+			path "${projectDir}/../runtime/CMakeLists.txt"
 		}
 	}
 	sourceSets {
@@ -111,7 +115,8 @@ android {
 					"${projectDir}/../modules/utils/src/java",
 					"${projectDir}/../modules/xml/src/java",
 					"${projectDir}/../runtime/common/src/java",
-					"${projectDir}/../runtime/v8/src/java"
+					"${projectDir}/../runtime/v8/src/java",
+					"${projectDir}/../runtime/hermes/src/java"
 			]
 			res.srcDirs = [
 					'res',
@@ -122,6 +127,13 @@ android {
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_17
 		targetCompatibility JavaVersion.VERSION_17
+	}
+	packagingOptions {
+		jniLibs {
+			// The CMake build copies the Hermes engine library next to our own libraries, because
+			// "libkroll-hermes.so" links to it. An app gets this library from the Hermes AAR.
+			excludes += ['**/libhermesvm.so']
+		}
 	}
 }
 
@@ -155,6 +167,19 @@ tasks.register('updateV8Library') {
 }
 
 preBuild.dependsOn updateV8Library
+
+// Downloads the JSI source files of the Hermes version in our "package.json", if not already done.
+// The Hermes runtime builds "libjsi.so" from them. To be executed before C/C++ "build".
+tasks.register('updateHermesJsi', Exec) {
+	executable = 'node'
+	workingDir = projectDir
+	args = ['hermes-services.js', 'update-jsi']
+	def packageJson = new JsonSlurper().parse(file("${projectDir}/../package.json"))
+	inputs.property 'hermes.version', packageJson.hermes.version
+	inputs.property 'hermes.jsi', packageJson.hermes.jsi.toString()
+	outputs.dir "${projectDir}/../runtime/hermes/src/jsi"
+}
+preBuild.dependsOn updateHermesJsi
 tasks.withType(ExternalNativeCleanTask).configureEach {
 	dependsOn updateV8Library
 }
@@ -265,6 +290,7 @@ def getChangedFiles() {
 }
 
 def generatedDir = file("${projectDir}/../runtime/v8/generated")
+def hermesGeneratedDir = file("${projectDir}/../runtime/hermes/generated")
 def distFiles = fileTree(
 	dir: file("${projectDir}/../../dist/android"),
 	include: '**/*',
@@ -274,6 +300,7 @@ def distFiles = fileTree(
 clean.doLast {
 	// Delete generated C/C++ files.
 	delete generatedDir
+	delete hermesGeneratedDir
 
 	// Delete the files copied to our distribution directory.
 	delete distFiles
@@ -283,6 +310,13 @@ dependencies {
 	// This reads our code's @Kroll annotations and generates code which interops between V8 and proxy classes.
 	annotationProcessor project(':kroll-apt')
 	compileOnly project(':kroll-apt')
+
+	// The Hermes JS engine and the library loader that it needs. Only the Hermes runtime uses them.
+	// They are not listed in the published "*.pom" file below. An app that selects Hermes gets them
+	// from its own build file, so that an app with the V8 engine does not carry them.
+	def hermesInfo = new JsonSlurper().parse(file("${projectDir}/../package.json")).hermes
+	implementation "com.facebook.hermes:hermes-android:${hermesInfo.version}"
+	implementation "com.facebook.soloader:nativeloader:${hermesInfo.nativeloader}"
 
 	// AndroidX Library dependencies.
 	implementation "androidx.appcompat:appcompat:${project.ext.tiAndroidXAppCompatLibVersion}"
@@ -350,7 +384,9 @@ publishing {
 				list.addAll(configurations.implementation.allDependencies)
 				list.each {
 					if ((it.group != null) && (it.name != null)) {
-						if (it.group != 'com.google.android.gms') {
+						if (it.group != 'com.google.android.gms'
+							&& it.group != 'com.facebook.hermes'
+							&& it.group != 'com.facebook.soloader') {
 							def childNode = dependenciesNode.appendNode('dependency')
 							childNode.appendNode('groupId', it.group)
 							childNode.appendNode('artifactId', it.name)

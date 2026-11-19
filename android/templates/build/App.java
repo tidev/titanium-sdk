@@ -5,7 +5,12 @@
  */
 package <%= appid %>;
 
-import org.appcelerator.kroll.runtime.v8.V8Runtime;
+<%
+// "jsEngine" comes from the <engine> element in the <android> section of tiapp.xml.
+const useHermes = (typeof jsEngine !== 'undefined') && (jsEngine === 'hermes');
+const runtimeClass = useHermes ? 'HermesRuntime' : 'V8Runtime';
+-%>
+import org.appcelerator.kroll.runtime.<%- useHermes ? 'hermes' : 'v8' %>.<%- runtimeClass %>;
 
 import org.appcelerator.kroll.KrollExternalModule;
 import org.appcelerator.kroll.common.KrollSourceCodeProvider;
@@ -42,7 +47,7 @@ public final class <%= classname %>Application extends TiApplication
 
 		super.onCreate();
 
-		V8Runtime runtime = new V8Runtime();
+		<%- runtimeClass %> runtime = new <%- runtimeClass %>();
 
 <% customModules.forEach(function (module) { %>
 		{

@@ -17,6 +17,20 @@
 		"mode": "release",
 		"integrity": "sha512-A0tV+fYtkpKfIF5roRTCFPtdULMFygmfWlEuuHOBjC3q4rz/mKnAsJTYBlqayC/4oYEWehj867Oh1o6vy26XHQ=="
 	},
+	"hermes": {
+		"version": "260318099.0.8",
+		"nativeloader": "0.10.5",
+		"jsi": {
+			"decorator.h": "43884b1e1d24b7fdaa1b499d422159976b35d78799db76b5e42895493bec7884",
+			"hermes-interfaces.h": "a9be379cc397571d3a985a215aeb58b12b26b90f2bf52716d4d7141e79585020",
+			"instrumentation.h": "1395779ad53ec372518b977d077e65a876215bc31a94cf049ed55d0a3d2426f4",
+			"jsi.h": "db2f1ee9291340f3d05b11abdcdc3d12ac84c239e58599d4ef2ac06dbaa14d92",
+			"jsi-inl.h": "a6cbf72ee25991a25cd43049e96fb275c900e24da67d5c2b9581faaca11f06a4",
+			"jsilib.h": "76d9a7c2725ead3898bf7bee5ce343442ea8b4ad1a74300a2a253bcd428c46f7",
+			"threadsafe.h": "c1733397f6af144fa5d2ddd1cf67f97974d2267a934977cc23e8e19d101566ca",
+			"jsi.cpp": "776c081489045bfe61d25d786e30adef2b1d3a0fb3b61e2afcf9f9cd2d0335cf"
+		}
+	},
 	"minSDKVersion": "24",
 	"compileSDKVersion": "36",
 	"vendorDependencies": {

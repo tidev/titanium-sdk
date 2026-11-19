@@ -54,6 +54,7 @@ android {
 				arguments = [
 					'kroll.outputJsonFilePath': tiModuleBindingsJsonPath,
 					'kroll.outputCppDirPath': "${buildDir}/ti-generated/jni".toString(),
+					'kroll.outputHermesCppDirPath': "${buildDir}/ti-generated/jni-hermes".toString(),
 					'kroll.jsModuleName': '<%- moduleId %>',
 					'kroll.tiBindingsJsonFilePath': '<%- tiBindingsJsonPath.replace(/\\/g, '\\\\') %>'
 				]
@@ -61,7 +62,7 @@ android {
 		}
 		externalNativeBuild {
 			ndkBuild {
-				cppFlags '-std=c++14'
+				// Note: "Android.mk" sets the C++ standard of each library. The V8 and Hermes libraries differ.
 				arguments.addAll([
 					'APP_STL:=c++_shared',
 					"-j${Runtime.runtime.availableProcessors()}".toString(),
@@ -108,7 +109,8 @@ android {
 			jni.srcDirs = [
 				"${projectDir}/../../jni",
 				"${projectDir}/src/main/jni",
-				"${buildDir}/ti-generated/jni"
+				"${buildDir}/ti-generated/jni",
+				"${buildDir}/ti-generated/jni-hermes"
 			]
 			// C/C++ "*.so" dependency library paths. These libraries will be added to the app.
 			jniLibs.srcDirs = [
@@ -145,6 +147,8 @@ android {
 	packagingOptions {
 		exclude '/lib/**/libc++_shared.so'
 		exclude '/lib/**/libkroll-v8.so'
+		exclude '/lib/**/libkroll-hermes.so'
+		exclude '/lib/**/libjsi.so'
 	}
 }
 
@@ -194,6 +198,7 @@ project.afterEvaluate {
 tasks.register('generateCppFiles', Exec) {
     environment 'TI_MODULE_BINDINGS_JSON_FILE', tiModuleBindingsJsonPath
     environment 'TI_MODULE_GENERATED_JNI_DIR', "${projectDir}/build/ti-generated/jni"
+    environment 'TI_MODULE_GENERATED_HERMES_JNI_DIR', "${projectDir}/build/ti-generated/jni-hermes"
     environment 'TI_MODULE_GENERATED_JS_DIR', "${projectDir}/build/ti-generated/js"
     environment 'TI_MODULE_ID', '<%- moduleId %>'
     environment 'TI_MODULE_NAMESPACE', '<%- moduleId.toLowerCase() %>'

@@ -44,6 +44,14 @@ public abstract class KrollObject implements Handler.Callback
 	}
 
 	/**
+	 * @return the Proxy associated with this object, or null if it is gone or was never set.
+	 */
+	public KrollProxySupport getProxySupport()
+	{
+		return (proxySupport != null) ? proxySupport.get() : null;
+	}
+
+	/**
 	 * Checks to see if this object has event listeners added.
 	 * @param event the event name to check.
 	 * @return whether this object has an eventListener for this event.

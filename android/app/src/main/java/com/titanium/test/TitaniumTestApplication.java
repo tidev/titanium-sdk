@@ -7,6 +7,7 @@
 package com.titanium.test;
 
 import org.appcelerator.kroll.KrollRuntime;
+import org.appcelerator.kroll.runtime.hermes.HermesRuntime;
 import org.appcelerator.kroll.runtime.v8.V8Runtime;
 import org.appcelerator.kroll.util.KrollAssetCache;
 import org.appcelerator.titanium.TiApplication;
@@ -27,7 +28,8 @@ public final class TitaniumTestApplication extends TiApplication
 
 		super.onCreate();
 
-		V8Runtime runtime = new V8Runtime();
+		// Select the engine with the Gradle property "tiJsEngine", for example "-PtiJsEngine=hermes".
+		KrollRuntime runtime = "hermes".equals(BuildConfig.JS_ENGINE) ? new HermesRuntime() : new V8Runtime();
 		KrollRuntime.init(this, runtime);
 		postAppInfo();
 		postOnCreate();

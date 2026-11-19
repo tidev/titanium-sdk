@@ -1,0 +1,313 @@
+/**
+ * Titanium SDK
+ * Copyright TiDev, Inc. 04/07/2022-Present
+ * Licensed under the terms of the Apache Public License
+ * Please see the LICENSE included with this distribution for details.
+ */
+
+/** This code is generated, do not edit by hand. **/
+<#import "ProxyBinding.fm" as Proxy>
+<#import "ProxyBindingHermes.fm" as Hermes>
+
+#include <stdio.h>
+
+#include "${packageName}.${proxyClassName}.h"
+
+#include "AndroidUtil.h"
+#include "JNIUtil.h"
+#include "JSException.h"
+#include "JSUtil.h"
+#include "TiRuntime.h"
+#include "TypeConverter.h"
+
+<#if superProxyClassName??>
+#include "${superPackageName}.${superProxyClassName}.h"
+</#if>
+
+#define TAG "${proxyClassName}"
+
+<@Proxy.openNamespace/>
+<#assign className = Proxy.className(proxyClassName)>
+
+titanium::ProxyClass& ${className}::getProxyClass()
+{
+	static titanium::ProxyClass proxyClass = {
+		"${proxyAttrs.name}",
+		"${packageName?replace('.','/')}/${className}",
+		<#if superProxyClassName??>${className}::parentClass<#else>nullptr</#if>,
+		${className}::install,
+		${isModule?c},
+		${(indexed!false)?c},
+		<#if interceptor??>${className}::interceptor<#else>nullptr</#if>,
+		nullptr
+	};
+	return proxyClass;
+}
+
+<#if superProxyClassName??>
+titanium::ProxyClass* ${className}::parentClass()
+{
+	return &<@Proxy.superNamespace/>${superProxyClassName}::getProxyClass();
+}
+
+</#if>
+void ${className}::bindProxy(facebook::jsi::Runtime& rt, const facebook::jsi::Object& exports)
+{
+	titanium::Proxy::bindClass(rt, exports, getProxyClass());
+}
+
+void ${className}::dispose(facebook::jsi::Runtime& rt)
+{
+	LOGD(TAG, "dispose()");
+	titanium::Proxy::disposeClass(rt, getProxyClass());
+	<#if superProxyClassName??>
+
+	<@Proxy.superNamespace/>${superProxyClassName}::dispose(rt);
+	</#if>
+}
+
+void ${className}::install(titanium::ClassBuilder& builder)
+{
+	facebook::jsi::Runtime& rt = builder.rt;
+	(void) rt;
+
+	// Method bindings --------------------------------------------------------
+	<@Proxy.listMethods ; isFirst, name, method>
+	builder.method("${method.apiName}", ${className}::${method.apiName}, ${method.args?size});
+	</@Proxy.listMethods>
+
+	// Constants --------------------------------------------------------------
+	<#if constants??>
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Failed to get environment in ${className}");
+		return;
+	}
+	jclass javaClass = getProxyClass().javaClass;
+	(void) javaClass;
+
+	<@Proxy.listConstants ; isFirst, name, constant>
+	<#if (constant.value)??>
+		<#if constant.type = "java.lang.String">
+			<#assign constantExpr = 'facebook::jsi::String::createFromUtf8(rt, "' + constant.value + '")'>
+		<#else>
+			<#assign constantExpr = 'facebook::jsi::Value((double) ' + constant.value?c + ')'>
+		</#if>
+		<#if !isModule>
+	builder.staticConstant("${name}", ${constantExpr});
+	// TODO: deprecate in 7.0.0
+		</#if>
+	builder.constant("${name}", ${constantExpr});
+	<#else>
+		<#if constant.type = "java.lang.String">
+	{
+		jfieldID field = env->GetStaticFieldID(javaClass, "${constant.name}", "Ljava/lang/String;");
+		jstring fieldValue = (jstring) env->GetStaticObjectField(javaClass, field);
+		builder.constant("${name}", titanium::TypeConverter::javaStringToJsString(rt, env, fieldValue));
+		if (fieldValue) {
+			env->DeleteLocalRef(fieldValue);
+		}
+	}
+		<#elseif constant.type = "short">
+	{
+		jfieldID field = env->GetStaticFieldID(javaClass, "${constant.name}", "S");
+		builder.constant("${name}", facebook::jsi::Value((double) env->GetStaticShortField(javaClass, field)));
+	}
+		<#elseif constant.type = "int">
+	{
+		jfieldID field = env->GetStaticFieldID(javaClass, "${constant.name}", "I");
+		builder.constant("${name}", facebook::jsi::Value((double) env->GetStaticIntField(javaClass, field)));
+	}
+		<#elseif constant.type = "long">
+	{
+		jfieldID field = env->GetStaticFieldID(javaClass, "${constant.name}", "J");
+		builder.constant("${name}", facebook::jsi::Value((double) env->GetStaticLongField(javaClass, field)));
+	}
+		<#elseif constant.type = "float">
+	{
+		jfieldID field = env->GetStaticFieldID(javaClass, "${constant.name}", "F");
+		builder.constant("${name}", facebook::jsi::Value((double) env->GetStaticFloatField(javaClass, field)));
+	}
+		<#elseif constant.type = "double">
+	{
+		jfieldID field = env->GetStaticFieldID(javaClass, "${constant.name}", "D");
+		builder.constant("${name}", facebook::jsi::Value((double) env->GetStaticDoubleField(javaClass, field)));
+	}
+		</#if>
+	</#if>
+	</@Proxy.listConstants>
+	</#if>
+
+	// Dynamic properties -----------------------------------------------------
+	<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+	builder.accessor("${name}",
+		<#if property.get>${className}::getter_${name}<#else>nullptr</#if>,
+		<#if property.set>${className}::setter_${name}<#else>nullptr</#if>,
+		<#if property.set || proxyAttrs.propertyAccessors?seq_contains(name)>false<#else>true</#if>);
+	</@Proxy.listDynamicProperties>
+
+	// Accessors --------------------------------------------------------------
+	<@Proxy.listPropertyAccessors ; isFirst, name, getter, setter>
+	<#if !dynamicProperties?? || !dynamicProperties?keys?seq_contains(name)>
+	builder.accessor("${name}", nullptr, nullptr);
+	</#if>
+	</@Proxy.listPropertyAccessors>
+}
+
+// Methods --------------------------------------------------------------------
+<@Proxy.listMethods ; isFirst, name, method, signature, isDynamic>
+facebook::jsi::Value ${className}::${method.apiName}(facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal,
+	const facebook::jsi::Value* args, size_t count)
+{
+	LOGD(TAG, "${method.apiName}()");
+
+	<@Hermes.initJNIEnv/>
+	<@Hermes.initMethodID className=className name=name signature=signature logOnly=false/>
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(rt, thisVal, getProxyClass());
+	if (!proxy) {
+		return facebook::jsi::Value::undefined();
+	}
+
+	<#if method.args?size &gt; 0>
+	<@Hermes.verifyAndConvertArguments method.args method />
+	<#else>
+	jvalue* jArguments = 0;
+	</#if>
+	<#if method.args?size == 0 && name[0..2] == "get" && isDynamic && !isTitaniumSdk>
+		<#assign propertyName = name[3]?lower_case + name[4..]>
+	LOGW(TAG, "%s", "Getter method deprecated, please use \"obj.${propertyName};\" or \"obj['${propertyName}'];\" instead.");
+	<#elseif method.args?size == 1 && name[0..2] == "set" && isDynamic && !isTitaniumSdk>
+		<#assign propertyName = name[3]?lower_case + name[4..]>
+	LOGW(TAG, "%s", "Setter method deprecated, please use \"obj.${propertyName} = val;\" or \"obj['${propertyName}'] = val;\" instead.");
+	</#if>
+
+	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		return facebook::jsi::Value::undefined();
+	}
+
+	<@Hermes.callJNIMethod method.args, method.hasInvocation, method.returnType,
+		"methodID", "javaProxy", "jArguments", (method.returnType != "void") ; hasResult, resultVar>
+	<#if hasResult>
+	return ${resultVar};
+	<#else>
+	return facebook::jsi::Value::undefined();
+	</#if>
+	</@Hermes.callJNIMethod>
+}
+
+</@Proxy.listMethods>
+// Dynamic property accessors -------------------------------------------------
+<@Proxy.listDynamicProperties ; isFirst, name, property, getSignature, setSignature>
+<#if property.get>
+facebook::jsi::Value ${className}::getter_${name}(facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal)
+{
+	<@Hermes.initJNIEnv/>
+	<@Hermes.initMethodID className=className name=property.getMethodName signature=getSignature logOnly=false/>
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(rt, thisVal, getProxyClass());
+	if (!proxy) {
+		return facebook::jsi::Value::undefined();
+	}
+
+	jvalue* jArguments = 0;
+
+	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		return facebook::jsi::Value::undefined();
+	}
+
+	<@Hermes.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
+		"methodID", "javaProxy", "jArguments", (property.getReturnType != "void") ; hasResult, resultVar>
+	<#if hasResult>
+	return ${resultVar};
+	<#else>
+	return facebook::jsi::Value::undefined();
+	</#if>
+	</@Hermes.callJNIMethod>
+}
+
+</#if>
+<#if property.set>
+void ${className}::setter_${name}(facebook::jsi::Runtime& rt, const facebook::jsi::Value& thisVal,
+	const facebook::jsi::Value& value)
+{
+	JNIEnv *env = titanium::JNIScope::getEnv();
+	if (!env) {
+		LOGE(TAG, "Failed to get environment, ${name} wasn't set");
+		return;
+	}
+
+	<@Hermes.initMethodID className=className name=property.setMethodName signature=setSignature logOnly=true />
+	if (!methodID) {
+		return;
+	}
+
+	titanium::Proxy* proxy = titanium::Proxy::unwrap(rt, thisVal, getProxyClass());
+	if (!proxy) {
+		return;
+	}
+
+	jvalue jArguments[1];
+	<#assign typeInfo = Proxy.getTypeInfo(property.setMethodArgs[0].type)>
+	<@Hermes.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
+
+	jobject javaProxy = proxy->getJavaObject();
+	if (javaProxy == NULL) {
+		return;
+	}
+
+	<@Hermes.callJNIMethod property.setMethodArgs, property.setHasInvocation, property.setReturnType, "methodID", "javaProxy", "jArguments", false ;
+		hasResult, resultVar>
+	</@Hermes.callJNIMethod>
+	<#--
+	Store the value in the property map if there is not getter.
+	Otherwise you can never read back the value that was last set.
+	-->
+	<#if property.get == false>
+
+	titanium::Proxy::setProperty(rt, thisVal, "${name}", value);
+	</#if>
+}
+
+</#if>
+</@Proxy.listDynamicProperties>
+<#if interceptor??>
+facebook::jsi::Value ${className}::interceptor(facebook::jsi::Runtime& rt, titanium::Proxy* proxy,
+	const facebook::jsi::String& property)
+{
+	facebook::jsi::Value dontIntercept(rt, titanium::TiRuntime::state->dontIntercept);
+
+	<@Hermes.initJNIEnv/>
+	<@Hermes.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
+
+	jobject javaProxy = proxy->getJavaObject();
+	// The Java object is not attached yet while the constructor of the proxy runs.
+	if (javaProxy == NULL) {
+		return dontIntercept;
+	}
+
+	jstring javaProperty = titanium::TypeConverter::jsStringToJavaString(rt, env, property);
+	jobject jResult = (jobject) env->CallObjectMethod(javaProxy, methodID, javaProperty);
+	proxy->unreferenceJavaObject(javaProxy);
+	env->DeleteLocalRef(javaProperty);
+
+	titanium::JSException::checkJavaException(rt, env);
+
+	if (jResult == NULL) {
+		return facebook::jsi::Value::null();
+	}
+
+	facebook::jsi::Value jsResult = titanium::TypeConverter::javaObjectToJsValue(rt, env, jResult);
+	env->DeleteLocalRef(jResult);
+
+	// KrollRuntime.DONT_INTERCEPT tells that the Java proxy does not handle this property.
+	if (jsResult.isNumber() && jsResult.getNumber() == (double) titanium::JNIUtil::krollRuntimeDontIntercept) {
+		return dontIntercept;
+	}
+	return jsResult;
+}
+
+</#if>
+<@Proxy.closeNamespace/>
