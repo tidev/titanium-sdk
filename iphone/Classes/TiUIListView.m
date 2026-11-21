@@ -55,6 +55,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
   UIView *_pullViewWrapper;
   CGFloat pullThreshold;
+  UIEdgeInsets rowSafeAreaInsets;
 
   BOOL pullActive;
   BOOL snapping;
@@ -473,6 +474,31 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
 
   return floorf(rowWidth);
+}
+
+// UIKit draws row content inside the left and right safe area (the notch in
+// landscape, a vertical bar), so rows are measured that much narrower.
+- (CGFloat)rowSafeAreaWidth:(UITableView *)tableView
+{
+  if (tableView == nil || !tableView.insetsContentViewsToSafeArea || tableView.style == UITableViewStyleInsetGrouped) {
+    return 0;
+  }
+  return tableView.safeAreaInsets.left + tableView.safeAreaInsets.right;
+}
+
+- (void)safeAreaInsetsDidChange
+{
+  [super safeAreaInsetsDidChange];
+  // Row heights depend on rowSafeAreaWidth:, so measure them again when the
+  // left or right safe area changes.
+  UIEdgeInsets insets = self.safeAreaInsets;
+  if (insets.left == rowSafeAreaInsets.left && insets.right == rowSafeAreaInsets.right) {
+    return;
+  }
+  rowSafeAreaInsets = insets;
+  if (_tableView != nil && _tableView.insetsContentViewsToSafeArea) {
+    [_tableView reloadData];
+  }
 }
 
 - (id)valueWithKey:(NSString *)key atIndexPath:(NSIndexPath *)indexPath
@@ -1935,7 +1961,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
       if (theCell != nil) {
         if (item != nil) {
           theCell.dataItem = item;
-          CGFloat maxWidth = [self computeRowWidth:tableView];
+          CGFloat maxWidth = [self computeRowWidth:tableView] - [self rowSafeAreaWidth:tableView];
           if (maxWidth > 0) {
 
             CGFloat accessoryAdjustment = 0;
