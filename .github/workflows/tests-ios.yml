@@ -8,7 +8,7 @@ jobs:
   ios:
     if: github.event.review.state == 'approved'
     name: Titanium SDK iOS Tests
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 120
 
     env:

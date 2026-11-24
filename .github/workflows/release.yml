@@ -103,7 +103,7 @@ jobs:
           java-version: '21'
 
   ios:
-    runs-on: macos-26
+    runs-on: xcode-27
     name: iOS
     needs: [validate]
     env:
@@ -122,7 +122,7 @@ jobs:
           node-version: '26'
 
   package:
-    runs-on: macos-26
+    runs-on: xcode-27
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
