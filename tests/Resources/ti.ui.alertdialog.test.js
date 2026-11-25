@@ -109,6 +109,58 @@ describe('Titanium.UI.AlertDialog', () => {
 		});
 	});
 
+	describe.android('.androidView', function () {
+		this.timeout(10000);
+		let win;
+
+		afterEach(done => {
+			if (win && !win.closed) {
+				win.addEventListener('close', function listener () {
+					win.removeEventListener('close', listener);
+					win = null;
+					done();
+				});
+				win.close();
+			} else {
+				win = null;
+				done();
+			}
+		});
+
+		it('replacing it while shown keeps the replacement view usable', finish => {
+			win = Ti.UI.createWindow();
+			win.addEventListener('open', () => {
+				const firstView = Ti.UI.createView({ height: 50 });
+				const secondView = Ti.UI.createView({ height: 50 });
+				const dialog = Ti.UI.createAlertDialog({
+					title: 'androidView',
+					buttonNames: [ 'OK' ],
+					androidView: firstView
+				});
+				try {
+					dialog.show();
+					// Dismisses the first dialog and assigns the replacement in the same JS turn.
+					// The pending OnDismiss callback of the first dialog must not release this view.
+					dialog.androidView = secondView;
+				} catch (err) {
+					return finish(err);
+				}
+				// Let the queued OnDismiss callback run before the replacement view is used again.
+				setTimeout(() => {
+					try {
+						should(dialog.androidView).eql(secondView);
+						dialog.show();
+						dialog.hide();
+					} catch (err) {
+						return finish(err);
+					}
+					finish();
+				}, 500);
+			});
+			win.open();
+		});
+	});
+
 	describe.ios('.tintColor', () => {
 		it('accepts a String color', () => {
 			const bar = Ti.UI.createAlertDialog({

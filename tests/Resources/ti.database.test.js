@@ -261,6 +261,67 @@ describe('Titanium.Database', function () {
 			// Close the database (unnecessary as remove() does this for us)
 			db.close();
 		});
+
+		describe.android('flags', () => {
+			it('exposes the open flag constants', () => {
+				should(Ti.Database.CREATE_IF_NECESSARY).be.a.Number();
+				should(Ti.Database.NO_LOCALIZED_COLLATORS).be.a.Number();
+				should(Ti.Database.ENABLE_WRITE_AHEAD_LOGGING).be.a.Number();
+				should(Ti.Database.OPEN_READWRITE).be.a.Number();
+				should(Ti.Database.OPEN_READONLY).be.a.Number();
+			});
+
+			it('applies flags when opening by name', () => {
+				const dbName = 'testDbFlagsByName';
+
+				// Create the database up-front so it can be re-opened read-only below.
+				let db = Ti.Database.open(dbName);
+				db.execute('CREATE TABLE IF NOT EXISTS testTable (text TEXT)');
+				db.execute('DELETE FROM testTable');
+				db.execute('INSERT INTO testTable (text) VALUES (?)', 'John Smith');
+				db.close();
+
+				// Re-open by name only, read-only. Writes must be rejected.
+				db = Ti.Database.open(dbName, Ti.Database.OPEN_READONLY);
+				should(db).be.an.Object();
+				should(db.name).be.eql(dbName);
+
+				const rows = db.execute('SELECT text FROM testTable');
+				should(rows.rowCount).be.eql(1);
+				should(rows.fieldByName('text')).be.eql('John Smith');
+				rows.close();
+
+				should(() => {
+					db.execute('INSERT INTO testTable (text) VALUES (?)', 'Smith John');
+				}).throw();
+
+				db.close();
+
+				// Clean up via a writable connection.
+				db = Ti.Database.open(dbName);
+				db.remove();
+			});
+
+			it('throws opening a missing database without CREATE_IF_NECESSARY', () => {
+				should(() => {
+					Ti.Database.open('testDbFlagsIShouldNotExist', Ti.Database.OPEN_READONLY);
+				}).throw();
+			});
+
+			it('opens with write-ahead logging enabled', () => {
+				const dbName = 'testDbFlagsWal';
+				const flags = Ti.Database.CREATE_IF_NECESSARY
+					| Ti.Database.NO_LOCALIZED_COLLATORS
+					| Ti.Database.ENABLE_WRITE_AHEAD_LOGGING;
+
+				const db = Ti.Database.open(dbName, flags);
+				should(db).be.an.Object();
+				db.execute('CREATE TABLE IF NOT EXISTS testTable (text TEXT)');
+				db.execute('INSERT INTO testTable (text) VALUES (?)', 'John Smith');
+				should(db.rowsAffected).be.eql(1);
+				db.remove();
+			});
+		});
 	});
 
 	// Check if it guards against 'closed' results

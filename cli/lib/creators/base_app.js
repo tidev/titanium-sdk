@@ -16,6 +16,7 @@ import fs from 'fs-extra';
 import path from 'node:path';
 import ti from 'node-titanium-sdk';
 import { randomUUID } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Creates application projects.
@@ -186,7 +187,7 @@ export class BaseAppCreator extends Creator {
 						const p = path.join(this.sdk.path, platform, 'cli', 'commands', '_create.js');
 						if (fs.existsSync(p)) {
 							this.logger.info(`Copying ${platform.cyan} platform resources`);
-							const { run } = await import(p);
+							const { run } = await import(pathToFileURL(p));
 							await run(this.logger, this.config, this.cli, projectConfig);
 							return finalize();
 						}

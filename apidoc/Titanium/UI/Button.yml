@@ -160,6 +160,20 @@ properties:
         iphone: 7.5.0
         ipad: 7.5.0
 
+  - name: axisBehavior
+    summary: Whether the button prefers to be shown in a horizontal or a vertical bar.
+    description: |
+        Only used if the button is used as a navigation bar button (<Titanium.UI.Window.leftNavButton>,
+        <Titanium.UI.Window.rightNavButton>, <Titanium.UI.Window.leftNavButtons>, <Titanium.UI.Window.rightNavButtons>)
+        or as a toolbar item. On iPhone Duo and apps built with the iOS 27.1 SDK or later, the system lays out
+        those bars vertically.
+    type: Number
+    constants: Titanium.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_*
+    default: <Titanium.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
   - name: backgroundImage
     summary: |
         Background image for the button in its normal state, specified as a local file path or URL.
@@ -380,6 +394,19 @@ properties:
     constants: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_*
     default: Titanium.UI.TEXT_VERTICAL_ALIGNMENT_CENTER
     platforms: [android, iphone, ipad, macos]
+
+  - name: visibilityPriority
+    summary: Defines which buttons are moved into the overflow menu first when a bar runs out of space.
+    description: |
+        Only used if the button is used as a navigation bar button (<Titanium.UI.Window.leftNavButton>,
+        <Titanium.UI.Window.rightNavButton>, <Titanium.UI.Window.leftNavButtons>, <Titanium.UI.Window.rightNavButtons>)
+        or as a toolbar item. Buttons with a lower priority collapse into the overflow menu before buttons with a higher priority.
+    type: Number
+    constants: Titanium.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_*
+    default: <Titanium.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD>
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.0" } }
+    since: "14.0.0"
 
 examples:
   - title: Simple Button Example

@@ -1,11 +1,11 @@
 /**
  * This is a generated file. Do not edit or your changes will be lost
  */
-#import "TiModulesdk920ModuleAssets.h"
+#import "TiModulesdk1341ModuleAssets.h"
 
 extern NSData* filterDataInRange(NSData* thedata, NSRange range);
 
-@implementation TiModulesdk920ModuleAssets
+@implementation TiModulesdk1341ModuleAssets
 
 - (NSData *)moduleAsset
 {

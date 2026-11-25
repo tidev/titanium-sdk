@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.util.LruCache;
 import android.util.TypedValue;
 
 import androidx.annotation.ColorInt;
@@ -48,6 +49,7 @@ public class TiColorHelper
 
 	private static final String TAG = "TiColorHelper";
 	private static HashMap<String, Integer> colorTable;
+	private static final LruCache<String, Integer> resourceIdCache = new LruCache<>(512);
 	private static final List<String> alphaMissingColors = Arrays.asList(
 		"aqua", "fuchsia", "lime", "maroon", "navy", "olive", "purple", "silver", "teal");
 
@@ -152,11 +154,15 @@ public class TiColorHelper
 		}
 
 		// Ti.Android.R.color or Ti.App.Android.R.color resource (by name)
-		if (TiColorHelper.hasColorResource(value, context)) {
+		// A hex string such as "#rrggbb" can never be a resource name, so skip the lookup for it.
+		if (!lowval.startsWith("#")) {
 			try {
-				return TiColorHelper.getColorResource(value, context);
+				TypedValue typedValue = TiColorHelper.getColorResourceTypedValue(value, context);
+				if (TiColorHelper.isColor(typedValue)) {
+					return typedValue.data;
+				}
 			} catch (Exception e) {
-				Log.e(TAG, "Cannot find named color: " + value, e);
+				// Not a usable color resource. Fall through to the parser below.
 			}
 		}
 
@@ -224,10 +230,19 @@ public class TiColorHelper
 
 		// First check if resource name is defined in app or its libraries.
 		// If not found, then check if it's an Android OS system resource.
+		// Resources.getIdentifier() is slow and the resource names are fixed for the process,
+		// so look up each name only once. An ID of 0 means "not a resource".
 		Resources resources = context.getResources();
-		int resourceId = resources.getIdentifier(colorName, "color", app.getPackageName());
-		if (resourceId == 0) {
-			resourceId = resources.getIdentifier(colorName, "color", "android");
+		Integer cachedResourceId = resourceIdCache.get(colorName);
+		int resourceId;
+		if (cachedResourceId != null) {
+			resourceId = cachedResourceId;
+		} else {
+			resourceId = resources.getIdentifier(colorName, "color", app.getPackageName());
+			if (resourceId == 0) {
+				resourceId = resources.getIdentifier(colorName, "color", "android");
+			}
+			resourceIdCache.put(colorName, resourceId);
 		}
 
 		// Fetch the resource's type data.

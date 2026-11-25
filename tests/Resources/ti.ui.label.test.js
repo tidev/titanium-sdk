@@ -320,6 +320,59 @@ describe('Titanium.UI.Label', function () {
 		win.open();
 	});
 
+	describe('.padding', () => {
+		it('is an Object', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				padding: { left: 10, right: 20 }
+			});
+			should(label.padding).be.an.Object();
+			should(label.padding.left).eql(10);
+			should(label.padding.right).eql(20);
+			label.padding = { left: 5, right: 5, top: 2, bottom: 2 };
+			should(label.padding.top).eql(2);
+			should(label.padding.bottom).eql(2);
+		});
+
+		it('has no accessors', () => {
+			const label = Ti.UI.createLabel({
+				text: 'this is some text',
+				padding: { left: 10, right: 10 }
+			});
+			should(label).not.have.accessors('padding');
+		});
+
+		it('grows an auto-sized label', function (finish) {
+			this.slow(1000);
+			this.timeout(5000);
+
+			win = Ti.UI.createWindow({
+				layout: 'vertical',
+			});
+			const plainLabel = Ti.UI.createLabel({
+				text: 'Padded label',
+			});
+			win.add(plainLabel);
+			const paddedLabel = Ti.UI.createLabel({
+				text: 'Padded label',
+				padding: { left: 20, right: 30, top: 5, bottom: 15 }
+			});
+			win.add(paddedLabel);
+			win.addEventListener('postlayout', function listener() {
+				win.removeEventListener('postlayout', listener);
+
+				try {
+					should(paddedLabel.size.width).be.approximately(plainLabel.size.width + 50, 2);
+					should(paddedLabel.size.height).be.approximately(plainLabel.size.height + 20, 2);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+			win.open();
+		});
+	});
+
 	describe.ios('.minimumFontSize', () => {
 		it('is a Number', () => {
 			const label = Ti.UI.createLabel({

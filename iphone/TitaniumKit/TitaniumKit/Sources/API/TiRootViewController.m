@@ -92,7 +92,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
 - (void)didOrientNotify:(NSNotification *)notification;
 - (void)keyboardWillChangeFrame:(NSNotification *)notification;
 - (void)keyboardDidChangeFrame:(NSNotification *)notification;
-- (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification;
 @end
 
 @implementation TiRootViewController
@@ -108,6 +107,7 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   RELEASE_TO_NIL(containedWindows);
   RELEASE_TO_NIL(modalWindows);
   RELEASE_TO_NIL(hostView);
+  RELEASE_TO_NIL(hingeInteraction);
 
   WARN_IF_BACKGROUND_THREAD; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -154,7 +154,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
     [nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
     [nc addObserver:self selector:@selector(keyboardWillChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     [nc addObserver:self selector:@selector(keyboardDidChangeFrame:) name:UIKeyboardDidChangeFrameNotification object:nil];
-    [nc addObserver:self selector:@selector(adjustFrameForUpSideDownOrientation:) name:UIApplicationDidChangeStatusBarFrameNotification object:nil];
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
   }
   return self;
@@ -1035,39 +1034,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   return TI_ORIENTATION_ALLOWED([self getFlags:check], toInterfaceOrientation) ? YES : NO;
 }
 
-- (void)adjustFrameForUpSideDownOrientation:(NSNotification *)notification
-{
-  if ((![TiUtils isIPad]) && ([TiUtils interfaceOrientationForScene:self.view.window.windowScene] == UIInterfaceOrientationPortraitUpsideDown)) {
-    CGRect statusBarFrame = self.view.window.windowScene.statusBarManager.statusBarFrame;
-    if (statusBarFrame.size.height == 0) {
-      return;
-    }
-
-    CGRect mainScreenBounds = [[UIScreen mainScreen] bounds];
-    CGRect viewBounds = [[self view] bounds];
-
-    // Need to do this to force navigation bar to draw correctly on iOS 7
-    [[NSNotificationCenter defaultCenter] postNotificationName:kTiFrameAdjustNotification object:nil];
-    if (statusBarFrame.size.height > 20) {
-      if (viewBounds.size.height != (mainScreenBounds.size.height - statusBarFrame.size.height)) {
-        CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height - statusBarFrame.size.height);
-        CGPoint newCenter = CGPointMake(mainScreenBounds.size.width / 2, (mainScreenBounds.size.height - statusBarFrame.size.height) / 2);
-        [[self view] setBounds:newBounds];
-        [[self view] setCenter:newCenter];
-        [[self view] setNeedsLayout];
-      }
-    } else {
-      if (viewBounds.size.height != mainScreenBounds.size.height) {
-        CGRect newBounds = CGRectMake(0, 0, mainScreenBounds.size.width, mainScreenBounds.size.height);
-        CGPoint newCenter = CGPointMake(mainScreenBounds.size.width / 2, mainScreenBounds.size.height / 2);
-        [[self view] setBounds:newBounds];
-        [[self view] setCenter:newCenter];
-        [[self view] setNeedsLayout];
-      }
-    }
-  }
-}
-
 #ifdef DEVELOPER
 - (void)viewWillLayoutSubviews
 {
@@ -1095,7 +1061,6 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   }
   forceLayout = NO;
   [super viewDidLayoutSubviews];
-  [self adjustFrameForUpSideDownOrientation:nil];
 }
 
 - (BOOL)automaticallyForwardAppearanceAndRotationMethodsToChildViewControllers
@@ -1250,6 +1215,15 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
     return;
   }
 
+  // Some windowing modes, e.g. the iPhone Duo, refuse programmatic orientation changes. The system owns
+  // the orientation there, so the layout follows it. The refusal is remembered for this orientation only
+  // and forgotten with the next size transition (rotation, fold, split screen), so a transient denial
+  // on a regular iPhone does not disable forced orientations for the rest of the session.
+  if (deniedGeometryTarget == target) {
+    [self resetTransformAndForceLayout:NO];
+    return;
+  }
+
   if ([TiSharedConfig defaultConfig].debugEnabled) {
     DebugLog(@"Forcing rotation to %d. Current Orientation %d. This is not good UI design. Please reconsider.", target, current);
   }
@@ -1258,9 +1232,17 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   if (scene == nil) {
     return;
   }
+  __block TiRootViewController *blockSelf = self;
   UIWindowSceneGeometryPreferencesIOS *preferences = [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:TiMaskForOrientation(target)];
   [scene requestGeometryUpdateWithPreferences:preferences
                                  errorHandler:^(NSError *error) {
+                                   // The iPhone Duo answers with UISceneErrorCodeGeometryRequestDenied (101)
+                                   if ([error.domain isEqualToString:UISceneErrorDomain] && (error.code == UISceneErrorCodeGeometryRequestUnsupported || error.code == UISceneErrorCodeGeometryRequestDenied)) {
+                                     DebugLog(@"[WARN] The windowing mode does not allow a programmatic change to orientation %d, leaving the orientation to the system until the next size transition: %@", target, error.localizedDescription);
+                                     blockSelf->deniedGeometryTarget = target;
+                                     [blockSelf resetTransformAndForceLayout:NO];
+                                     return;
+                                   }
                                    DebugLog(@"[WARN] Could not rotate to orientation %d: %@", target, error.localizedDescription);
                                  }];
   [preferences release];
@@ -1445,6 +1427,12 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   if ([self respondsToSelector:@selector(setNeedsUpdateOfHomeIndicatorAutoHidden)]) {
     [self setNeedsUpdateOfHomeIndicatorAutoHidden];
   }
+
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    [self setNeedsUpdateOfVerticalBarConfiguration];
+  }
+#endif
 }
 
 - (void)setParentOrientationController:(id<TiOrientationController>)newParent
@@ -1542,6 +1530,9 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
+  // A new size may come with a windowing mode that allows geometry requests again (or was a transition
+  // during which a request was denied), so forced orientations are retried after it.
+  deniedGeometryTarget = UIInterfaceOrientationUnknown;
   for (id<TiWindowProtocol> thisWindow in containedWindows) {
     [thisWindow viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
   }
@@ -1587,6 +1578,43 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   [super preferredContentSizeDidChangeForChildContentContainer:container];
 }
 
+#pragma mark - Hinge (iPhone Duo)
+
+- (void)setHingeObservationEnabled:(BOOL)enabled
+{
+#if IS_SDK_IOS_27_1
+  if (@available(iOS 27.1, *)) {
+    TiThreadPerformOnMainThread(
+        ^{
+          if (!enabled) {
+            if (hingeInteraction != nil) {
+              [[self view] removeInteraction:hingeInteraction];
+              RELEASE_TO_NIL(hingeInteraction);
+            }
+            return;
+          }
+
+          if (hingeInteraction != nil) {
+            return;
+          }
+
+          __block TiRootViewController *blockSelf = self;
+          hingeInteraction = [[UIHingeInteraction alloc] initWithUpdateHandler:^(UIHingeInteraction *interaction, UIHingeInteractionUpdate *update) {
+            // A nil hinge means the interaction left a hierarchy that provides hinge updates
+            UIHinge *hinge = update.hinge;
+            NSDictionary *info = @{
+              @"status" : @(hinge != nil ? hinge.status : UIHingeStatusUnknown),
+              @"angle" : @(hinge != nil ? hinge.angle * 180.0 / M_PI : 0.0)
+            };
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiHingeChanged object:blockSelf userInfo:info];
+          }];
+          [[self view] addInteraction:hingeInteraction];
+        },
+        NO);
+  }
+#endif
+}
+
 #pragma mark - HomeIndicatorAutoHidden
 
 - (BOOL)prefersHomeIndicatorAutoHidden
@@ -1596,6 +1624,20 @@ static UIInterfaceOrientationMask TiMaskForOrientation(UIInterfaceOrientation or
   }
   return NO;
 }
+
+#pragma mark - Vertical Bar Behavior (iPhone Duo)
+
+#if IS_SDK_IOS_27_1
+- (UIVerticalBarBehavior)preferredVerticalBarBehavior
+{
+  id<TiWindowProtocol> topWindow = [containedWindows lastObject];
+  if (topWindow != nil && [topWindow respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+    return [topWindow preferredVerticalBarBehavior] == UIVerticalBarBehaviorDisabled ? UIVerticalBarBehaviorDisabled : UIVerticalBarBehaviorAutomatic;
+  }
+
+  return UIVerticalBarBehaviorAutomatic;
+}
+#endif
 
 #pragma mark - Status Bar Appearance
 

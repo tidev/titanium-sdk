@@ -681,6 +681,11 @@ public class TiUIWebView extends TiUIView
 		}
 	}
 
+	public void injectEventBindings()
+	{
+		client.getBinding().injectEventBindings();
+	}
+
 	public void changeProxyUrl(String url)
 	{
 		if (this.proxy != null) {
