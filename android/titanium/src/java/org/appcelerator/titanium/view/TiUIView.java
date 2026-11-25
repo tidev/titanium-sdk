@@ -964,9 +964,13 @@ public abstract class TiUIView implements KrollProxyListener, OnFocusChangeListe
 					if (borderView == null && parent != null) {
 						// Use outline for uniform borderRadius-only (no border stroke).
 						// Falls through to TiBorderWrapperView for non-uniform radii.
-						if (key.startsWith(TiC.PROPERTY_BORDER_PREFIX) && canUseBorderOutline(d)) {
-							usingBorderOutline = true;
-							handleBorderProperty(key, newValue);
+						// This also covers non-border keys (backgroundColor, opacity, touchFeedback):
+						// the outline never creates a borderView, so do not remove and re-add the view.
+						if (canUseBorderOutline(d)) {
+							if (!usingBorderOutline || key.equals(TiC.PROPERTY_BORDER_RADIUS)) {
+								usingBorderOutline = true;
+								tryApplyBorderRadiusAsOutline(d.get(TiC.PROPERTY_BORDER_RADIUS));
+							}
 						} else {
 							// Since we have to create a new border wrapper view, we need to remove this view, and re-add
 							// it.
