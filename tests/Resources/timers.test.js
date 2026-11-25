@@ -52,6 +52,13 @@ describe('Timers', function () {
 				setTimeout(1, 100);
 			}, TypeError);
 		});
+
+		it('ignores a callback return value with a reference cycle', finish => {
+			const cyclic = { name: 'cyclic' };
+			cyclic.self = cyclic;
+			setTimeout(() => cyclic, 1);
+			setTimeout(() => finish(), 20);
+		});
 	});
 
 	describe('#setInterval', function () {
@@ -123,6 +130,19 @@ describe('Timers', function () {
 			should.throws(() => {
 				setInterval(1, 100);
 			}, TypeError);
+		});
+
+		it('ignores a callback return value with a reference cycle', finish => {
+			const cyclic = { name: 'cyclic' };
+			cyclic.self = cyclic;
+			let count = 0;
+			const timerId = setInterval(() => {
+				if (++count === 2) {
+					clearInterval(timerId);
+					finish();
+				}
+				return cyclic;
+			}, 10);
 		});
 	});
 

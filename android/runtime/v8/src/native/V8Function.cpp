@@ -26,10 +26,11 @@ extern "C" {
 /*
  * Class:     org_appcelerator_kroll_runtime_v8_V8Function
  * Method:    nativeInvoke
- * Signature: (JJ[Ljava/lang/Object)V
+ * Signature: (JJ[Ljava/lang/Object;Z)Ljava/lang/Object;
  */
 JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nativeInvoke(
-	JNIEnv *env, jobject caller, jlong thisPointer, jlong functionPointer, jobjectArray functionArguments)
+	JNIEnv *env, jobject caller, jlong thisPointer, jlong functionPointer, jobjectArray functionArguments,
+	jboolean returnResult)
 {
 	HandleScope scope(V8Runtime::v8_isolate);
 	titanium::JNIScope jniScope(env);
@@ -72,6 +73,12 @@ JNIEXPORT jobject JNICALL Java_org_appcelerator_kroll_runtime_v8_V8Function_nati
 		V8Util::reportException(V8Runtime::v8_isolate, tryCatch);
 	} // if exception, object should be empty handle...so returns undefined
 	if (object.IsEmpty()) {
+		return JNIUtil::undefinedObject;
+	}
+
+	// Callers that discard the result (timers, asynchronous callbacks) must not pay for
+	// converting it, nor fail on a value that cannot be converted (such as a reference cycle).
+	if (!returnResult) {
 		return JNIUtil::undefinedObject;
 	}
 
