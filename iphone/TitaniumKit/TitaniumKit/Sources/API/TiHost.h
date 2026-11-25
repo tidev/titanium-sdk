@@ -32,6 +32,19 @@
  */
 + (NSString *)resourceRelativePath:(NSURL *)url;
 
+/**
+ * The directory that the hot reload client writes changed resources to, or nil when hot reload is off.
+ * Hot reload is on only when the app bundle contains "_hot_reload_.json". Only a build with the
+ * "--hot-reload" flag writes that file.
+ */
++ (NSString *)hotReloadResourcesDirectory;
+/**
+ * Get the file that the hot reload client wrote for a resource.
+ * @param relativePath path relative to resources dir, for example "/app.js"
+ * @return the path of the file, or nil when no such file exists or hot reload is off
+ */
++ (NSString *)hotReloadPathForResource:(NSString *)relativePath;
+
 - (TiStylesheet *)stylesheet;
 
 + (NSURL *)resourceBasedURL:(NSString *)fn baseURL:(NSString **)base;

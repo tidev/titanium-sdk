@@ -101,7 +101,9 @@ export class HotReloadServer {
 	/**
 	 * @param {object} options options
 	 * @param {string} options.projectDir path of the Titanium project
-	 * @param {string} options.platform name of the platform directory, for example "android"
+	 * @param {string} options.platform name of the platform for the Alloy compiler, for example "android"
+	 * @param {string[]} [options.platformDirs] platform directories in "Resources", the last one wins.
+	 *   The default is the platform name. iOS uses "iphone" and "ios".
 	 * @param {string} options.token secret that the build wrote into the app
 	 * @param {number} [options.port] TCP port
 	 * @param {string} [options.host] address to listen on
@@ -115,6 +117,7 @@ export class HotReloadServer {
 	constructor(options) {
 		this.projectDir = options.projectDir;
 		this.platform = options.platform;
+		this.platformDirs = options.platformDirs || [ options.platform ];
 		this.token = options.token;
 		this.port = options.port || DEFAULT_PORT;
 		this.host = options.host || '127.0.0.1';
@@ -201,13 +204,13 @@ export class HotReloadServer {
 
 	/**
 	 * Lists the files as the app sees them at runtime.
-	 * A file in the platform directory replaces the file of the same name in "Resources".
+	 * A file in a platform directory replaces the file of the same name in "Resources".
 	 * @returns {Map<string, {file: string, hash: string, size: number}>}
 	 */
 	scan() {
 		const result = new Map();
-		const platformEntries = [];
-		const walk = (dir, relative) => {
+		const platformEntries = this.platformDirs.map(() => []);
+		const walk = (dir, relative, platformIndex) => {
 			let entries;
 			try {
 				entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -221,30 +224,32 @@ export class HotReloadServer {
 				const file = path.join(dir, entry.name);
 				const rel = relative ? `${relative}/${entry.name}` : entry.name;
 				if (entry.isDirectory()) {
-					if (!relative && PLATFORM_DIRS.includes(entry.name)) {
-						if (entry.name === this.platform) {
-							walk(file, `${entry.name}`);
+					if (platformIndex < 0 && !relative && PLATFORM_DIRS.includes(entry.name)) {
+						const index = this.platformDirs.indexOf(entry.name);
+						if (index >= 0) {
+							walk(file, '', index);
 						}
 						continue;
 					}
-					walk(file, rel);
+					walk(file, rel, platformIndex);
 				} else if (entry.isFile()) {
 					const info = this.hashFile(file);
 					if (!info) {
 						continue;
 					}
-					const prefix = `${this.platform}/`;
-					if (rel.startsWith(prefix)) {
-						platformEntries.push([ rel.slice(prefix.length), info ]);
+					if (platformIndex >= 0) {
+						platformEntries[platformIndex].push([ rel, info ]);
 					} else {
 						result.set(rel, info);
 					}
 				}
 			}
 		};
-		walk(this.resourcesDir, '');
-		for (const [ key, info ] of platformEntries) {
-			result.set(key, info);
+		walk(this.resourcesDir, '', -1);
+		for (const entries of platformEntries) {
+			for (const [ key, info ] of entries) {
+				result.set(key, info);
+			}
 		}
 		return result;
 	}

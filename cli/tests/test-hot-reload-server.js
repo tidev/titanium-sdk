@@ -118,6 +118,18 @@ describe('hot reload server', function () {
 		expect(state.get('ui/win.js').file).to.equal(path.join(projectDir, 'Resources', 'android', 'ui', 'win.js'));
 	});
 
+	it('merges the iOS platform directories, "ios" wins over "iphone"', async function () {
+		await fs.outputFile(path.join(projectDir, 'Resources', 'iphone', 'ui', 'win.js'), 'iphone');
+		await fs.outputFile(path.join(projectDir, 'Resources', 'ios', 'ui', 'win.js'), 'ios');
+		await fs.outputFile(path.join(projectDir, 'Resources', 'iphone', 'ios', 'nested.js'), 'nested');
+		const iosServer = new HotReloadServer({
+			projectDir, platform: 'ios', platformDirs: [ 'iphone', 'ios' ], token: TOKEN, port: PORT + 1, logger: noopLogger
+		});
+		const state = iosServer.scan();
+		expect([ ...state.keys() ].sort()).to.deep.equal([ 'app.js', 'ios.js', 'ios/nested.js', 'ui/win.js' ]);
+		expect(state.get('ui/win.js').file).to.equal(path.join(projectDir, 'Resources', 'ios', 'ui', 'win.js'));
+	});
+
 	it('closes a connection with a wrong token', async function () {
 		const client = await open('wrong', '');
 		await waitFor(() => client.closed);
