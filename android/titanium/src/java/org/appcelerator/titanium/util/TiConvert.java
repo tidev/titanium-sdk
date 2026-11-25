@@ -6,6 +6,7 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -594,7 +595,37 @@ public class TiConvert
 	 */
 	public static String toString(Object value)
 	{
-		return value == null ? null : value.toString();
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Double || value instanceof Float) {
+			return numberToString((Number) value);
+		}
+		return value.toString();
+	}
+
+	/**
+	 * Converts a Double or Float into a String the same way JavaScript does for the common cases.
+	 * JavaScript numbers that do not fit into a 32-bit integer (such as Date.now()) arrive
+	 * in Java as a Double. Java's Double.toString() would print them in scientific notation
+	 * (for example "1.718097242E12") whereas JavaScript prints "1718097242000".
+	 * The digits come from the value's own toString() so that a Float such as 0.1f
+	 * yields "0.1" and not the widened double "0.10000000149011612".
+	 * @param value the Double or Float to convert.
+	 * @return a String in plain decimal notation.
+	 */
+	public static String numberToString(Number value)
+	{
+		double doubleValue = value.doubleValue();
+		if (Double.isNaN(doubleValue) || Double.isInfinite(doubleValue)) {
+			return Double.toString(doubleValue);
+		}
+		if (doubleValue == 0.0) {
+			return "0";
+		}
+		// Double.toString()/Float.toString() yield the shortest digits that round-trip for
+		// their own type. BigDecimal only rewrites the exponent form into plain notation.
+		return new BigDecimal(value.toString()).stripTrailingZeros().toPlainString();
 	}
 
 	/**

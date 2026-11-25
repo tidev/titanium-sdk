@@ -14,6 +14,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
+import android.view.ViewParent;
 import android.view.Window;
 import android.view.WindowInsets;
 
@@ -294,19 +295,38 @@ public class TiActivitySafeAreaMonitor
 	}
 
 	/**
-	 * Fetches the ActionBar height, but only if shown and "isActionBarAddedAsInset" is set true.
-	 * Intended to be added to the top inset height.
-	 * @return Returns the ActionBar pixel height if applicable.
+	 * Fetches the bottom edge of the ActionBar relative to the root decor view, but only if shown
+	 * and "isActionBarAddedAsInset" is set true. Intended to be used as the minimum top inset.
+	 * <p>
+	 * The ActionBar's position is used instead of adding its height to the system top inset,
+	 * because with edge-to-edge the ActionBar container can be drawn beneath the status bar and
+	 * include the status bar height itself. Adding both would count the status bar twice.
+	 * @return Returns the ActionBar's bottom pixel position if applicable. Returns 0 otherwise.
 	 */
-	private int getActionBarInsetHeight()
+	private int getActionBarBottom()
 	{
-		if (this.isActionBarAddedAsInset) {
-			ActionBar actionBar = this.activity.getSupportActionBar();
-			if ((actionBar != null) && actionBar.isShowing()) {
-				return actionBar.getHeight();
-			}
+		if (!this.isActionBarAddedAsInset) {
+			return 0;
 		}
-		return 0;
+		ActionBar actionBar = this.activity.getSupportActionBar();
+		if ((actionBar == null) || !actionBar.isShowing()) {
+			return 0;
+		}
+
+		View rootView = getDecorView();
+		View container = this.activity.findViewById(androidx.appcompat.R.id.action_bar_container);
+		if ((rootView == null) || (container == null)) {
+			// Unable to locate the ActionBar view. Assume it is placed below the status bar.
+			return this.insetTop + actionBar.getHeight();
+		}
+
+		int bottom = container.getBottom();
+		for (ViewParent parent = container.getParent(); (parent instanceof View) && (parent != rootView);
+			 parent = parent.getParent()) {
+			View view = (View) parent;
+			bottom += view.getTop() - view.getScrollY();
+		}
+		return bottom;
 	}
 
 	/**
@@ -449,8 +469,8 @@ public class TiActivitySafeAreaMonitor
 		int maxInsetRight = this.insetRight;
 		int maxInsetBottom = this.insetBottom;
 
-		// Add the ActionBar height, if enabled.
-		maxInsetTop += getActionBarInsetHeight();
+		// Exclude the ActionBar from the safe-area, if enabled.
+		maxInsetTop = Math.max(maxInsetTop, getActionBarBottom());
 
 		// Apply any custom insets, if provided.
 		// Ex: Used by Titanium TabGroups to provide top/bottom bar inset height.

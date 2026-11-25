@@ -7,6 +7,7 @@ import 'colors';
 import { appcd } from '../lib/webpack/appcd.js';
 import { WebpackService } from '../lib/webpack/service.js';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
 const require = createRequire(import.meta.url);
 
@@ -175,5 +176,5 @@ async function resolveAppcdClient(appcdPackagePath) {
 		]
 	});
 	// eslint-disable-next-line security/detect-non-literal-require
-	return (await import(appcdClientPath)).default;
+	return (await import(pathToFileURL(appcdClientPath))).default;
 }

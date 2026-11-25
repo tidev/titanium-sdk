@@ -1,7 +1,7 @@
 import { dirname, join } from 'node:path';
 import { existsSync } from 'node:fs';
 import { sdkManifest } from './sdk-manifest.js';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolvePlatform } from './resolve-platform.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -21,7 +21,7 @@ export async function validatePlatformOptions(logger, config, cli, commandName) 
 		return;
 	}
 
-	const command = await import(platformCommand);
+	const command = await import(pathToFileURL(platformCommand));
 	if (typeof command?.validate === 'function') {
 		await command.validate(logger, config, cli);
 	}

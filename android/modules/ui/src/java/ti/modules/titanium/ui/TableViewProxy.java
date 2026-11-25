@@ -30,7 +30,7 @@ import ti.modules.titanium.ui.widget.TiUITableView;
 import ti.modules.titanium.ui.widget.listview.RecyclerViewProxy;
 import ti.modules.titanium.ui.widget.tableview.TiTableView;
 
-import static android.util.TypedValue.COMPLEX_UNIT_DIP;
+import static android.util.TypedValue.COMPLEX_UNIT_PX;
 
 @Kroll.proxy(
 	creatableInModule = UIModule.class,
@@ -422,10 +422,11 @@ public class TableViewProxy extends RecyclerViewProxy
 		if (tableView != null) {
 			final KrollDict contentOffset = new KrollDict();
 
+			// Scroll offsets are in pixels. Convert to default units to match the `scroll` event.
 			final int x = (int) new TiDimension(tableView.getScrollOffsetX(),
-				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+				TiDimension.TYPE_WIDTH, COMPLEX_UNIT_PX).getAsDefault(tableView);
 			final int y = (int) new TiDimension(tableView.getScrollOffsetY(),
-				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_DIP).getAsDefault(tableView);
+				TiDimension.TYPE_HEIGHT, COMPLEX_UNIT_PX).getAsDefault(tableView);
 
 			contentOffset.put(TiC.PROPERTY_X, x);
 			contentOffset.put(TiC.PROPERTY_Y, y);

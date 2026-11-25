@@ -1,5 +1,5 @@
 /**
- * TiModuleSdk920
+ * TiModuleSdk1341
  *
  * Created by Axway
  * Copyright TiDev, Inc. 04/07/2022-Present
@@ -7,7 +7,7 @@
 
 #import "TiModule.h"
 
-@interface TiModulesdk920Module : TiModule {
+@interface TiModulesdk1341Module : TiModule {
   @private
   BOOL _wasModuleInitialized;
   BOOL _boolValue;

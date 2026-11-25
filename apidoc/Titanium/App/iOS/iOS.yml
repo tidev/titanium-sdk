@@ -906,6 +906,54 @@ properties:
     osver: {ios: {min: "13.0"}}
     since: "14.0.0"
 
+  - name: HINGE_STATUS_UNKNOWN
+    summary: The status of the hinge is unknown.
+    description: |
+        Reported if the hinge status can not be determined, for example if the app is not in a hierarchy that provides hinge updates.
+
+        Use with the `status` of the <Titanium.App.iOS.hingechange> event.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
+  - name: HINGE_STATUS_CLOSED
+    summary: The hinge is closed.
+    description: |
+        The device is folded shut.
+
+        Use with the `status` of the <Titanium.App.iOS.hingechange> event.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
+  - name: HINGE_STATUS_PARTIALLY_OPEN
+    summary: The hinge is partially open.
+    description: |
+        The device is partially folded. Content can use the fold for layout, for example by dividing it into two areas.
+
+        Use with the `status` of the <Titanium.App.iOS.hingechange> event.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
+  - name: HINGE_STATUS_FULLY_OPEN
+    summary: The hinge is fully open.
+    description: |
+        The hinge is open as far as the device allows.
+
+        Use with the `status` of the <Titanium.App.iOS.hingechange> event.
+    type: Number
+    permission: read-only
+    platforms: [iphone, ipad]
+    osver: { ios: { min: "27.1" } }
+    since: "14.0.0"
+
 events:
   - name: notification
     summary: Fired when a local notification is received by the application.
@@ -1469,6 +1517,29 @@ events:
     summary: Fired when the trait collection of the device changes, e.g. the user interface style.
     platforms: [iphone, ipad, macos]
     since: "8.2.0"
+
+  - name: hingechange
+    summary: Fired when the hinge of a foldable device (iPhone Duo) changes its status or angle.
+    description: |
+        The event is fired continuously while the user folds or unfolds the device. Use it for effects, such as
+        adapting an animation to the fold, and not as an input for your layout. Lay out your content with the size of the window instead.
+
+        After the first listener is added, the event is fired once with the current state of the hinge.
+
+        Hinge events are only reported on iPhone Duo with iOS 27.1 or later and if the app was built with
+        the iOS 27.1 SDK or later. The event is never fired on other devices.
+    properties:
+      - name: status
+        summary: The status of the hinge.
+        type: Number
+        constants: Titanium.App.iOS.HINGE_STATUS_*
+      - name: angle
+        summary: |
+            The current angle of the hinge in degrees. `0` if the device is closed and `180` if the device is
+            laid out flat. `0` if the status is <Titanium.App.iOS.HINGE_STATUS_UNKNOWN>.
+        type: Number
+    platforms: [iphone, ipad]
+    since: "14.0.0"
 
   - name: screenshotcaptured
     summary: Fired after the user takes a screenshot, e.g. by pressing both the home and lock screen buttons.

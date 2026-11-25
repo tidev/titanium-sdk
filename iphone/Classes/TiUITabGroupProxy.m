@@ -321,6 +321,19 @@ static NSArray *tabGroupKeySequence;
   return [super homeIndicatorAutoHide];
 }
 
+- (NSInteger)preferredVerticalBarBehavior
+{
+  UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
+  NSUInteger blessedController = [tabController selectedIndex];
+  if (blessedController != NSNotFound) {
+    id<TiWindowProtocol> selectedTab = [tabs objectAtIndex:blessedController];
+    if ([selectedTab respondsToSelector:@selector(preferredVerticalBarBehavior)]) {
+      return [selectedTab preferredVerticalBarBehavior];
+    }
+  }
+  return [super preferredVerticalBarBehavior];
+}
+
 - (BOOL)hidesStatusBar
 {
   UITabBarController *tabController = [(TiUITabGroup *)[self view] tabController];
