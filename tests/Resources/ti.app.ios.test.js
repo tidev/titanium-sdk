@@ -260,6 +260,25 @@ describe.ios('Titanium.App.iOS', function () {
 		should(Ti.App.iOS.UTTYPE_XML).be.a.String();
 	});
 
+	describe('hingechange', () => {
+		it('constants', () => {
+			// -1 if the iOS version or the SDK used to build the app does not support hinges (iOS 27.1+)
+			should(Ti.App.iOS.HINGE_STATUS_UNKNOWN).be.a.Number();
+			should(Ti.App.iOS.HINGE_STATUS_CLOSED).be.a.Number();
+			should(Ti.App.iOS.HINGE_STATUS_PARTIALLY_OPEN).be.a.Number();
+			should(Ti.App.iOS.HINGE_STATUS_FULLY_OPEN).be.a.Number();
+		});
+
+		it('listener can be added and removed', () => {
+			const listener = () => {};
+			Ti.App.iOS.addEventListener('hingechange', listener);
+			Ti.App.iOS.removeEventListener('hingechange', listener);
+			// and again, to make sure that observing can be restarted
+			Ti.App.iOS.addEventListener('hingechange', listener);
+			Ti.App.iOS.removeEventListener('hingechange', listener);
+		});
+	});
+
 	it.ios('.userInterfaceStyle', () => {
 		if (OS_VERSION_MAJOR >= 13) {
 			// We only check for the type, since the value (light, dark, unspecified)

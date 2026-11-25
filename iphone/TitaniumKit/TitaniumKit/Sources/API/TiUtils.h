@@ -800,6 +800,8 @@ typedef enum {
 
 + (float)volumeFromObject:(id)theObject default:(float)def;
 
++ (NSUInteger)extendedEdgesFromProp:(id)prop;
+
 + (void)configureController:(UIViewController *)controller withObject:(id)object;
 
 + (CGRect)frameForController:(UIViewController *)theController;

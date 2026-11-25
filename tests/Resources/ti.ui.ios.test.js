@@ -47,6 +47,27 @@ describe.ios('Titanium.UI.iOS', function () {
 	// TODO Add tests for createTransitionAnimation
 	it('#createTransitionAnimation(Object)');
 
+	it('#constants (vertical bars)', function () {
+		// Used in Button.visibilityPriority (iOS 27.0+, -1 if unsupported)
+		should(Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_LOW).be.a.Number();
+		should(Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_STANDARD).be.a.Number();
+		should(Ti.UI.iOS.BAR_BUTTON_VISIBILITY_PRIORITY_HIGH).be.a.Number();
+
+		// Used in Button.axisBehavior (iOS 27.1+, -1 if unsupported)
+		should(Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_AUTOMATIC).be.a.Number();
+		should(Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_HORIZONTAL_ONLY).be.a.Number();
+		should(Ti.UI.iOS.BAR_BUTTON_AXIS_BEHAVIOR_VERTICAL_PREFERRED).be.a.Number();
+
+		// Used in Window.verticalBarBehavior (iOS 27.1+, -1 if unsupported)
+		should(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_AUTOMATIC).be.a.Number();
+		should(Ti.UI.iOS.VERTICAL_BAR_BEHAVIOR_DISABLED).be.a.Number();
+
+		// Used in Window.verticalBarCompressionBehavior (iOS 27.1+, -1 if unsupported)
+		should(Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_AUTOMATIC).be.a.Number();
+		should(Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_BAR_ITEMS).be.a.Number();
+		should(Ti.UI.iOS.VERTICAL_BAR_COMPRESSION_BEHAVIOR_PREFERS_TAB_BAR).be.a.Number();
+	});
+
 	it('#constants', function () {
 		// Used in BlurView.effect
 		should(Ti.UI.iOS.BLUR_EFFECT_STYLE_DARK).be.a.Number();

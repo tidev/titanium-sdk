@@ -1,16 +1,16 @@
 /**
- * TiModuleSdk920
+ * TiModuleSdk1341
  *
  * Created by Axway
  * Copyright TiDev, Inc. 04/07/2022-Present
  */
 
-#import "TiModulesdk920Module.h"
+#import "TiModulesdk1341Module.h"
 #import "TiBase.h"
 #import "TiHost.h"
 #import "TiUtils.h"
 
-@implementation TiModulesdk920Module
+@implementation TiModulesdk1341Module
 
 #pragma mark Internal
 
@@ -21,7 +21,7 @@
 
 - (NSString *)moduleId
 {
-  return @"ti.modulesdk920";
+  return @"ti.modulesdk1341";
 }
 
 #pragma mark Lifecycle
