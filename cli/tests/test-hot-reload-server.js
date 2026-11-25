@@ -83,7 +83,14 @@ describe('hot reload server', function () {
 		await fs.outputFile(path.join(projectDir, 'Resources', 'ui', 'win.js'), 'generic');
 		await fs.outputFile(path.join(projectDir, 'Resources', 'android', 'ui', 'win.js'), 'android');
 		await fs.outputFile(path.join(projectDir, 'Resources', 'iphone', 'ios.js'), 'ios');
-		server = new HotReloadServer({ projectDir, platform: 'android', token: TOKEN, port: PORT, logger: noopLogger });
+		server = new HotReloadServer({
+			projectDir,
+			platform: 'android',
+			token: TOKEN,
+			port: PORT,
+			logger: noopLogger,
+			baseIndex: { 'Resources/app.js': 1, 'Resources/ui/win.js': 1, 'Resources/ti.main.js': 1 }
+		});
 		await server.start();
 	});
 
@@ -150,6 +157,64 @@ describe('hot reload server', function () {
 		await waitFor(() => stale.patches.length === 1);
 		expect(stale.patches[0]).to.include({ action: 'restart', reset: true });
 		expect(stale.patches[0].contents).to.deep.equal({ 'app.js': 'two' });
+	});
+
+	it('sends the transformed content of a changed file', async function () {
+		let failed = false;
+		server.transform = (runtimePath, file, content) => {
+			if (content.toString() === 'broken') {
+				failed = true;
+				throw new Error('syntax error');
+			}
+			return Buffer.from(`${runtimePath}:${path.basename(file)}:${content}`);
+		};
+		const client = await open(TOKEN, '');
+		await waitFor(() => client.patches.length === 1);
+
+		// The server sends no patch for a file with an error, and sends the file after the fix.
+		const before = server.manifest;
+		await fs.writeFile(path.join(projectDir, 'Resources', 'app.js'), 'broken');
+		await waitFor(() => failed);
+		expect(client.patches).to.have.length(1);
+		expect(server.manifest).to.equal(before);
+
+		await fs.writeFile(path.join(projectDir, 'Resources', 'app.js'), 'two');
+		await waitFor(() => client.patches.length === 2);
+		expect(client.patches[1].contents).to.deep.equal({ 'app.js': 'app.js:app.js:two' });
+	});
+
+	it('updates the require index for a new file and a removed file', async function () {
+		const client = await open(TOKEN, '');
+		await waitFor(() => client.patches.length === 1);
+		expect(client.patches[0]).to.not.have.property('index');
+
+		// A changed file needs no new index.
+		await fs.writeFile(path.join(projectDir, 'Resources', 'app.js'), 'two');
+		await waitFor(() => client.patches.length === 2);
+		expect(client.patches[1]).to.not.have.property('index');
+
+		await fs.outputFile(path.join(projectDir, 'Resources', 'lib', 'new.js'), 'new');
+		await fs.outputFile(path.join(projectDir, 'Resources', 'lib', 'logo.png'), 'png');
+		await waitFor(() => client.patches.length === 3);
+		expect(JSON.parse(client.patches[2].index)).to.deep.equal({
+			'Resources/app.js': 1, 'Resources/ui/win.js': 1, 'Resources/ti.main.js': 1, 'Resources/lib/new.js': 1
+		});
+
+		await fs.remove(path.join(projectDir, 'Resources', 'app.js'));
+		await waitFor(() => client.patches.length === 4);
+		expect(JSON.parse(client.patches[3].index)).to.deep.equal({
+			'Resources/ui/win.js': 1, 'Resources/ti.main.js': 1, 'Resources/lib/new.js': 1
+		});
+
+		// An app that connects later gets the same index with the reset.
+		const late = await open(TOKEN, 'unknown');
+		await waitFor(() => late.patches.length === 1);
+		expect(late.patches[0].index).to.equal(client.patches[3].index);
+
+		// The index of the build is correct again, so the app deletes its override.
+		await fs.remove(path.join(projectDir, 'Resources', 'lib'));
+		await fs.outputFile(path.join(projectDir, 'Resources', 'app.js'), 'one');
+		await waitFor(() => client.patches.length >= 5 && client.patches[client.patches.length - 1].index === null);
 	});
 
 	it('reports a removed file', async function () {

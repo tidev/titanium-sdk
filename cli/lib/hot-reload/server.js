@@ -12,7 +12,9 @@
  * Messages:
  *   app -> cli  { t: 'hello', v, token, app, platform, manifest }
  *   cli -> app  { t: 'reject', reason }   The app must not connect again.
- *   cli -> app  { t: 'patch', id, action, reset, manifest, files: [ { path, hash, size } ], removed, size }
+ *   cli -> app  { t: 'patch', id, action, reset, manifest, files: [ { path, hash, size } ], removed, index, size }
+ *               `index` is the new content of the require index. null deletes the override of the index.
+ *               The app keeps its index when the field is absent.
  *   app -> cli  { t: 'ack', id, ok, error }
  *   app -> cli  { t: 'log', level, msg }
  */
@@ -31,6 +33,9 @@ const PLATFORM_DIRS = [ 'android', 'iphone', 'ipad', 'ios', 'windows', 'mobilewe
 
 // Alloy files that change the output of every controller.
 const ALLOY_FULL_COMPILE_FILES = [ 'app/styles/app.tss', 'app/config.json', 'app/alloy.js' ];
+
+// File types that the require index of the app lists.
+const INDEX_FILE_REGEXP = /\.(js|cjs|json)$/i;
 
 // Changes that arrive within this window go to the app as one patch.
 const DEBOUNCE_MS = 150;
@@ -101,6 +106,11 @@ export class HotReloadServer {
 	 * @param {number} [options.port] TCP port
 	 * @param {string} [options.host] address to listen on
 	 * @param {object} [options.logger] CLI logger
+	 * @param {object} [options.baseIndex] content of the "index.json" file of the build. The require()
+	 * function of the app finds a file only if this index lists it. The server sends an updated index
+	 * when a file is new or removed.
+	 * @param {Function} [options.transform] `(runtimePath, file, content) => Buffer`. Converts the source
+	 * of a changed file to the form that the build puts into the app. It throws when the source has an error.
 	 */
 	constructor(options) {
 		this.projectDir = options.projectDir;
@@ -109,6 +119,9 @@ export class HotReloadServer {
 		this.port = options.port || DEFAULT_PORT;
 		this.host = options.host || '127.0.0.1';
 		this.logger = options.logger || console;
+		this.transform = options.transform || null;
+		this.baseIndex = options.baseIndex || null;
+		this.sentIndex = null; // the index override that the connected apps hold, null for none
 		this.resourcesDir = path.join(this.projectDir, 'Resources');
 		this.alloyDir = path.join(this.projectDir, 'app');
 		this.isAlloy = fs.existsSync(path.join(this.alloyDir, 'controllers'));
@@ -260,6 +273,32 @@ export class HotReloadServer {
 		return hash.digest('hex');
 	}
 
+	/**
+	 * Builds the require index for a state: the index of the build, plus the new files, minus the removed files.
+	 * @param {Map<string, object>} state runtime path -> file info
+	 * @returns {string|null} the JSON content, or null when the index of the build is correct
+	 */
+	computeIndex(state) {
+		if (!this.baseIndex) {
+			return null;
+		}
+		const index = Object.assign({}, this.baseIndex);
+		let changed = false;
+		for (const key of state.keys()) {
+			if (!this.baseline.has(key) && INDEX_FILE_REGEXP.test(key) && !index[`Resources/${key}`]) {
+				index[`Resources/${key}`] = 1;
+				changed = true;
+			}
+		}
+		for (const key of this.baseline.keys()) {
+			if (!state.has(key) && index[`Resources/${key}`]) {
+				delete index[`Resources/${key}`];
+				changed = true;
+			}
+		}
+		return changed ? JSON.stringify(index) : null;
+	}
+
 	scheduleFlush() {
 		clearTimeout(this.flushTimer);
 		this.flushTimer = setTimeout(() => this.flush(), DEBOUNCE_MS);
@@ -295,10 +334,15 @@ export class HotReloadServer {
 		}
 
 		this.logger.info(`[HotReload] Changed: ${[ ...changed, ...removed ].join(', ')}`);
-		const frame = this.buildPatch(changed, removed, false, 'restart');
+		const index = this.computeIndex(next);
+		const frame = this.buildPatch(changed, removed, false, 'restart', index !== this.sentIndex ? index : undefined);
 		if (!frame) {
+			// Keep the last state that the apps hold, so that the next change sends these files again.
+			this.current = previous;
+			this.manifest = this.computeManifest(previous);
 			return;
 		}
+		this.sentIndex = index;
 		for (const client of this.clients) {
 			if (client.ready) {
 				client.socket.write(frame);
@@ -311,9 +355,10 @@ export class HotReloadServer {
 	 * @param {string[]} removed runtime paths to delete
 	 * @param {boolean} reset true when the app must delete its override directory first
 	 * @param {string} action what the app does after it applied the patch
-	 * @returns {Buffer|null} the frame, or null when a file cannot be read
+	 * @param {string|null} [index] new require index, null to delete the override, undefined for no change
+	 * @returns {Buffer|null} the frame, or null when a file cannot be read or transformed
 	 */
-	buildPatch(changed, removed, reset, action) {
+	buildPatch(changed, removed, reset, action, index) {
 		const files = [];
 		const bodies = [];
 		for (const key of changed) {
@@ -325,6 +370,15 @@ export class HotReloadServer {
 				this.logger.error(`[HotReload] Cannot read ${entry.file}: ${err.message}`);
 				return null;
 			}
+			if (this.transform) {
+				try {
+					content = Buffer.from(this.transform(key, entry.file, content));
+				} catch (err) {
+					// A syntax error in the source. The app keeps the last version that works.
+					this.logger.error(`[HotReload] Cannot process ${entry.file}: ${err.codeFrame || err.message}`);
+					return null;
+				}
+			}
 			files.push({ path: key, hash: entry.hash, size: content.length });
 			bodies.push(content);
 		}
@@ -335,7 +389,8 @@ export class HotReloadServer {
 			reset,
 			manifest: this.manifest,
 			files,
-			removed
+			removed,
+			index
 		}, Buffer.concat(bodies));
 	}
 
@@ -422,7 +477,8 @@ export class HotReloadServer {
 		}
 		// An app without overrides that matches the build needs no restart.
 		const action = (!manifest && !changed.length && !removed.length) ? 'none' : 'restart';
-		const frame = this.buildPatch(changed, removed, true, action);
+		// The reset deletes the index override of the app, so send the index only when one is necessary.
+		const frame = this.buildPatch(changed, removed, true, action, this.computeIndex(this.current) || undefined);
 		frame && client.socket.write(frame);
 	}
 

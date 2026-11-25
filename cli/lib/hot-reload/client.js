@@ -25,6 +25,8 @@ const config = require('/_hot_reload_.json');
 const rootDir = Ti.Filesystem.getFile(Ti.Filesystem.applicationCacheDirectory, 'hot-reload');
 const filesPath = Ti.Filesystem.getFile(rootDir.nativePath, 'files', 'Resources').nativePath;
 const manifestFile = Ti.Filesystem.getFile(rootDir.nativePath, 'manifest');
+// Replaces the "index.json" file of the app package, which lists the files that require() can find.
+const indexFile = Ti.Filesystem.getFile(rootDir.nativePath, 'files', 'index.json');
 
 let socket = null;
 let pending = Ti.createBuffer({ length: 0 });
@@ -118,6 +120,20 @@ function applyPatch(patch, data, offset) {
 		}
 	}
 
+	// A new file needs an entry in the require index. A removed file must lose its entry,
+	// because the app package still holds the file.
+	if (patch.index !== undefined) {
+		if (indexFile.exists()) {
+			indexFile.deleteFile();
+		}
+		if (typeof patch.index === 'string') {
+			ensureParentDirectory(indexFile);
+			if (!indexFile.write(patch.index)) {
+				throw new Error('Cannot write the require index');
+			}
+		}
+	}
+
 	ensureParentDirectory(manifestFile);
 	manifestFile.write(patch.manifest);
 }
@@ -125,7 +141,7 @@ function applyPatch(patch, data, offset) {
 function onPatch(patch, data, offset) {
 	const count = patch.files.length + patch.removed.length;
 	try {
-		if (count > 0 || patch.reset) {
+		if (count > 0 || patch.reset || patch.index !== undefined) {
 			applyPatch(patch, data, offset);
 		}
 	} catch (err) {

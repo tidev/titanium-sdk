@@ -2779,6 +2779,8 @@ class AndroidBuilder extends Builder {
 			}
 		});
 		await task.run();
+		// The hot reload server transforms a changed file with the same options as this build.
+		this.hotReloadAnalyzeOptions = task.defaultAnalyzeOptions;
 		if (this.useWebpack) {
 			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
@@ -2870,6 +2872,10 @@ class AndroidBuilder extends Builder {
 	async copyResources() {
 		// First walk all the input dirs and gather/categorize the files into buckets
 		const gatheredResults = await this.gatherResources();
+		// JS files that the build copies without a transform, for example the scripts of an HTML file.
+		this.hotReloadRawJsFiles = new Set([ ...gatheredResults.resourcesToCopy.keys() ]
+			.filter(file => /\.c?js$/i.test(file))
+			.map(file => file.replace(/\\/g, '/')));
 		this.jsFilesToEncrypt = []; // set listing of files to encrypt to empty array (may be modified by tasks below)
 
 		// ok we now have them organized into broad categories
