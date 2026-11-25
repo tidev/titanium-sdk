@@ -276,6 +276,25 @@
 }
 #endif
 
+- (UIRectEdge)edgesForExtendedLayout
+{
+  UIRectEdge edges = [super edgesForExtendedLayout];
+#if IS_SDK_IOS_27_1
+  // With the vertical tab bar, UIKit insets a window that does not extend under the bottom bars
+  // by the full height of the tab bar, which leaves the window without any height. The vertical
+  // tab bar is at the side of the window, so let the window extend under the bottom edge instead.
+  if (@available(iOS 27.1, *)) {
+    UIViewController *rootController = self.viewIfLoaded.window.rootViewController;
+    if (self.tabBarController != nil
+        && self.traitCollection.verticalBarEdge != UIVerticalBarEdgeUnspecified
+        && rootController.preferredVerticalBarBehavior != UIVerticalBarBehaviorDisabled) {
+      edges |= UIRectEdgeBottom;
+    }
+  }
+#endif
+  return edges;
+}
+
 #pragma mark - Status Bar Appearance
 
 - (BOOL)prefersStatusBarHidden

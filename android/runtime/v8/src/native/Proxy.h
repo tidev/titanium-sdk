@@ -25,6 +25,7 @@ public:
 	static v8::Persistent<v8::String> javaClassSymbol, constructorSymbol;
 	static v8::Persistent<v8::String> inheritSymbol, propertiesSymbol;
 	static v8::Persistent<v8::String> lengthSymbol, sourceUrlSymbol;
+	static v8::Persistent<v8::String> getPropertySymbol, setPropertySymbol, nativeSymbol;
 
 	Proxy();
 

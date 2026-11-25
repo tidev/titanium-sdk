@@ -18,6 +18,17 @@
 #define ANIMATION_DEBUG 0
 #endif
 
+static CGAffineTransform TransformWithoutRotation(CGAffineTransform transform, CGFloat angle)
+{
+  CGAffineTransform result = CGAffineTransformConcat(transform, CGAffineTransformMakeRotation(-angle));
+  result.tx = transform.tx;
+  result.ty = transform.ty;
+  return result;
+}
+
+@interface TiAnimation () <CAAnimationDelegate>
+@end
+
 @implementation TiAnimation
 
 @synthesize delegate;
@@ -286,7 +297,7 @@
 
   // Update the modified properties on the view!
   if (animatedViewProxy != nil) {
-    if (!isReverse && ![self isTransitionAnimation] && ![autoreverse boolValue] && properties != nil) {
+    if ([finished boolValue] && !isReverse && ![self isTransitionAnimation] && ![autoreverse boolValue] && properties != nil) {
       [animatedViewProxy applyProperties:properties];
     }
     // TODO: What about center?
@@ -313,6 +324,24 @@
 
   RELEASE_TO_NIL(animatedViewProxy);
   RELEASE_TO_NIL_AUTORELEASE(animatedView);
+}
+
+- (void)completeAnimation:(BOOL)finished
+{
+  if ((reverseAnimation != nil) && ![self isReverse] && finished) {
+    [reverseAnimation animate:animatedView];
+    RELEASE_TO_NIL(reverseAnimation);
+  } else {
+    if (![self isReverse]) {
+      RELEASE_TO_NIL(reverseAnimation);
+    }
+    [self animationCompleted:[self description] finished:@(finished) context:self];
+  }
+}
+
+- (void)animationDidStop:(CAAnimation *)animation finished:(BOOL)finished
+{
+  [self completeAnimation:finished];
 }
 
 - (BOOL)isTransitionAnimation
@@ -409,6 +438,18 @@
     if (!resetState) {
       options = (options | UIViewAnimationOptionBeginFromCurrentState);
     }
+    // UIKit does not replace explicitly keyed animations. Continue from the visible
+    // transform when a new transform animation interrupts a full rotation.
+    if ((transform != nil || rotation != nil) && [view_.layer animationForKey:@"TiRotationAnimation"] != nil) {
+      CALayer *presentationLayer = view_.layer.presentationLayer;
+      CGAffineTransform currentTransform = presentationLayer.affineTransform;
+      [view_.layer removeAnimationForKey:@"TiRotationAnimation"];
+      if (!resetState && presentationLayer != nil) {
+        [UIView performWithoutAnimation:^{
+          [view_ setTransform_:[[[Ti2DMatrix alloc] initWithMatrix:currentTransform] autorelease]];
+        }];
+      }
+    }
     [view_ animationStarted];
     NSTimeInterval animationDuration = [self animationDuration];
 
@@ -416,6 +457,8 @@
     // Autoreverse must always be combined with repeat: see docs
     options |= ([autoreverse boolValue] ? (UIViewAnimationOptionAutoreverse | UIViewAnimationOptionRepeat) : 0);
     options |= (([repeat intValue] > 0) ? UIViewAnimationOptionRepeat : 0);
+
+    BOOL animatesRotationPath = animationDuration > 0 && [transform isKindOfClass:[Ti2DMatrix class]] && [(Ti2DMatrix *)transform hasRotationAnimationValues];
 
     void (^animation)(void) = ^{
       CGFloat repeatCount = [repeat intValue];
@@ -501,24 +544,69 @@
           if (transformMatrix == nil) {
             transformMatrix = [[[Ti2DMatrix alloc] init] autorelease];
           }
+          if (animatesRotationPath && ![self isReverse]) {
+            Ti2DMatrix *rotationMatrix = (Ti2DMatrix *)transform;
+            CGAffineTransform initial = [transformMatrix isKindOfClass:[Ti2DMatrix class]] ? [(Ti2DMatrix *)transformMatrix matrix] : view_.transform;
+            CGFloat initialAngle = [[view_.layer valueForKeyPath:@"transform.rotation.z"] doubleValue];
+            Ti2DMatrix *initialMatrix = [[[Ti2DMatrix alloc] initWithMatrix:TransformWithoutRotation(initial, initialAngle)] autorelease];
+            transformMatrix = [initialMatrix rotate:@[ @(rotationMatrix.rotationAnimationToDegrees), @(rotationMatrix.rotationAnimationFromDegrees) ]];
+          }
           [reverseAnimation setTransform:transformMatrix];
         }
-        if ([animatedTransform isKindOfClass:[Ti2DMatrix class]]) {
-          // Special handling if matrix does an exact 180 or -180 degree rotation.
-          // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
-          // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
-          const float ROTATION_EPSILON = 0.01f;
-          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)animatedTransform;
-          float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
-          if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
-            NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
-            animatedTransform = [transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]];
-            if (transform != nil) {
-              [self setTransform:animatedTransform];
+        if (animatesRotationPath) {
+          // Animate the unrotated transform and the full angle separately. This
+          // preserves scale/translation (including nonuniform and reflected matrices).
+          Ti2DMatrix *transformMatrix = (Ti2DMatrix *)transform;
+          CGFloat fromDegrees = transformMatrix.rotationAnimationFromDegrees;
+          CGFloat toDegrees = transformMatrix.rotationAnimationToDegrees;
+          CGFloat initialAngle = [self isReverse] ? degreesToRadians(fromDegrees) : [[view_.layer valueForKeyPath:@"transform.rotation.z"] doubleValue];
+          CGAffineTransform initial = [self isReverse] ? CGAffineTransformRotate(view_.transform, -initialAngle) : TransformWithoutRotation(view_.transform, initialAngle);
+          [UIView performWithoutAnimation:^{
+            [(TiUIView *)view_ setTransform_:transform];
+          }];
+          CGAffineTransform target = CGAffineTransformRotate(view_.transform, -degreesToRadians(toDegrees));
+
+          CABasicAnimation *baseAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+          baseAnimation.fromValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(initial)];
+          baseAnimation.toValue = [NSValue valueWithCATransform3D:CATransform3DMakeAffineTransform(target)];
+          baseAnimation.duration = animationDuration;
+          CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+          rotationAnimation.valueFunction = [CAValueFunction functionWithName:kCAValueFunctionRotateZ];
+          rotationAnimation.fromValue = @(degreesToRadians(fromDegrees));
+          rotationAnimation.toValue = @(degreesToRadians(toDegrees));
+          rotationAnimation.additive = YES;
+          rotationAnimation.duration = animationDuration;
+
+          CAAnimationGroup *rotationGroup = [CAAnimationGroup animation];
+          rotationGroup.animations = @[ baseAnimation, rotationAnimation ];
+          rotationGroup.duration = animationDuration;
+          rotationGroup.timingFunction = [self timingFunction];
+          rotationGroup.beginTime = [view_.layer convertTime:CACurrentMediaTime() fromLayer:nil] + ([delay doubleValue] / 1000);
+          rotationGroup.fillMode = kCAFillModeBackwards;
+          rotationGroup.autoreverses = ((options & UIViewAnimationOptionAutoreverse) != 0);
+          if ((options & UIViewAnimationOptionRepeat) != 0) {
+            rotationGroup.repeatCount = (repeatCount != 0.0) ? repeatCount : 1.0;
+          }
+          rotationGroup.delegate = self;
+          [view_.layer addAnimation:rotationGroup forKey:@"TiRotationAnimation"];
+        } else {
+          if ([animatedTransform isKindOfClass:[Ti2DMatrix class]]) {
+            // Special handling if matrix does an exact 180 or -180 degree rotation.
+            // Forward animation and final reverse animation will never rotate counter-clockwise in this case.
+            // Work-around is to slightly offset the rotation. (This won't affect rotation back to 0 degrees.)
+            const float ROTATION_EPSILON = 0.01f;
+            Ti2DMatrix *transformMatrix = (Ti2DMatrix *)animatedTransform;
+            float degrees = radiansToDegrees(atan2f([[transformMatrix b] floatValue], [[transformMatrix a] floatValue]));
+            if ((fabsf(degrees) + ROTATION_EPSILON) >= 180.0f) {
+              NSNumber *degreeOffset = [NSNumber numberWithFloat:((degrees > 0) ? -ROTATION_EPSILON : ROTATION_EPSILON)];
+              animatedTransform = [transformMatrix rotate:[NSArray arrayWithObject:degreeOffset]];
+              if (transform != nil) {
+                [self setTransform:animatedTransform];
+              }
             }
           }
+          [(TiUIView *)view_ setTransform_:animatedTransform];
         }
-        [(TiUIView *)view_ setTransform_:animatedTransform];
       }
 
       if ([view_ isKindOfClass:[TiUIView class]]) { // TODO: Shouldn't we be updating the proxy's properties to reflect this?
@@ -656,16 +744,13 @@
       }
     };
 
-    void (^complete)(BOOL) = ^(BOOL finished) {
-      if ((reverseAnimation != nil) && ![self isReverse] && finished) {
-        [reverseAnimation animate:args];
-        RELEASE_TO_NIL(reverseAnimation);
-      } else {
-        [self animationCompleted:[self description] finished:[NSNumber numberWithBool:finished] context:self];
-      }
+    // An unchanged affine transform (e.g. 0 -> 360) can complete immediately in
+    // UIKit. In that case the explicit rotation's delegate owns completion.
+    void (^complete)(BOOL) = animatesRotationPath ? nil : ^(BOOL finished) {
+      [self completeAnimation:finished];
     };
 
-    if (dampingRatio != nil || springVelocity != nil) {
+    if (!animatesRotationPath && (dampingRatio != nil || springVelocity != nil)) {
 #ifdef __IPHONE_17_0
       if ([TiUtils isIOSVersionOrGreater:@"17.0"] && bounce != nil) {
         [UIView animateWithSpringDuration:animationDuration

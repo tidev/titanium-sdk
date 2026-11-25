@@ -650,6 +650,19 @@ static JSValueRef StringFormatDecimalCallback(JSContextRef jsContext, JSObjectRe
       appJsKrollContext = nil;
       appJsContextRef = NULL;
     }
+    // The global "Kroll" object points at this context without retaining it (see main). Autoreleased JSContext and
+    // JSValue wrappers can keep the VM alive beyond this release, in which case its finalizers only run when the
+    // wrappers die. Detach the context first so KrollFinalizer does not touch a freed KrollContext then.
+    JSObjectRef globalRef = JSContextGetGlobalObject(context);
+    JSStringRef krollName = JSStringCreateWithUTF8CString("Kroll");
+    JSValueRef krollRef = JSObjectGetProperty(context, globalRef, krollName, NULL);
+    JSStringRelease(krollName);
+    if (krollRef != NULL && JSValueIsObject(context, krollRef)) {
+      JSObjectRef krollObj = JSValueToObject(context, krollRef, NULL);
+      if (krollObj != NULL && JSObjectGetPrivate(krollObj) == self) {
+        JSObjectSetPrivate(krollObj, NULL);
+      }
+    }
     JSGlobalContextRelease(context);
     context = NULL;
   }

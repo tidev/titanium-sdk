@@ -38,7 +38,7 @@ import org.appcelerator.titanium.util.TiExifOrientation;
 import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.util.TiColorHelper;
 import ti.modules.titanium.media.MediaModule;
-import com.google.android.material.R;
+import androidx.appcompat.R;
 
 public class TiImageView extends ViewGroup
 {
