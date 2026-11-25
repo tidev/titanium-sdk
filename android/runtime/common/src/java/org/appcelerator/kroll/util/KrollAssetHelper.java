@@ -7,6 +7,7 @@
 package org.appcelerator.kroll.util;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +30,8 @@ import android.util.Log;
 public class KrollAssetHelper
 {
 	private static final String TAG = "TiAssetHelper";
+	private static final String HOT_RELOAD_CONFIG_PATH = "Resources/_hot_reload_.json";
+	private static File hotReloadDir;
 	private static AssetManager assetManager;
 	private static String packageName;
 	private static String cacheDir;
@@ -108,6 +111,58 @@ public class KrollAssetHelper
 			}
 			Log.e(TAG, "Failed to fetch APK asset entries. Reason: " + message);
 		}
+
+		initHotReload(context);
+	}
+
+	/**
+	 * Turns on the hot reload override directory if the build put its configuration file into the APK.
+	 * The hot reload client writes changed files to this directory, and they replace the APK assets.
+	 */
+	private static void initHotReload(Context context)
+	{
+		KrollAssetHelper.hotReloadDir = null;
+		if (!KrollAssetHelper.apkAssetFilePathSet.contains(HOT_RELOAD_CONFIG_PATH)) {
+			return;
+		}
+
+		// The overrides belong to one install of the app. Delete them when the APK changed.
+		File rootDir = new File(context.getCacheDir(), "hot-reload");
+		try {
+			long lastUpdateTime =
+				context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
+			File installFile = new File(rootDir, "install-" + lastUpdateTime);
+			if (!installFile.exists()) {
+				deleteTree(rootDir);
+				rootDir.mkdirs();
+				installFile.createNewFile();
+			}
+		} catch (Exception ex) {
+			Log.e(TAG, "Failed to set up the hot reload directory.", ex);
+			return;
+		}
+		KrollAssetHelper.hotReloadDir = new File(rootDir, "files");
+		Log.i(TAG, "Hot reload is on: " + KrollAssetHelper.hotReloadDir.getAbsolutePath());
+	}
+
+	private static void deleteTree(File file)
+	{
+		File[] children = file.listFiles();
+		if (children != null) {
+			for (File child : children) {
+				deleteTree(child);
+			}
+		}
+		file.delete();
+	}
+
+	private static File getHotReloadFile(String path)
+	{
+		if ((hotReloadDir == null) || (path == null)) {
+			return null;
+		}
+		File file = new File(hotReloadDir, path);
+		return file.isFile() ? file : null;
 	}
 
 	public static AssetManager getAssetManager()
@@ -120,6 +175,16 @@ public class KrollAssetHelper
 		// Validate argument.
 		if ((path == null) || path.isEmpty()) {
 			return null;
+		}
+
+		// A file from the hot reload client replaces the asset of the same path.
+		File hotReloadFile = getHotReloadFile(path);
+		if (hotReloadFile != null) {
+			try {
+				return new FileInputStream(hotReloadFile);
+			} catch (IOException ex) {
+				Log.e(TAG, "Error while opening hot reload file \"" + path + "\":", ex);
+			}
 		}
 
 		// First, attempt to open it as a Titanium encrypted asset.
@@ -161,6 +226,14 @@ public class KrollAssetHelper
 
 	public static byte[] readAssetBytes(String path)
 	{
+		File hotReloadFile = getHotReloadFile(path);
+		if (hotReloadFile != null) {
+			try (InputStream in = new FileInputStream(hotReloadFile)) {
+				return readInputStream(in).toByteArray();
+			} catch (IOException e) {
+				Log.e(TAG, "Error while reading hot reload file \"" + path + "\":", e);
+			}
+		}
 		if (KrollAssetCache.has(path)) {
 			return KrollAssetCache.get(path);
 		}
@@ -240,6 +313,11 @@ public class KrollAssetHelper
 		// Validate argument.
 		if (path == null) {
 			return false;
+		}
+
+		// A file from the hot reload client counts as an asset.
+		if (getHotReloadFile(path) != null) {
+			return true;
 		}
 
 		// First, check if path references an encrypted Titanium asset.
