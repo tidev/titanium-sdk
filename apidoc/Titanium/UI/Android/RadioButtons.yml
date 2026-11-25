@@ -9,7 +9,7 @@ description: |
     Allows you to create a native Android radio button group.
 platforms: [android]
 extends: Titanium.UI.View
-since: "12.7.0"
+since: "14.1.0"
 excludes:
     events: [dblclick, doubletap, focus, keypressed, longclick, longpress, pinch, postlayout,
              singletap, swipe, touchcancel, touchend, touchmove, touchstart, twofingertap]
