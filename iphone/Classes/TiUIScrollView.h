@@ -38,6 +38,10 @@
 #endif
 
   BOOL needsHandleContentSize;
+#ifndef TI_USE_AUTOLAYOUT
+  // Left/right safe-area insets the content is laid out within. See handleContentSize.
+  UIEdgeInsets contentSafeAreaInsets;
+#endif
 }
 
 @property (nonatomic, retain, readonly) TiUIScrollViewImpl *scrollView;
@@ -52,6 +56,7 @@
 - (void)setZoomScale_:(id)value withObject:(id)property;
 #ifndef TI_USE_AUTOLAYOUT
 - (UIView *)wrapperView;
+- (CGRect)contentLayoutBounds;
 #endif
 - (void)scrollToBottom:(BOOL)animated;
 - (void)scrollToTop:(BOOL)animated;
