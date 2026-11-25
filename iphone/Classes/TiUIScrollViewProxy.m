@@ -237,8 +237,7 @@ static NSArray *scrollViewKeySequence;
   CGRect viewBounds = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
   CGRect contentSize = CGRectMake(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height);
   if ([self viewAttached]) {
-    // Excludes any side safe-area insets the content is laid out within (see TiUIScrollView handleContentSize).
-    viewBounds = [(TiUIScrollView *)[self view] contentLayoutBounds];
+    viewBounds = [[self view] bounds];
   }
   BOOL flexibleContentWidth = YES;
   BOOL flexibleContentHeight = YES;

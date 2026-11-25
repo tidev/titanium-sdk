@@ -251,10 +251,7 @@
   if (!needsHandleContentSize) {
     return;
   }
-  UIEdgeInsets previousSafeAreaInsets = contentSafeAreaInsets;
-  contentSafeAreaInsets = [self horizontalSafeAreaInsetsForContent];
-  CGSize layoutSize = [self contentLayoutBounds].size;
-  CGSize newContentSize = layoutSize;
+  CGSize newContentSize = [self bounds].size;
   CGFloat scale = [scrollView zoomScale];
 
   switch (contentWidth.type) {
@@ -266,7 +263,7 @@
   case TiDimensionTypeAutoSize:
   case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
   {
-    newContentSize.width = MAX(newContentSize.width, [(TiViewProxy *)[self proxy] autoWidthForSize:layoutSize]);
+    newContentSize.width = MAX(newContentSize.width, [(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size]);
     break;
   }
   case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
@@ -284,7 +281,7 @@
   case TiDimensionTypeAutoSize:
   case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
   {
-    minimumContentHeight = [(TiViewProxy *)[self proxy] autoHeightForSize:layoutSize];
+    minimumContentHeight = [(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
     break;
   }
   case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
@@ -301,64 +298,10 @@
   wrapperBounds.size = newContentSize;
   [wrapperView setFrame:wrapperBounds];
   [self scrollViewDidZoom:scrollView];
-
-  // The content now fits between the side insets, so the only valid horizontal offset is the leading edge.
-  if (!UIEdgeInsetsEqualToEdgeInsets(previousSafeAreaInsets, contentSafeAreaInsets) && ![scrollView isDragging]) {
-    CGPoint offset = [scrollView contentOffset];
-    offset.x = -[scrollView adjustedContentInset].left;
-    [scrollView setContentOffset:offset];
-  }
-
   needsHandleContentSize = NO;
   [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 #endif
 }
-
-#ifndef TI_USE_AUTOLAYOUT
-// With UIScrollViewContentInsetAdjustmentAlways, UIKit adds the left/right safe-area insets to the scrollable
-// width. If the content is laid out at the full view width, the scroll view then scrolls sideways by
-// (left + right) inset, e.g. in landscape or on a foldable's outer screen. When the content is meant to fit
-// the view width, lay it out within the safe area instead: it stays clear of the side insets and has no
-// horizontal scroll range. Content that is wider than the view (e.g. carousels) is not affected.
-- (UIEdgeInsets)horizontalSafeAreaInsetsForContent
-{
-  if (scrollView == nil || [scrollView contentInsetAdjustmentBehavior] != UIScrollViewContentInsetAdjustmentAlways) {
-    return UIEdgeInsetsZero;
-  }
-  UIEdgeInsets safeAreaInsets = [scrollView safeAreaInsets];
-  if (safeAreaInsets.left <= 0 && safeAreaInsets.right <= 0) {
-    return UIEdgeInsetsZero;
-  }
-
-  UIEdgeInsets insets = UIEdgeInsetsMake(0, MAX(0, safeAreaInsets.left), 0, MAX(0, safeAreaInsets.right));
-  CGSize visibleSize = [self bounds].size;
-  visibleSize.width = MAX(0, visibleSize.width - insets.left - insets.right);
-
-  // Only content that fits between the side insets; anything wider keeps today's behavior.
-  BOOL contentFitsWidth = YES;
-  switch (contentWidth.type) {
-  case TiDimensionTypeDip:
-    contentFitsWidth = contentWidth.value <= visibleSize.width;
-    break;
-  case TiDimensionTypeUndefined:
-  case TiDimensionTypeAutoSize:
-  case TiDimensionTypeAuto:
-    contentFitsWidth = [(TiViewProxy *)[self proxy] autoWidthForSize:visibleSize] <= visibleSize.width;
-    break;
-  default:
-    break;
-  }
-  return contentFitsWidth ? insets : UIEdgeInsetsZero;
-}
-
-// The area children are laid out in: the view bounds minus the side insets applied in handleContentSize.
-- (CGRect)contentLayoutBounds
-{
-  CGSize size = [self bounds].size;
-  size.width = MAX(0, size.width - contentSafeAreaInsets.left - contentSafeAreaInsets.right);
-  return CGRectMake(0, 0, size.width, size.height);
-}
-#endif
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
@@ -595,22 +538,10 @@
   [(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView *)view atScale:scale];
 }
 
-- (void)scrollViewDidChangeAdjustedContentInset:(UIScrollView *)scrollView_
-{
-#ifndef TI_USE_AUTOLAYOUT
-  // Called when the safe area changes (rotation, folding, window resize), and for keyboard insets.
-  // Only re-layout when the side insets the content depends on have changed.
-  if (!UIEdgeInsetsEqualToEdgeInsets([self horizontalSafeAreaInsetsForContent], contentSafeAreaInsets)) {
-    [self setNeedsHandleContentSize];
-  }
-#endif
-}
-
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView_
 {
 #ifndef TI_USE_AUTOLAYOUT
-  // Center within the area the content is laid out in, which excludes any side insets (see handleContentSize).
-  CGSize boundsSize = [self contentLayoutBounds].size;
+  CGSize boundsSize = scrollView.bounds.size;
   CGRect frameToCenter = wrapperView.frame;
   if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
     if (frameToCenter.size.width < boundsSize.width) {
