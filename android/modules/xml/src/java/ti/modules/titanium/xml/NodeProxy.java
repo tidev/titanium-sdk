@@ -23,6 +23,9 @@ import org.w3c.dom.Notation;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
+import java.lang.ref.WeakReference;
+import java.util.WeakHashMap;
+
 @Kroll.proxy(parentModule = XMLModule.class)
 public class NodeProxy extends KrollProxy
 {
@@ -53,6 +56,16 @@ public class NodeProxy extends KrollProxy
 
 	private static final String TAG = "TiNodeProxy";
 
+	// Cache of Node -> NodeProxy so repeated property accesses (e.g.
+	// getOwnerDocument(), getFirstChild()) return the SAME proxy instance
+	// for the same underlying org.w3c.dom.Node. Without this, should.js's
+	// deep-equality (eql) traverses the proxy graph and hits cycles like
+	// DocumentProxy -> documentElement -> ownerDocument -> DocumentProxy,
+	// causing "Maximum call stack size exceeded" on tests that compare
+	// proxies with .eql(). Both the key and value are weakly held so the
+	// cache does not prevent GC of either the Node or its proxy.
+	private static final WeakHashMap<Node, WeakReference<NodeProxy>> proxyCache = new WeakHashMap<>();
+
 	protected Node node;
 
 	public NodeProxy(Node node)
@@ -70,6 +83,17 @@ public class NodeProxy extends KrollProxy
 	{
 		if (node == null) {
 			return null;
+		}
+
+		synchronized (proxyCache)
+		{
+			WeakReference<NodeProxy> ref = proxyCache.get(node);
+			if (ref != null) {
+				NodeProxy cached = ref.get();
+				if (cached != null) {
+					return cached;
+				}
+			}
 		}
 
 		NodeProxy proxy;
@@ -115,14 +139,18 @@ public class NodeProxy extends KrollProxy
 				break;
 		}
 
+		synchronized (proxyCache)
+		{
+			proxyCache.put(node, new WeakReference<>(proxy));
+		}
 		return proxy;
 	}
 
 	public static NodeProxy removeProxyForNode(Node node)
 	{
-		// if we're here then a proxy was never generated for this node
-		// just return a temporary wrapper in this case
-		return new NodeProxy(node);
+		// Return the cached proxy if one exists; otherwise create a
+		// temporary wrapper and cache it so subsequent accesses are stable.
+		return getNodeProxy(node);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -206,7 +234,7 @@ public class NodeProxy extends KrollProxy
 	@Kroll.getProperty
 	public DocumentProxy getOwnerDocument()
 	{
-		return new DocumentProxy(node.getOwnerDocument());
+		return (DocumentProxy) getNodeProxy(node.getOwnerDocument());
 	}
 
 	@Kroll.getProperty
