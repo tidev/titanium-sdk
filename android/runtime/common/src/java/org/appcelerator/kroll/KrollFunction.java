@@ -41,6 +41,18 @@ public interface KrollFunction {
 	Object call(KrollObject krollObject, Object[] args);
 
 	/**
+	 * Executes a function synchronously and discards its result. Unlike {@link #call(KrollObject, Object[])},
+	 * the value the function returns is not converted to a Java object, so it may be any value, including
+	 * one that cannot be converted, such as an object with a reference cycle.
+	 * @param krollObject The object that represents <code>this</code> in Javascript.
+	 * @param args the function's arguments.
+	 */
+	default void callWithoutResult(KrollObject krollObject, Object[] args)
+	{
+		call(krollObject, args);
+	}
+
+	/**
 	 * Executes a function asynchronously.
 	 * @param krollObject The object that represents <code>this</code> in Javascript.
 	 * @param args A single object argument for the function (for convenience)

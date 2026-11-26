@@ -7,6 +7,7 @@
 #import "TiUIButtonBar.h"
 #import <TitaniumKit/TiUtils.h>
 #import <TitaniumKit/TiViewProxy.h>
+#import <TitaniumKit/WebFont.h>
 #import <TitaniumKit/Webcolor.h>
 
 @implementation TiUIButtonBar
@@ -130,8 +131,15 @@
   }
 
   UIColor *newColor = [self reverseColorOf:color];
-  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateNormal];
-  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : newColor } forState:UIControlStateSelected];
+  UISegmentedControl *control = [self segmentedControl];
+
+  NSMutableDictionary *normalAttrs = [NSMutableDictionary dictionaryWithDictionary:[control titleTextAttributesForState:UIControlStateNormal]];
+  normalAttrs[NSForegroundColorAttributeName] = color;
+  [control setTitleTextAttributes:normalAttrs forState:UIControlStateNormal];
+
+  NSMutableDictionary *selectedAttrs = [NSMutableDictionary dictionaryWithDictionary:[control titleTextAttributesForState:UIControlStateSelected]];
+  selectedAttrs[NSForegroundColorAttributeName] = newColor;
+  [control setTitleTextAttributes:selectedAttrs forState:UIControlStateSelected];
 
   [[self segmentedControl] setSelectedSegmentTintColor:color];
 }
@@ -145,21 +153,44 @@
 - (void)setTextColor_:(id)value
 {
   UIColor *color = [[TiUtils colorValue:value] color];
+  UISegmentedControl *control = [self segmentedControl];
 
-  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateNormal];
+  NSMutableDictionary *attrs = [NSMutableDictionary dictionaryWithDictionary:[control titleTextAttributesForState:UIControlStateNormal]];
+  attrs[NSForegroundColorAttributeName] = color;
+  [control setTitleTextAttributes:attrs forState:UIControlStateNormal];
 }
 
 - (void)setSelectedTextColor_:(id)value
 {
   UIColor *color = [[TiUtils colorValue:value] color];
+  UISegmentedControl *control = [self segmentedControl];
 
-  [[self segmentedControl] setTitleTextAttributes:@{ NSForegroundColorAttributeName : color } forState:UIControlStateSelected];
+  NSMutableDictionary *attrs = [NSMutableDictionary dictionaryWithDictionary:[control titleTextAttributesForState:UIControlStateSelected]];
+  attrs[NSForegroundColorAttributeName] = color;
+  [control setTitleTextAttributes:attrs forState:UIControlStateSelected];
 }
 
 - (void)setSelectedButtonColor_:(id)value
 {
   UIColor *color = [[TiUtils colorValue:value] color];
   [[self segmentedControl] setSelectedSegmentTintColor:color];
+}
+
+- (void)setFont_:(id)font
+{
+  if (font != nil) {
+    WebFont *f = [TiUtils fontValue:font def:nil];
+    UIFont *newFont = [f font];
+    UISegmentedControl *control = [self segmentedControl];
+
+    NSMutableDictionary *normalAttrs = [NSMutableDictionary dictionaryWithDictionary:[control titleTextAttributesForState:UIControlStateNormal]];
+    normalAttrs[NSFontAttributeName] = newFont;
+    [control setTitleTextAttributes:normalAttrs forState:UIControlStateNormal];
+
+    NSMutableDictionary *selectedAttrs = [NSMutableDictionary dictionaryWithDictionary:[control titleTextAttributesForState:UIControlStateSelected]];
+    selectedAttrs[NSFontAttributeName] = newFont;
+    [control setTitleTextAttributes:selectedAttrs forState:UIControlStateSelected];
+  }
 }
 
 - (void)setIndex_:(id)value

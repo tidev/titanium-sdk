@@ -31,6 +31,7 @@ public class TiUIOptionBar extends TiUIView
 
 	/** Set true to prevent "click" events from firing. Set false to allow these events. */
 	private boolean isIgnoringCheckEvent;
+	private HashMap<String, Object> fontProperties;
 
 	public TiUIOptionBar(TiViewProxy proxy)
 	{
@@ -74,6 +75,9 @@ public class TiUIOptionBar extends TiUIView
 		}
 
 		// Apply given properties to view.
+		if (properties.containsKey(TiC.PROPERTY_FONT)) {
+			fontProperties = properties.getKrollDict(TiC.PROPERTY_FONT);
+		}
 		if (properties.containsKey(TiC.PROPERTY_LABELS)) {
 			processLabels(properties.get(TiC.PROPERTY_LABELS));
 		}
@@ -98,6 +102,9 @@ public class TiUIOptionBar extends TiUIView
 			checkOption(TiConvert.toInt(newValue));
 		} else if (key.equals(TiC.PROPERTY_LABELS)) {
 			processLabels(newValue);
+		} else if (key.equals(TiC.PROPERTY_FONT) && newValue instanceof HashMap) {
+			fontProperties = (HashMap<String, Object>) newValue;
+			applyFontToAllButtons();
 		} else {
 			super.propertyChanged(key, oldValue, newValue, proxy);
 		}
@@ -207,6 +214,9 @@ public class TiUIOptionBar extends TiUIView
 		MaterialButton button = new MaterialButton(context, null, attributeId);
 		button.setEnabled(isEnabled);
 		button.setText(title);
+		if (fontProperties != null) {
+			TiUIHelper.styleText(button, fontProperties);
+		}
 		if (proxy.hasPropertyAndNotNull(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR)) {
 			ColorStateList oldColors = button.getBackgroundTintList();
 			int col = TiConvert.toColor((String) proxy.getProperty(TiC.PROPERTY_SELECTED_BACKGROUND_COLOR), context);
@@ -294,6 +304,23 @@ public class TiUIOptionBar extends TiUIView
 					}
 					return;
 				}
+			}
+		}
+	}
+
+	private void applyFontToAllButtons()
+	{
+		if (fontProperties == null) {
+			return;
+		}
+		MaterialButtonToggleGroup buttonGroup = getButtonGroup();
+		if (buttonGroup == null) {
+			return;
+		}
+		for (int i = 0; i < buttonGroup.getChildCount(); i++) {
+			View child = buttonGroup.getChildAt(i);
+			if (child instanceof MaterialButton) {
+				TiUIHelper.styleText((MaterialButton) child, fontProperties);
 			}
 		}
 	}

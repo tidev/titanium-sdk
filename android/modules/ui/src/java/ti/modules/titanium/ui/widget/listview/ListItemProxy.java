@@ -130,6 +130,7 @@ public class ListItemProxy extends TiViewProxy
 			final Object sourceObject = payload.containsKeyAndNotNull(TiC.EVENT_PROPERTY_SOURCE)
 				? payload.get(TiC.EVENT_PROPERTY_SOURCE) : this;
 			final TiViewProxy source = sourceObject instanceof TiViewProxy ? (TiViewProxy) sourceObject : this;
+			final KrollDict properties = getProperties();
 
 			final Object parent = getParent();
 			if (parent instanceof ListSectionProxy section) {
@@ -140,7 +141,7 @@ public class ListItemProxy extends TiViewProxy
 				payload.putIfAbsent(TiC.PROPERTY_ITEM_INDEX, getIndexInSection());
 			}
 
-			final Object itemId = getProperties().get(TiC.PROPERTY_ITEM_ID);
+			final Object itemId = properties.get(TiC.PROPERTY_ITEM_ID);
 			if (itemId != null) {
 
 				// Include `itemId` if specified.
@@ -157,7 +158,7 @@ public class ListItemProxy extends TiViewProxy
 				}
 			}
 
-			final int accessoryType = getProperties().optInt(TiC.PROPERTY_ACCESSORY_TYPE,
+			final int accessoryType = properties.optInt(TiC.PROPERTY_ACCESSORY_TYPE,
 				UIModule.LIST_ACCESSORY_TYPE_NONE);
 			final boolean isAccessoryDetail = accessoryType == UIModule.LIST_ACCESSORY_TYPE_DETAIL;
 
@@ -190,6 +191,17 @@ public class ListItemProxy extends TiViewProxy
 		if (listViewProxy == null) {
 			return false;
 		}
+
+		// Do not fire item events if the item, its section or the ListView has touch disabled.
+		if (!getProperties().optBoolean(TiC.PROPERTY_TOUCH_ENABLED, true)
+			|| !listViewProxy.getProperties().optBoolean(TiC.PROPERTY_TOUCH_ENABLED, true)) {
+			return false;
+		}
+		if (getParent() instanceof ListSectionProxy section
+			&& !section.getProperties().optBoolean(TiC.PROPERTY_TOUCH_ENABLED, true)) {
+			return false;
+		}
+
 		if (eventName.equals(TiC.EVENT_CLICK)) {
 			return listViewProxy.fireSyncEvent(TiC.EVENT_ITEM_CLICK, data);
 		}
