@@ -18,6 +18,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import org.appcelerator.kroll.KrollDict;
@@ -356,23 +360,31 @@ public class TiBlob extends KrollProxy
 	@Kroll.getProperty
 	public String getText()
 	{
-		String result = null;
-
-		// Only support String and Data. Same as iPhone
+		// Only support String, Data, and File. Same as iPhone.
+		// For Data/File blobs, iOS returns nil when the bytes aren't valid
+		// UTF-8 (e.g. an image encoded as PNG). Mirror that by decoding with a
+		// strict UTF-8 decoder and returning null on malformed input instead of
+		// a replacement-character string.
 		switch (type) {
 			case TYPE_STRING:
-				result = (String) data;
+				return (String) data;
 			case TYPE_DATA:
 			case TYPE_FILE:
 				try {
-					result = new String(getBytes(), StandardCharsets.UTF_8);
+					ByteBuffer input = ByteBuffer.wrap(getBytes());
+					CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder()
+						.onMalformedInput(CodingErrorAction.REPORT)
+						.onUnmappableCharacter(CodingErrorAction.REPORT);
+					return decoder.decode(input).toString();
+				} catch (CharacterCodingException ex) {
+					return null;
 				} catch (Exception ex) {
 					Log.w(TAG, "Unable to convert to string.");
+					return null;
 				}
-				break;
+			default:
+				return null;
 		}
-
-		return result;
 	}
 
 	@Kroll.getProperty
