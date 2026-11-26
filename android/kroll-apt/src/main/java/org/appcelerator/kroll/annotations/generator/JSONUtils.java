@@ -7,9 +7,11 @@
 package org.appcelerator.kroll.annotations.generator;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.lang.model.element.AnnotationMirror;
 
@@ -35,6 +37,62 @@ public class JSONUtils
 	public Map<String, Object> getStringMap(Map<? extends Object, Object> map, String name)
 	{
 		return (Map<String, Object>) map.get(name);
+	}
+
+	/**
+	 * Names of the lists in the bindings tree whose element order is meaningless. Their contents are appended in
+	 * the order the annotation processor happens to visit the proxy classes, which varies between full and
+	 * incremental compiles. They get sorted by the below method so that the generated output is deterministic.
+	 */
+	private static final List<String> UNORDERED_LIST_NAMES = List.of("createProxies", "childModules");
+
+	/**
+	 * Creates a deep copy of the given bindings tree with a deterministic ordering:
+	 * all maps are sorted by key and lists named in "UNORDERED_LIST_NAMES" are sorted by the "id"/"proxyClassName"
+	 * of their entries. All other lists (method arguments, etc.) keep their order since it is meaningful.
+	 * <p>
+	 * This makes the generated JSON and C++ files identical regardless of which order the annotation processor
+	 * visited the classes in. That order changes between full and incremental Java compiles, and without this,
+	 * every incremental compile would rewrite the C++ bindings and trigger a full native rebuild.
+	 * @param value The value to copy. Typically a map, list, or primitive JSON value. Can be null.
+	 * @return Returns a deep copy of the given value. Returns the given value as-is if it's not a map or list.
+	 */
+	public static Object toDeterministicCopy(Object value)
+	{
+		return toDeterministicCopy(value, null);
+	}
+
+	private static Object toDeterministicCopy(Object value, String name)
+	{
+		if (value instanceof Map) {
+			Map<Object, Object> copy = new TreeMap<>(Comparator.comparing(String::valueOf));
+			for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+				copy.put(entry.getKey(), toDeterministicCopy(entry.getValue(), String.valueOf(entry.getKey())));
+			}
+			return copy;
+		} else if (value instanceof List) {
+			List<Object> copy = new ArrayList<>();
+			for (Object element : (List<?>) value) {
+				copy.add(toDeterministicCopy(element, null));
+			}
+			if ((name != null) && UNORDERED_LIST_NAMES.contains(name)) {
+				copy.sort(Comparator.comparing(JSONUtils::getSortKey));
+			}
+			return copy;
+		}
+		return value;
+	}
+
+	private static String getSortKey(Object value)
+	{
+		if (value instanceof Map) {
+			Map<?, ?> map = (Map<?, ?>) value;
+			Object key = map.containsKey("id") ? map.get("id") : map.get("proxyClassName");
+			if (key != null) {
+				return String.valueOf(key);
+			}
+		}
+		return String.valueOf(value);
 	}
 
 	public Map<Object, Object> getOrCreateMap(Map<Object, Object> map, String name)

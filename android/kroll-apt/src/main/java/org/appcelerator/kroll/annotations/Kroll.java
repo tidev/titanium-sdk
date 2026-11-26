@@ -28,6 +28,10 @@ import java.lang.annotation.Target;
  * @author Marshall Culpepper
  */
 @Documented
+// Note: The nested annotations below use CLASS retention (not SOURCE) so that Gradle can find annotated classes
+//       in compiled class files. This is required for the "kroll-apt" annotation processor to be incremental.
+//       They're never accessed at runtime and R8 strips them from the app. Since this annotation library never
+//       ships with the app, "titanium/consumer-rules.pro" tells R8 to ignore these missing classes.
 public @interface Kroll {
 	String DEFAULT_NAME = "__default_name__";
 	final class DEFAULT
@@ -74,7 +78,7 @@ public @interface Kroll {
 	 * @see constant#name()
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.FIELD)
 	@interface constant {
 		/**
@@ -99,7 +103,7 @@ public @interface Kroll {
 	 * @see org.appcelerator.kroll.KrollInvocation
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target({ ElementType.METHOD, ElementType.FIELD })
 	public static @interface inject {
 		/**
@@ -131,7 +135,7 @@ public @interface Kroll {
 	 * @see argument @Kroll.argument
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.METHOD)
 	@interface method {
 		/**
@@ -175,7 +179,7 @@ public @interface Kroll {
 	 * @see proxy#creatableInModule()
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.TYPE)
 	@interface module {
 		/**
@@ -231,7 +235,7 @@ public @interface Kroll {
 	 * @see setProperty @Kroll.setProperty
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.FIELD)
 	@interface property {
 		/**
@@ -261,7 +265,7 @@ public @interface Kroll {
 	 * @see argument#optional()
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.METHOD)
 	@interface getProperty {
 		/**
@@ -290,7 +294,7 @@ public @interface Kroll {
 	 * </p>
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.METHOD)
 	@interface setProperty {
 		/**
@@ -327,7 +331,7 @@ public @interface Kroll {
 	 * </p>
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.TYPE)
 	@interface proxy {
 		/**
@@ -384,7 +388,7 @@ public @interface Kroll {
 	 * </pre>
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target({ ElementType.METHOD, ElementType.TYPE })
 	@interface topLevel {
 		/**
@@ -414,7 +418,7 @@ public @interface Kroll {
 	 * </pre>
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target({ ElementType.TYPE })
 	@interface dynamicApis {
 		String[] properties() default DEFAULT_NAME;
@@ -438,7 +442,7 @@ public @interface Kroll {
 	 * </pre>
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target({ ElementType.METHOD })
 	@interface onAppCreate {
 	}
@@ -450,7 +454,7 @@ public @interface Kroll {
 	 * To revert to the object's default behavior, return KrollRuntime.DONT_INTERCEPT
 	 */
 	@Documented
-	@Retention(RetentionPolicy.SOURCE)
+	@Retention(RetentionPolicy.CLASS)
 	@Target({ ElementType.METHOD })
 	@interface interceptor {
 	}

@@ -5,8 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
-import { AndroidBuilder } from '../../build/lib/android.js';
-import { Builder } from '../../build/lib/builder.js';
+import { createBuildersFromEnv } from '../../build/lib/android.js';
 import * as BuildUtils from '../../build/lib/utils.js';
 import util from 'node:util';
 import ejs from 'ejs';
@@ -47,6 +46,58 @@ async function loadPackageJson() {
 }
 
 /**
+ * Runs V8's "mksnapshot" tool for the given architecture.
+ * @param {String} archDirPath Path to the V8 library directory of the architecture. Contains the "mksnapshot" tool.
+ * @param {String} arch Name of the architecture. Only used for logging.
+ * @param {String} startupPath Path to the JS file to snapshot.
+ * @returns {Promise<Buffer|null>} The snapshot blob or null if it could not be generated.
+ */
+async function generateSnapshotBlob(archDirPath, arch, startupPath) {
+	const mksnapshotPath = path.join(archDirPath, 'mksnapshot');
+	const blobPath = path.join(archDirPath, 'blob.bin');
+	const emboddedPath = path.join(archDirPath, 'embedded.S');
+
+	// Delete existing snapshot blob.
+	await fs.remove(blobPath);
+
+	const args = [
+		'--startup_blob=' + blobPath,
+		startupPath
+	];
+
+	console.log(`Generating snapshot blob for ${arch}...`);
+
+	// Include embedded blob.
+	if (await fs.exists(emboddedPath)) {
+		args.unshift(
+			'--turbo_instruction_scheduling',
+			'--embedded_src=' + emboddedPath,
+			'--embedded_variant=Default',
+			'--no-native-code-counters',
+		);
+	}
+
+	// Generate snapshot blob.
+	try {
+		await fs.chmod(mksnapshotPath, 0o755);
+		await execFile(mksnapshotPath, args);
+	} catch (e) {
+		console.error(e);
+	}
+
+	// Load snapshot blob.
+	let blob = null;
+	if (await fs.exists(blobPath)) {
+		blob = Buffer.from(await fs.readFile(blobPath, 'binary'), 'binary');
+		console.log(`Generated ${arch} snapshot blob.`);
+	}
+
+	// Delete snapshot blob.
+	await fs.remove(blobPath);
+	return blob;
+}
+
+/**
  * Generate snapshots locally.
  * @param {String} v8SnapshotHeaderFilePath The path to save generated snapshot header.
  * @param {String} rollupFileContent Javascript content to store in snapshot.
@@ -77,55 +128,14 @@ async function generateSnapshot(v8SnapshotHeaderFilePath, rollupFileContent) {
 
 	console.log(`Found architectures ${archs.join(', ')}`);
 
-	let blobs = {};
-
-	// Generate snapshots.
-	for (const arch of archs) {
-		const mksnapshotPath = path.join(v8LibDirectory, arch, 'mksnapshot');
-		const blobPath = path.join(v8LibDirectory, arch, 'blob.bin');
-		const emboddedPath = path.join(v8LibDirectory, arch, 'embedded.S');
-
-		// Delete existing snapshot blob.
-		try {
-			await fs.unlink(blobPath);
-		} catch (e) {
-			// Do nothing...
+	// Generate a snapshot blob for each architecture in parallel.
+	const blobs = {};
+	await Promise.all(archs.map(async (arch) => {
+		const blob = await generateSnapshotBlob(path.join(v8LibDirectory, arch), arch, startupPath);
+		if (blob) {
+			blobs[arch] = blob;
 		}
-
-		const args = [
-			'--startup_blob=' + blobPath,
-			startupPath
-		];
-
-		console.log(`Generating snapshot blob for ${arch}...`);
-
-		// Include embedded blob.
-		if (await fs.exists(emboddedPath)) {
-			args.unshift(
-				'--turbo_instruction_scheduling',
-				'--embedded_src=' + emboddedPath,
-				'--embedded_variant=Default',
-				'--no-native-code-counters',
-			);
-		}
-
-		// Generate snapshot blob.
-		try {
-			await fs.chmod(mksnapshotPath, 0o755);
-			await execFile(mksnapshotPath, args);
-		} catch (e) {
-			console.error(e);
-		}
-
-		// Load snapshot blob.
-		if (await fs.exists(blobPath)) {
-			blobs[arch] = Buffer.from(await fs.readFile(blobPath, 'binary'), 'binary');
-			console.log(`Generated ${arch} snapshot blob.`);
-		}
-
-		// Delete snapshot blob.
-		await fs.remove(blobPath);
-	}
+	}));
 
 	// Generate 'V8Snapshots.h' from template
 	const template = await util.promisify(ejs.renderFile)('V8Snapshots.h.ejs', { blobs }, {});
@@ -145,15 +155,8 @@ async function createSnapshot() {
 	const rollupOutputFilePath = path.join(rollupOutputDirPath, 'ti.main.js');
 	await fs.ensureDir(rollupOutputDirPath);
 
-	const options = { };
-	const mainBuilder = new Builder(options, [ 'android' ]);
-	await mainBuilder.ensureGitHash();
-	const androidBuilder = new AndroidBuilder({
-		sdkVersion: fs.readJsonSync(path.join(__dirname, '../../package.json')).version,
-		gitHash: options.gitHash,
-		timestamp: options.timestamp
-	});
-	await mainBuilder.generateTiMain('android', androidBuilder.babelOptions(), rollupOutputDirPath);
+	const { builder, android } = await createBuildersFromEnv();
+	await builder.generateTiMain('android', android.babelOptions(), rollupOutputDirPath);
 	const rollupFileContent = (await fs.readFile(rollupOutputFilePath)).toString();
 
 	// Create the C++ directory we'll be generating the snapshot header file to.
@@ -228,6 +231,36 @@ async function createSnapshot() {
 }
 
 /**
+ * Name of the file written to the installed V8 library directory once it has been fully extracted.
+ * Contains the integrity hash of the tarball it was extracted from.
+ * Note: This is also the output file of the "updateLibraryThenExit" gradle task in "build.gradle".
+ */
+const LIBV8_MARKER_FILE_NAME = 'libv8.integrity';
+
+/**
+ * Extracts the given "*.tar.bz2" file to the given directory.
+ * @param {String} inFile Path to the tarball.
+ * @param {String} outDir Path to the directory to extract to. Will be created if it doesn't exist.
+ */
+async function extractTarball(inFile, outDir) {
+	await fs.ensureDir(outDir);
+	if (!isWindows) {
+		// Use the system "tar" tool on macOS/Linux. It's much faster than the gradle/ant based untar below.
+		await execFile('tar', [ '-xjf', inFile, '-C', outDir ]);
+		return;
+	}
+
+	// Windows: Use gradle's ant integration to extract the tarball.
+	const untarCommandLine
+		= quotePath(path.join(__dirname, '..', 'gradlew.bat'))
+		+ ' -p ' + quotePath(path.join(__dirname, '..'))
+		+ ' -Pcompression=bzip2'
+		+ ' -Psrc=' + quotePath(inFile)
+		+ ' -Pdest=' + quotePath(outDir);
+	await exec(untarCommandLine);
+}
+
+/**
  * Checks if the V8 library referenced by the "titanium_mobile/android/package.json" file is installed.
  * If not, then this function will automatically download/install it. Function will do nothing if already installed.
  */
@@ -241,27 +274,28 @@ async function updateLibrary() {
 	const v8ArchiveFileName = `libv8-${v8TargetVersion}-${v8TargetMode}.tar.bz2`;
 	const installedLibV8DirPath = path.join(
 		__dirname, '../../dist/android/libv8', v8TargetVersion, v8TargetMode);
+	const markerFilePath = path.join(installedLibV8DirPath, LIBV8_MARKER_FILE_NAME);
 
-	// Download V8 archive (downloads to temp dir, which helps CI server avoid re-downloading between builds generally)
+	// Do nothing if this exact V8 library has already been installed.
+	// Note: The marker file is only written after a successful extraction.
+	try {
+		if ((await fs.readFile(markerFilePath, 'utf8')).trim() === integrity) {
+			return;
+		}
+	} catch (err) {
+		// Marker file does not exist. Library needs to be installed.
+	}
+
+	// Download V8 archive. It's downloaded to a persistent cache directory and integrity checked,
+	// so this only actually downloads if the file is missing or corrupt.
 	const downloadUrl = `https://github.com/tidev/v8_titanium/releases/download/v${v8TargetVersion}/${v8ArchiveFileName}`;
-	// FIXME: Can we skip the download if the ultimate destination exists?!
 	const downloadedTarball = await BuildUtils.downloadURL(downloadUrl, integrity, { progress: false });
-	let tmpExtractDir = BuildUtils.cachedDownloadPath(downloadUrl); // store alongside the place we store the tar.bz2, just drop the extension
-	tmpExtractDir = tmpExtractDir.substring(0, tmpExtractDir.length - '.tar.bz2'.length); // drop .tar.bz2
-	// Now extract to tmp dir and "cache" it for later builds
-	await BuildUtils.cacheExtract(downloadedTarball, integrity, tmpExtractDir, async function (inFile, outDir) {
-		// Extract the downloaded V8 archive's files.
-		console.log(`Decompressing downloaded V8 file: ${inFile}`);
-		const untarCommandLine
-			= quotePath(path.join(__dirname, '..', isWindows ? 'gradlew.bat' : 'gradlew'))
-			+ ' -p ' + quotePath(path.join(__dirname, '..'))
-			+ ' -Pcompression=bzip2'
-			+ ' -Psrc=' + quotePath(inFile)
-			+ ' -Pdest=' + quotePath(outDir);
-		return exec(untarCommandLine);
-	});
-	// Now copy from tmp dir to ultimate destination
-	return fs.copy(tmpExtractDir, installedLibV8DirPath);
+
+	// Extract the archive straight to its final destination.
+	console.log(`Extracting V8 library "${downloadedTarball}" to: ${installedLibV8DirPath}`);
+	await fs.emptyDir(installedLibV8DirPath);
+	await extractTarball(downloadedTarball, installedLibV8DirPath);
+	await fs.writeFile(markerFilePath, integrity + '\n');
 }
 
 if (import.meta.url.startsWith('file:') && process.argv[1] === fileURLToPath(import.meta.url)) {
