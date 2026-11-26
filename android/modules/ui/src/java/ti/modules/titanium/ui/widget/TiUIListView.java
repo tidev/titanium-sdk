@@ -98,6 +98,11 @@ public class TiUIListView extends TiUIView
 			this.listView.getRecyclerView().setScrollEnabled(isScrollable);
 		}
 
+		if (name.equals(TiC.PROPERTY_GRID_COLUMNS)) {
+			// create a simple GridLayout
+			this.listView.setGridColumns(TiConvert.toInt(value, 0));
+		}
+
 		if (name.equals(TiC.PROPERTY_REFRESH_CONTROL)) {
 
 			if (value instanceof RefreshControlProxy) {

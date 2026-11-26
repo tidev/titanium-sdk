@@ -100,6 +100,11 @@ public class TiUITableView extends TiUIView
 			}
 		}
 
+		if (name.equals(TiC.PROPERTY_GRID_COLUMNS)) {
+			// create a simple GridLayout
+			this.tableView.setGridColumns(TiConvert.toInt(value, 0));
+		}
+
 		if (name.equals(TiC.PROPERTY_SCROLLABLE)) {
 			final boolean isScrollable = TiConvert.toBoolean(value, true);
 

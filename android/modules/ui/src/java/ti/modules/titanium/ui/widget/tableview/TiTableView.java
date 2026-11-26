@@ -36,6 +36,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -82,17 +83,7 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 		this.recyclerView.setFocusable(true);
 		this.recyclerView.setFocusableInTouchMode(true);
 		this.recyclerView.setBackgroundColor(Color.TRANSPARENT);
-		this.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()) {
-			@Override
-			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
-			{
-				super.onLayoutChildren(recycler, state);
-
-				if (!hasLaidOutChildren) {
-					hasLaidOutChildren = true;
-				}
-			}
-		});
+		this.recyclerView.setLayoutManager(createLayoutManager(1));
 
 		// Add listener to fire scroll events.
 		this.recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener()
@@ -424,6 +415,45 @@ public class TiTableView extends TiSwipeRefreshLayout implements OnSearchChangeL
 	public LinearLayoutManager getLayoutManager()
 	{
 		return (LinearLayoutManager) this.recyclerView.getLayoutManager();
+	}
+
+	/**
+	 * Set the number of grid columns.
+	 *
+	 * @param gridColumns Number of columns, a value below 2 uses a linear layout.
+	 */
+	public void setGridColumns(int gridColumns)
+	{
+		this.recyclerView.setLayoutManager(createLayoutManager(gridColumns));
+	}
+
+	/**
+	 * Create a layout manager that tracks the layout state.
+	 *
+	 * @param gridColumns Number of columns, a value below 2 creates a linear layout.
+	 * @return LinearLayoutManager
+	 */
+	private LinearLayoutManager createLayoutManager(int gridColumns)
+	{
+		if (gridColumns > 1) {
+			return new GridLayoutManager(getContext(), gridColumns) {
+				@Override
+				public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+				{
+					super.onLayoutChildren(recycler, state);
+					hasLaidOutChildren = true;
+				}
+			};
+		}
+
+		return new LinearLayoutManager(getContext()) {
+			@Override
+			public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state)
+			{
+				super.onLayoutChildren(recycler, state);
+				hasLaidOutChildren = true;
+			}
+		};
 	}
 
 	/**
