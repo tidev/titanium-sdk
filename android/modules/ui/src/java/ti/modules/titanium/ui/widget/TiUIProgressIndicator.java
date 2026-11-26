@@ -17,11 +17,19 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiLaunchActivity;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiUIHelper;
 import org.appcelerator.titanium.view.TiUIView;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import androidx.appcompat.app.AlertDialog;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
+import com.google.android.material.textview.MaterialTextView;
 
 public class TiUIProgressIndicator extends TiUIView implements
 	DialogInterface.OnShowListener, DialogInterface.OnCancelListener, DialogInterface.OnDismissListener
@@ -34,8 +42,13 @@ public class TiUIProgressIndicator extends TiUIView implements
 	public static final int STATUS_BAR = 0;
 	public static final int DIALOG = 1;
 
+	private static final int DIALOG_PADDING_DP = 24;
+	private static final int DIALOG_SPACING_DP = 16;
+
 	protected boolean visible;
-	protected ProgressDialog progressDialog;
+	protected AlertDialog progressDialog;
+	private MaterialTextView messageView;
+	private LinearProgressIndicator linearIndicator;
 	protected CharSequence statusBarTitle;
 	protected int incrementFactor;
 	protected int location;
@@ -65,8 +78,9 @@ public class TiUIProgressIndicator extends TiUIView implements
 		if (key.equals(TiC.PROPERTY_MESSAGE)) {
 			if (visible) {
 				if (progressDialog != null) {
-					progressDialog.setMessage((String) newValue);
-
+					if (messageView != null) {
+						messageView.setText(TiConvert.toString(newValue));
+					}
 				} else {
 					Activity parent = (Activity) this.proxy.getActivity();
 					parent.setTitle((String) newValue);
@@ -77,7 +91,9 @@ public class TiUIProgressIndicator extends TiUIView implements
 			if (visible) {
 				int progressValue = (TiConvert.toInt(newValue, 0) - this.min) * this.incrementFactor;
 				if (this.progressDialog != null) {
-					this.progressDialog.setProgress(progressValue);
+					if (this.linearIndicator != null) {
+						this.linearIndicator.setProgressCompat(progressValue, true);
+					}
 				} else {
 					Activity activity = (Activity) this.proxy.getActivity();
 					if (activity != null) {
@@ -187,7 +203,10 @@ public class TiUIProgressIndicator extends TiUIView implements
 					Log.w(TAG, "Cannot show progress indicator dialog. No activities are available to host it.");
 					return;
 				}
-				progressDialog = new ProgressDialog(a);
+				if (type != INDETERMINANT && type != DETERMINANT) {
+					Log.w(TAG, "Unknown type: " + type);
+				}
+				progressDialog = new MaterialAlertDialogBuilder(a).setView(createDialogContentView(a)).create();
 				if (a instanceof TiBaseActivity) {
 					TiBaseActivity baseActivity = (TiBaseActivity) a;
 					baseActivity.addDialog(new TiBaseActivity.DialogWrapper(
@@ -201,27 +220,18 @@ public class TiUIProgressIndicator extends TiUIView implements
 
 			// Set up dialog.
 			// Note: We must call setCanceledOnTouchOutside() before setCancelable().
-			progressDialog.setMessage(message);
+			messageView.setText(message);
 			progressDialog.setCanceledOnTouchOutside(
 				proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELED_ON_TOUCH_OUTSIDE, false));
 			progressDialog.setCancelable(proxy.getProperties().optBoolean(TiC.PROPERTY_CANCELABLE, false));
-			if (type == INDETERMINANT) {
-				progressDialog.setIndeterminate(true);
-			} else if (type == DETERMINANT) {
-				progressDialog.setIndeterminate(false);
-				progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				progressDialog.setMax(this.max - this.min);
-			} else {
-				Log.w(TAG, "Unknown type: " + type);
+			if (linearIndicator != null) {
+				linearIndicator.setMax(this.max - this.min);
+				linearIndicator.setProgressCompat(progressValue - this.min, false);
 			}
 
 			// Show the dialog.
-			// Note: The setProgress() method only works after the dialog is shown.
 			try {
 				progressDialog.show();
-				if (type == DETERMINANT) {
-					progressDialog.setProgress(progressValue - this.min);
-				}
 			} catch (Exception ex) {
 				Log.e(TAG, "Failed to show progress indicator dialog.", ex);
 				return;
@@ -233,6 +243,51 @@ public class TiUIProgressIndicator extends TiUIView implements
 
 		// Flag progress indicator as shown.
 		visible = true;
+	}
+
+	/**
+	 * Creates the content view of the progress dialog.
+	 * The indeterminate type shows a circular indicator next to the message.
+	 * The determinate type shows the message above a horizontal progress bar.
+	 */
+	private LinearLayout createDialogContentView(Activity activity)
+	{
+		int padding = (int) TiUIHelper.getRawDIPSize(DIALOG_PADDING_DP, activity);
+		int spacing = (int) TiUIHelper.getRawDIPSize(DIALOG_SPACING_DP, activity);
+
+		LinearLayout layout = new LinearLayout(activity);
+		layout.setPadding(padding, padding, padding, padding);
+
+		this.messageView = new MaterialTextView(activity);
+		this.messageView.setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium);
+		this.linearIndicator = null;
+
+		if (type == DETERMINANT) {
+			layout.setOrientation(LinearLayout.VERTICAL);
+			layout.addView(this.messageView, new LinearLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+			this.linearIndicator = new LinearProgressIndicator(activity);
+			this.linearIndicator.setIndeterminate(false);
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			params.topMargin = spacing;
+			layout.addView(this.linearIndicator, params);
+		} else {
+			layout.setOrientation(LinearLayout.HORIZONTAL);
+			layout.setGravity(Gravity.CENTER_VERTICAL);
+
+			CircularProgressIndicator circularIndicator = new CircularProgressIndicator(activity);
+			circularIndicator.setIndeterminate(true);
+			layout.addView(circularIndicator, new LinearLayout.LayoutParams(
+				ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+			LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+				0, ViewGroup.LayoutParams.WRAP_CONTENT, 1.0f);
+			params.setMarginStart(padding);
+			layout.addView(this.messageView, params);
+		}
+		return layout;
 	}
 
 	public void hide(KrollDict options)
@@ -260,6 +315,8 @@ public class TiUIProgressIndicator extends TiUIView implements
 					}
 				}
 				this.progressDialog = null;
+				this.messageView = null;
+				this.linearIndicator = null;
 			}
 		} else if (this.location == STATUS_BAR) {
 			Activity parent = proxy.getActivity();
@@ -291,6 +348,8 @@ public class TiUIProgressIndicator extends TiUIView implements
 
 		this.visible = false;
 		this.progressDialog = null;
+		this.messageView = null;
+		this.linearIndicator = null;
 		fireEvent(TiC.EVENT_CANCEL, null);
 	}
 
@@ -303,5 +362,7 @@ public class TiUIProgressIndicator extends TiUIView implements
 
 		this.visible = false;
 		this.progressDialog = null;
+		this.messageView = null;
+		this.linearIndicator = null;
 	}
 }
