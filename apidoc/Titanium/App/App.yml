@@ -202,6 +202,20 @@ events:
         summary: Whether accessibility is now enabled or disabled.
         type: Boolean
 
+  - name: fontScaleChanged
+    summary: Fired by the system when the device's font scale or text size changes.
+    platforms: [android, iphone, ipad, macos]
+    since: "13.1.0"
+    properties:
+      - name: value
+        summary: The new font scale value.
+        platforms: [android]
+        type: Number
+      - name: category
+        summary: The new content size category.
+        platforms: [iphone, ipad, macos]
+        type: String
+
   - name: close
     summary: Fired by the system when the application is about to be terminated.
     description: It is the last event that can be received before the application gets closed.
