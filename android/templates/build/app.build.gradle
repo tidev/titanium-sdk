@@ -91,6 +91,18 @@ android {
 		pickFirst '/lib/armeabi-v7a/libc++_shared.so'
 		pickFirst '/lib/x86/libc++_shared.so'
 		pickFirst '/lib/x86_64/libc++_shared.so'
+		// The Titanium library has the native runtime of each JS engine. Package only the one in use.
+		// A native module has one library per engine too: "lib<id>.so" for V8 and "lib<id>-hermes.so".
+<% if ((typeof jsEngine !== 'undefined') && (jsEngine === 'hermes')) { %>
+		exclude '/lib/*/libkroll-v8.so'
+	<% if (typeof nativeModuleIds !== 'undefined') { for (const nextModuleId of nativeModuleIds) { %>
+		exclude '/lib/*/lib<%- nextModuleId %>.so'
+	<% } } %>
+<% } else { %>
+		exclude '/lib/*/libkroll-hermes.so'
+		exclude '/lib/*/libjsi.so'
+		exclude '/lib/*/lib*-hermes.so'
+<% } %>
 	}
 }
 

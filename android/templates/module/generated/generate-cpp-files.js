@@ -327,6 +327,22 @@ async function main() {
 		data: charArray.join(', ')
 	});
 	fs.writeFileSync(path.join(outputJniDirPath, 'BootstrapJS.h'), fileContent);
+
+	// Generate the same files for the module's Hermes library. Only the bootstrap code differs per JS engine.
+	// The proxy bindings in this directory come from the "kroll-apt" Java annotation processor.
+	const outputHermesJniDirPath = process.env.TI_MODULE_GENERATED_HERMES_JNI_DIR;
+	if (outputHermesJniDirPath) {
+		fs.mkdirSync(outputHermesJniDirPath, { recursive: true });
+		fileContent = fs.readFileSync(path.join(sdkModuleTemplateDirPath, 'TiModuleBootstrapHermes.cpp'));
+		fileContent = replacePlaceholders(fileContent.toString(), {
+			moduleId: moduleId,
+			jniPackage: moduleId.replace(/\./g, '_')
+		});
+		fs.writeFileSync(path.join(outputHermesJniDirPath, 'TiModuleBootstrap.cpp'), fileContent);
+		for (const fileName of [ 'KrollGeneratedBindings.h', 'BootstrapJS.h' ]) {
+			fs.copyFileSync(path.join(outputJniDirPath, fileName), path.join(outputHermesJniDirPath, fileName));
+		}
+	}
 }
 
 main()

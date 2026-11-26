@@ -58,14 +58,23 @@ function bootstrap (global, kroll) {
 			this.path = path.dirname(filename);
 			this.paths = this.nodeModulesPaths(this.path);
 
+			// With the Hermes engine on Android, a production build stores each JS file as bytecode.
+			// The build compiled the file inside the module wrapper function, see Module.wrapper.
+			// "compiled.value" is that function.
+			let compiled;
 			if (!source) {
-				source = assets.readAsset(OS_ANDROID ? `Resources${filename}` : filename);
+				if (OS_ANDROID && Script.runBytecodeAsset) {
+					compiled = Script.runBytecodeAsset(`Resources${filename}`, filename);
+				}
+				if (!compiled) {
+					source = assets.readAsset(OS_ANDROID ? `Resources${filename}` : filename);
+				}
 			}
 
 			// Stick it in the cache
 			Module.cache[this.filename] = this;
 
-			this._runScript(source, this.filename);
+			this._runScript(source, this.filename, compiled);
 
 			this.loaded = true;
 		}
@@ -510,15 +519,23 @@ function bootstrap (global, kroll) {
 		 * Returns the result of the executed script.
 		 * @param  {String} source   [description]
 		 * @param  {String} filename [description]
+		 * @param  {object} [compiled] holds the module wrapper function of a file that is bytecode
 		 * @return {*}          [description]
 		 */
-		_runScript (source, filename) {
+		_runScript (source, filename, compiled) {
 			const self = this;
 
 			function require(path) {
 				return self.require(path);
 			}
 			require.main = Module.main;
+
+			if (compiled) {
+				if (self.id === '.' && !this.isService) {
+					global.require = require;
+				}
+				return compiled.value(this.exports, require, this, filename, path.dirname(filename), Titanium, Ti, global, kroll);
+			}
 
 			// This "first time" run is really only for app.js, AFAICT, and needs
 			// an activity. If app was restarted for Service only, we don't want

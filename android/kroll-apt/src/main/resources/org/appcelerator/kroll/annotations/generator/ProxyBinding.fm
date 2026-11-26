@@ -581,7 +581,7 @@ fails, a JS exception is returned.
 			titanium::JSException::Error(isolate, error);
 			return;
 			<#else>
-			jArguments[${index}].${info.jvalue} = NULL;
+			jArguments[${index}].${info.jvalue} = {};
 			</#if>
 		} else {
 			jArguments[${index}].${info.jvalue} =
@@ -603,7 +603,7 @@ fails, a JS exception is returned.
 				env, ${current_arg}<#if checkNew>, &isNew_${index}</#if>);
 	</#if>
 	} else {
-		jArguments[${index}].${info.jvalue} = NULL;
+		jArguments[${index}].${info.jvalue} = {};
 	}
 <#t>
 	<#if isOptional>

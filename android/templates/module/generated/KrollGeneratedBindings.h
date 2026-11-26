@@ -6,6 +6,7 @@
  *
  * Warning: This file is GENERATED, and should not be modified
  */
+#include <cstring>
 #include <unordered_map>
 #include <KrollBindings.h>
 

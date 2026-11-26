@@ -47,10 +47,28 @@ public class KrollBindingGenerator
 	private JSONUtils jsonUtils;
 	private boolean canOverwrite = true;
 
+	/** Name of the JS engine with the "ProxyBindingV8" templates. */
+	public static final String ENGINE_V8 = "V8";
+	/** Name of the JS engine with the "ProxyBindingHermes" templates. */
+	public static final String ENGINE_HERMES = "Hermes";
+
+	private final String engine;
+
 	public KrollBindingGenerator(String outPath, String moduleId)
+	{
+		this(outPath, moduleId, ENGINE_V8);
+	}
+
+	/**
+	 * @param outPath Directory that receives the generated C++ files.
+	 * @param moduleId The JavaScript module name that the C++ files bind to.
+	 * @param engine Selects the template set: ENGINE_V8 or ENGINE_HERMES.
+	 */
+	public KrollBindingGenerator(String outPath, String moduleId, String engine)
 	{
 		this.outPath = outPath;
 		this.moduleId = moduleId;
+		this.engine = engine;
 
 		this.jsonUtils = new JSONUtils();
 
@@ -67,12 +85,14 @@ public class KrollBindingGenerator
 			ClassLoader loader = getClass().getClassLoader();
 			String templatePackage = "org/appcelerator/kroll/annotations/generator/";
 
-			InputStream v8HeaderStream = loader.getResourceAsStream(templatePackage + "ProxyBindingV8.h.fm");
-			InputStream v8SourceStream = loader.getResourceAsStream(templatePackage + "ProxyBindingV8.cpp.fm");
+			String headerName = "ProxyBinding" + this.engine + ".h.fm";
+			String sourceName = "ProxyBinding" + this.engine + ".cpp.fm";
+			InputStream v8HeaderStream = loader.getResourceAsStream(templatePackage + headerName);
+			InputStream v8SourceStream = loader.getResourceAsStream(templatePackage + sourceName);
 
-			v8HeaderTemplate = new Template("ProxyBindingV8.h.fm", new InputStreamReader(v8HeaderStream), fmConfig);
+			v8HeaderTemplate = new Template(headerName, new InputStreamReader(v8HeaderStream), fmConfig);
 
-			v8SourceTemplate = new Template("ProxyBindingV8.cpp.fm", new InputStreamReader(v8SourceStream), fmConfig);
+			v8SourceTemplate = new Template(sourceName, new InputStreamReader(v8SourceStream), fmConfig);
 
 		} catch (IOException e) {
 			e.printStackTrace();

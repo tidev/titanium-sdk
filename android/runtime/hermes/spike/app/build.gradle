@@ -1,0 +1,53 @@
+plugins {
+	id 'com.android.application'
+}
+
+// Keep this version equal to HERMES_TAG in "fetch-jsi.sh".
+def hermesVersion = '260318099.0.8'
+
+android {
+	namespace = 'ti.hermes.spike'
+	compileSdk = 36
+	ndkVersion = '28.1.13356709'
+
+	defaultConfig {
+		applicationId = 'ti.hermes.spike'
+		minSdk = 24
+		targetSdk = 36
+		versionCode = 1
+		versionName = '0.0.1'
+		ndk {
+			abiFilters 'arm64-v8a', 'x86_64'
+		}
+		externalNativeBuild {
+			cmake {
+				arguments '-DANDROID_STL=c++_shared'
+			}
+		}
+	}
+	externalNativeBuild {
+		cmake {
+			path = file('src/main/cpp/CMakeLists.txt')
+			version = '3.22.1'
+		}
+	}
+	buildTypes {
+		release {
+			// The spike is not for distribution. The debug key lets "adb install" accept the release APK.
+			signingConfig = signingConfigs.debug
+		}
+	}
+	buildFeatures {
+		prefab = true
+	}
+	compileOptions {
+		sourceCompatibility = JavaVersion.VERSION_17
+		targetCompatibility = JavaVersion.VERSION_17
+	}
+}
+
+dependencies {
+	implementation "com.facebook.hermes:hermes-android:${hermesVersion}"
+	// The Hermes AAR brings this in at runtime scope only. The app must call NativeLoader.init itself.
+	implementation 'com.facebook.soloader:nativeloader:0.10.5'
+}

@@ -4,19 +4,19 @@
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
-package org.appcelerator.kroll.runtime.v8;
+package org.appcelerator.kroll.util;
 
 import org.appcelerator.kroll.KrollRuntime;
 
 import java.lang.ref.WeakReference;
 
 /**
- * Detect JVM garbage collections to initiate V8 garbage collections.
+ * Detect JVM garbage collections to initiate garbage collections of the JS engine.
  *
- * We do this because the V8 objects do not represent the memory footprint
- * of the Java objects, this means V8 does not garbage collect as often as is
+ * We do this because the JS objects do not represent the memory footprint
+ * of the Java objects, this means the JS engine does not garbage collect as often as is
  * necessary and prevents JVM from collecting objects as they are still referenced.
- * This GCWatcher will coincide JVM collections with V8 collections.
+ * This GCWatcher will coincide JVM collections with JS engine collections.
  */
 public final class GCWatcher
 {
@@ -27,7 +27,7 @@ public final class GCWatcher
 	protected void finalize() throws Throwable
 	{
 
-		// suggest V8 GC
+		// suggest a GC of the JS engine
 		KrollRuntime.suggestGC();
 
 		// re-new weak reference
