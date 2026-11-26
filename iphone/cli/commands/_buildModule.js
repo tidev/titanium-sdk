@@ -543,7 +543,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 					function (cb) {
 						if (tries > 3) {
 							// we failed 3 times, so just give up
-							this.logger.error('titanium_prep failed to complete successfully');
+							this.logger.error('ti_prep failed to complete successfully');
 							this.logger.error('Try cleaning this project and build again\n');
 							process.exit(1);
 						}
@@ -555,7 +555,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 							basepath = args[1];
 						let out = '';
 
-						// titanium_prep is dumb and assumes all paths are relative to the assets dir we passed in as an argument
+						// ti_prep is dumb and assumes all paths are relative to the assets dir we passed in as an argument
 						// So we *must* chop the paths down to relative paths
 						jsFilesToEncrypt.forEach(function (file) {
 							relativePaths.push(path.relative(basepath, file));
@@ -570,7 +570,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 						child.on('close', function (code) {
 							if (code) {
-								this.logger.error(`titanium_prep failed to run (${code})\n`);
+								this.logger.error(`ti_prep failed to run (${code})\n`);
 								process.exit(1);
 							}
 
@@ -581,7 +581,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 								completed = true;
 							} else {
 								// failure, maybe it was a fluke, try again
-								this.logger.warn('titanium_prep failed to complete successfully, trying again');
+								this.logger.warn('ti_prep failed to complete successfully, trying again');
 								tries++;
 							}
 							cb();
@@ -604,7 +604,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 
 			await new Promise((resolve, reject) => {
 				titaniumPrepHook(
-					path.join(this.platformPath, 'titanium_prep'),
+					path.join(this.platformPath, 'ti_prep'),
 					[ this.moduleId, this.assetsDir, this.moduleGuid ],
 					{ jsFiles: this.jsFilesToEncrypt, placeHolder: 'mainEncryptedAsset' },
 					(err, result) => {
@@ -636,7 +636,7 @@ FRAMEWORK_SEARCH_PATHS = $(inherited) "$(TITANIUM_SDK)/iphone/Frameworks/**"`);
 		if (hasAdditionalAssets) {
 			await new Promise((resolve, reject) => {
 				titaniumPrepHook(
-					path.join(this.platformPath, 'titanium_prep'),
+					path.join(this.platformPath, 'ti_prep'),
 					[ this.moduleId, this.assetsDir, this.moduleGuid ],
 					{ jsFiles: this.jsFilesToEncrypt, placeHolder: 'allEncryptedAssets' },
 					(err, result) => {
