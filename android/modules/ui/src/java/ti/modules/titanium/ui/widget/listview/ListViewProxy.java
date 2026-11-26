@@ -61,7 +61,9 @@ import ti.modules.titanium.ui.widget.TiUIListView;
 		TiC.PROPERTY_SNAPPING,
 		TiC.PROPERTY_TEMPLATES,
 		TiC.PROPERTY_TOUCH_FEEDBACK,
-		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR
+		TiC.PROPERTY_TOUCH_FEEDBACK_COLOR,
+		TiC.PROPERTY_CLIP_VIEWS,
+		TiC.PROPERTY_PADDING
 	}
 )
 public class ListViewProxy extends RecyclerViewProxy
