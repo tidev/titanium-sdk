@@ -271,6 +271,15 @@ Ti.App.addEventListener('uncaughtException', function (event) {
 	process.emit('uncaughtException', error);
 });
 
+// Bridge unhandled promise rejections to the process 'unhandledRejection' event.
+// This enables Node.js-compatible process.on('unhandledRejection') listeners.
+// Registered as an internal listener rather than assigned to global.onunhandledrejection,
+// so app code remains free to use that slot without disabling this bridge (or vice versa).
+kroll.addUnhandledRejectionListener(function (event) {
+	// Node hands the listener the raw rejection value, not a wrapped Error.
+	process.emit('unhandledRejection', event.reason, event.promise);
+});
+
 export default process;
 
 // Use a nice predictable class/structure for our Immediate/Tick "timers"
