@@ -153,18 +153,23 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 	private void updateThumb(SeekBar seekBar, KrollDict d)
 	{
 		TiFileHelper tfh = null;
-		String thumbImage = TiConvert.toString(d, "thumbImage");
+		Object thumbImage = d.get("thumbImage");
 		if (thumbImage != null) {
 			if (tfh == null) {
 				tfh = new TiFileHelper(seekBar.getContext());
 			}
-			String url = proxy.resolveUrl(null, thumbImage);
-			Drawable thumb = tfh.loadDrawable(url, false);
-			if (thumb != null) {
-				thumbDrawable = new SoftReference<>(thumb);
-				seekBar.setThumb(thumb);
-			} else {
-				Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
+
+			if (thumbImage instanceof String) {
+				String url = proxy.resolveUrl(null, (String) thumbImage);
+				Drawable thumb = tfh.loadDrawable(url, false);
+				if (thumb != null) {
+					thumbDrawable = new SoftReference<>(thumb);
+					seekBar.setThumb(thumb);
+				} else {
+					Log.e(TAG, "Unable to locate thumb image for progress bar: " + url);
+				}
+			} else if (thumbImage instanceof Number) {
+				seekBar.setThumb(TiUIHelper.getResourceDrawable((Integer) thumbImage));
 			}
 		} else {
 			seekBar.setThumb(null);
@@ -173,54 +178,84 @@ public class TiUISlider extends TiUIView implements SeekBar.OnSeekBarChangeListe
 
 	private void updateTrackingImages(SeekBar seekBar, KrollDict d)
 	{
-		String leftImage = TiConvert.toString(d, "leftTrackImage");
-		String rightImage = TiConvert.toString(d, "rightTrackImage");
+		Object leftImage = d.get("leftTrackImage");
+		Object rightImage = d.get("rightTrackImage");
 
 		Drawable leftDrawable = null;
 		Drawable rightDrawable = null;
 		TiFileHelper tfh = new TiFileHelper(seekBar.getContext());
+		boolean isLeftImage = false;
+		boolean isRightImage = false;
 
 		if (leftImage != null) {
-			String leftUrl = proxy.resolveUrl(null, leftImage);
-			if (leftUrl != null) {
-				leftDrawable = tfh.loadDrawable(leftUrl, false, true);
-				if (leftDrawable == null) {
-					Log.e(TAG, "Unable to locate left image for progress bar: " + leftUrl);
+			if (leftImage instanceof String) {
+				String leftUrl = proxy.resolveUrl(null, (String) leftImage);
+				if (leftUrl != null) {
+					leftDrawable = tfh.loadDrawable(leftUrl, false, true);
+					if (leftDrawable == null) {
+						Log.e(TAG, "Unable to locate left image for progress bar: " + leftUrl);
+					} else {
+						isLeftImage = true;
+					}
 				}
+			} else if (leftImage instanceof Number) {
+				leftDrawable = TiUIHelper.getResourceDrawable((Integer) leftImage);
 			}
 		}
 
 		if (rightImage != null) {
-			String rightUrl = proxy.resolveUrl(null, rightImage);
-			if (rightUrl != null) {
-				rightDrawable = tfh.loadDrawable(rightUrl, false, true);
-				if (rightDrawable == null) {
-					Log.e(TAG, "Unable to locate right image for progress bar: " + rightUrl);
+			if (rightImage instanceof String) {
+				String rightUrl = proxy.resolveUrl(null, (String) rightImage);
+				if (rightUrl != null) {
+					rightDrawable = tfh.loadDrawable(rightUrl, false, true);
+					if (rightDrawable == null) {
+						Log.e(TAG, "Unable to locate right image for progress bar: " + rightUrl);
+					} else {
+						isRightImage = true;
+					}
 				}
+			} else if (rightImage instanceof Number) {
+				rightDrawable = TiUIHelper.getResourceDrawable((Integer) rightImage);
 			}
 		}
 
 		if (leftDrawable != null || rightDrawable != null) {
 			LayerDrawable ld = null;
 			if (rightDrawable == null) {
-				Drawable[] lda = { new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL) };
-				ld = new LayerDrawable(lda);
-				ld.setId(0, android.R.id.progress);
+				if (isLeftImage) {
+					Drawable[] lda = { new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL) };
+					ld = new LayerDrawable(lda);
+					ld.setId(0, android.R.id.progress);
+					seekBar.setProgressDrawable(ld);
+				} else {
+					seekBar.setProgressDrawable(leftDrawable);
+				}
 			} else if (leftDrawable == null) {
-				rightClipDrawable = new ClipDrawable(rightDrawable, Gravity.RIGHT, ClipDrawable.HORIZONTAL);
-				Drawable[] lda = { rightClipDrawable };
-				ld = new LayerDrawable(lda);
-				ld.setId(0, android.R.id.secondaryProgress);
+				if (isRightImage) {
+					rightClipDrawable = new ClipDrawable(rightDrawable, Gravity.RIGHT, ClipDrawable.HORIZONTAL);
+					Drawable[] lda = { rightClipDrawable };
+					ld = new LayerDrawable(lda);
+					ld.setId(0, android.R.id.secondaryProgress);
+					seekBar.setProgressDrawable(ld);
+				} else {
+					seekBar.setProgressDrawable(rightDrawable);
+				}
 			} else {
-				Drawable[] lda = {
-					rightDrawable,
-					new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
-				};
-				ld = new LayerDrawable(lda);
-				ld.setId(0, android.R.id.background);
-				ld.setId(1, android.R.id.progress);
+				if (isLeftImage) {
+					Drawable[] lda = {
+						rightDrawable,
+						new ClipDrawable(leftDrawable, Gravity.LEFT, ClipDrawable.HORIZONTAL)
+					};
+					ld = new LayerDrawable(lda);
+					ld.setId(0, android.R.id.background);
+					ld.setId(1, android.R.id.progress);
+					seekBar.setProgressDrawable(ld);
+				} else {
+					seekBar.setProgressDrawable(leftDrawable);
+					seekBar.setBackground(rightDrawable);
+				}
 			}
-			seekBar.setProgressDrawable(ld);
+
 		} else {
 			Log.w(TAG, "Custom tracking images could not be loaded.");
 		}
