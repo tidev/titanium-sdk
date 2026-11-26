@@ -137,9 +137,15 @@ public class FilesystemModule extends KrollModule
 	}
 
 	@Kroll.getProperty
-	public FileProxy getApplicationDirectory()
+	public String getApplicationDirectory()
 	{
-		return null;
+		return TiC.URL_ANDROID_ASSET;
+	}
+
+	@Kroll.getProperty
+	public String getApplicationSupportDirectory()
+	{
+		return TiFileFactory.APPDATA_PRIVATE_URL_SCHEME + "://";
 	}
 
 	@Kroll.getProperty
