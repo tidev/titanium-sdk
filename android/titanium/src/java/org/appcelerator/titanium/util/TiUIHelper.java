@@ -6,7 +6,10 @@
  */
 package org.appcelerator.titanium.util;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -104,6 +107,7 @@ public class TiUIHelper
 	private static Method overridePendingTransition;
 	private static final Map<String, String> resourceImageKeys = new ConcurrentHashMap<>();
 	private static final Map<String, Typeface> mCustomTypeFaces = new ConcurrentHashMap<>();
+	private static final Map<String, Boolean> mFontHasWeightAxis = new ConcurrentHashMap<>();
 
 	public static OnClickListener createDoNothingListener()
 	{
@@ -379,7 +383,7 @@ public class TiUIHelper
 	public static void styleText(TextView tv, String fontFamily, String fontSize, String fontWeight, String fontStyle)
 	{
 		Typeface tf = tv.getTypeface();
-		tf = toTypeface(tv.getContext(), fontFamily);
+		tf = toTypeface(tv.getContext(), fontFamily, fontWeight);
 		tv.setTypeface(tf, toTypefaceStyle(fontWeight, fontStyle));
 		tv.setTextSize(getSizeUnits(fontSize), getSize(fontSize));
 	}
@@ -400,6 +404,11 @@ public class TiUIHelper
 
 	public static Typeface toTypeface(Context context, String fontFamily)
 	{
+		return toTypeface(context, fontFamily, "");
+	}
+
+	public static Typeface toTypeface(Context context, String fontFamily, String fontWeight)
+	{
 		Typeface tf = Typeface.SANS_SERIF; // default
 
 		if (fontFamily != null) {
@@ -412,7 +421,7 @@ public class TiUIHelper
 			} else {
 				Typeface loadedTf = null;
 				if (context != null) {
-					loadedTf = loadTypeface(context, fontFamily);
+					loadedTf = loadTypeface(context, fontFamily, fontWeight);
 				}
 				if (loadedTf == null) {
 					Log.w(TAG,
@@ -431,23 +440,67 @@ public class TiUIHelper
 		return toTypeface(null, fontFamily);
 	}
 
-	private static Typeface loadTypeface(Context context, String fontFamily)
+	private static Typeface loadTypeface(Context context, String fontFamily, String fontWeight)
 	{
 		if (context == null || fontFamily == null) {
 			return null;
 		}
-		Typeface cached = mCustomTypeFaces.get(fontFamily);
-		if (cached != null || mCustomTypeFaces.containsKey(fontFamily)) {
+
+		// A weight only selects another typeface if the font has a weight axis (variable font).
+		// A static font keeps one typeface per family and gets its bold style from the text view.
+		int weight = toFontWeightValue(fontWeight);
+		boolean useWeight = weight > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+			&& !Boolean.FALSE.equals(mFontHasWeightAxis.get(fontFamily));
+		Typeface cached = mCustomTypeFaces.get(useWeight ? fontFamily + "_" + weight : fontFamily);
+		if (cached != null) {
 			return cached;
 		}
+
 		AssetManager mgr = context.getAssets();
 		try {
 			String[] fontFiles = mgr.list(customFontPath);
 			for (String f : fontFiles) {
 				if (f.equalsIgnoreCase(fontFamily)
 					|| f.toLowerCase().startsWith(fontFamily.toLowerCase() + ".")) {
-					Typeface tf = Typeface.createFromAsset(mgr, customFontPath + "/" + f);
-					mCustomTypeFaces.put(fontFamily, tf);
+					String fontPath = customFontPath + "/" + f;
+
+					if (useWeight) {
+						Boolean hasWeightAxis = mFontHasWeightAxis.get(fontFamily);
+						if (hasWeightAxis == null) {
+							hasWeightAxis = hasWeightAxis(mgr, fontPath);
+							mFontHasWeightAxis.put(fontFamily, hasWeightAxis);
+						}
+						if (!hasWeightAxis) {
+							useWeight = false;
+							cached = mCustomTypeFaces.get(fontFamily);
+							if (cached != null) {
+								return cached;
+							}
+						}
+					}
+
+					Typeface tf = null;
+					if (useWeight) {
+						try {
+							// Set the weight of the typeface too. If not, Android adds fake bold on top.
+							tf = new Typeface.Builder(mgr, fontPath)
+								.setWeight(weight)
+								.setFontVariationSettings("'wght' " + weight)
+								.build();
+						} catch (RuntimeException e) {
+							Log.w(TAG, "Unable to set font weight " + weight + " for '" + fontFamily + "': "
+								+ e.getMessage());
+						}
+					}
+					if (tf == null) {
+						useWeight = false;
+						tf = Typeface.createFromAsset(mgr, fontPath);
+					}
+					if (tf == null) {
+						// ConcurrentHashMap does not accept null values.
+						return null;
+					}
+					mCustomTypeFaces.put(useWeight ? fontFamily + "_" + weight : fontFamily, tf);
 					return tf;
 				}
 			}
@@ -456,6 +509,116 @@ public class TiUIHelper
 		}
 
 		return null;
+	}
+
+	/**
+	 * Converts a "fontWeight" value to a numeric font weight.
+	 * @param fontWeight A weight name such as "bold" or a number from 1 to 1000. Can be null.
+	 * @return Returns the numeric weight. Returns -1 if the value is empty or unknown.
+	 */
+	private static int toFontWeightValue(String fontWeight)
+	{
+		if (fontWeight == null) {
+			return -1;
+		}
+		String value = fontWeight.trim().toLowerCase();
+		switch (value) {
+			case "ultralight":
+				return 100;
+			case "thin":
+				return 200;
+			case "light":
+				return 300;
+			case "normal":
+				return 400;
+			case "medium":
+				return 500;
+			case "semibold":
+				return 600;
+			case "bold":
+				return 700;
+			case "extrabold":
+				return 800;
+			case "black":
+				return 900;
+		}
+		try {
+			// A number from JavaScript can arrive as "650.0".
+			int weight = Math.round(Float.parseFloat(value));
+			if (weight >= 1 && weight <= 1000) {
+				return weight;
+			}
+		} catch (NumberFormatException e) {
+			// Not a number.
+		}
+		return -1;
+	}
+
+	/**
+	 * Reads the "fvar" table of a font file to find out if the font has a weight axis.
+	 * @param mgr The asset manager that opens the font file.
+	 * @param fontPath Asset path of a TrueType or OpenType font file.
+	 * @return Returns true if the font is a variable font with a "wght" axis.
+	 */
+	private static boolean hasWeightAxis(AssetManager mgr, String fontPath)
+	{
+		final int TAG_FVAR = 0x66766172;
+		final int TAG_WGHT = 0x77676874;
+
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(mgr.open(fontPath)))) {
+			// Font header: version (4 bytes), table count (2 bytes), search values (6 bytes).
+			skipFully(in, 4);
+			int tableCount = in.readUnsignedShort();
+			skipFully(in, 6);
+			long position = 12;
+			long fvarOffset = -1;
+			for (int i = 0; i < tableCount && fvarOffset < 0; i++) {
+				// Table record: tag, checksum, offset, length (4 bytes each).
+				int tag = in.readInt();
+				skipFully(in, 4);
+				long offset = in.readInt() & 0xFFFFFFFFL;
+				skipFully(in, 4);
+				position += 16;
+				if (tag == TAG_FVAR) {
+					fvarOffset = offset;
+				}
+			}
+			if (fvarOffset < position) {
+				return false;
+			}
+			skipFully(in, fvarOffset - position);
+
+			// Table "fvar": version (4 bytes), axes offset, reserved, axis count, axis size (2 bytes each).
+			skipFully(in, 4);
+			int axesOffset = in.readUnsignedShort();
+			skipFully(in, 2);
+			int axisCount = in.readUnsignedShort();
+			int axisSize = in.readUnsignedShort();
+			if (axesOffset < 12 || axisSize < 4) {
+				return false;
+			}
+			skipFully(in, axesOffset - 12);
+			for (int i = 0; i < axisCount; i++) {
+				if (in.readInt() == TAG_WGHT) {
+					return true;
+				}
+				skipFully(in, axisSize - 4);
+			}
+		} catch (IOException e) {
+			// Not a readable font file. Use it as a static font.
+		}
+		return false;
+	}
+
+	private static void skipFully(DataInputStream in, long count) throws IOException
+	{
+		while (count > 0) {
+			int skipped = in.skipBytes((int) Math.min(count, Integer.MAX_VALUE));
+			if (skipped <= 0) {
+				throw new EOFException();
+			}
+			count -= skipped;
+		}
 	}
 
 	public static String getDefaultFontSize(Context context)

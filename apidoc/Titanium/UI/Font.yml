@@ -89,10 +89,18 @@ properties:
         Font weight. Valid values are "bold", "semibold", "normal", "thin",
         "light" and "ultralight".
     description: |
-        The "semibold", "thin", "light" and "ultralight" weights are recognized
-        on iOS only. "thin", "light" and "ultralight" are only available on iOS 8.2
+        On iOS, the "thin", "light" and "ultralight" weights are only available on iOS 8.2
         and later.
-    type: String
+
+        On Android, a system font and a static custom font only recognize "bold" and "normal".
+
+        Since SDK 14.1.0, Android 8.0 and later apply the weight to a custom variable font
+        (a font file with a weight axis). The names map to these weights: "ultralight" (100),
+        "thin" (200), "light" (300), "normal" (400), "medium" (500), "semibold" (600),
+        "bold" (700), "extrabold" (800) and "black" (900). You can also set a number
+        from 1 to 1000, for example `fontWeight: 650`. The names "medium", "extrabold" and
+        "black" and the numbers are recognized on Android only.
+    type: [ String, Number ]
     default: normal
   - name: fontStyle
     summary: Font style. Valid values are "italic" or "normal".
