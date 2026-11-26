@@ -13,6 +13,7 @@ import sprintf from 'sprintf';
 import tiappxml from 'node-titanium-sdk/lib/tiappxml.js';
 import fields from 'fields';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { setTimeout } from 'node:timers/promises';
 import { validateModuleManifest } from '../lib/validate-module-manifest.js';
 import { validatePlatformOptions } from '../lib/validate-platform-options.js';
 import { loadPlugins } from '../lib/load-plugins.js';
@@ -68,8 +69,10 @@ export function config(logger, config, cli) {
 								// make sure the tiapp.xml is sane
 								ti.validateTiappXml(logger, config, tiapp);
 
-								// check that the Titanium SDK version is correct
-								if (!ti.validateCorrectSDK(logger, config, cli, 'clean')) {
+								// An explicit CLI SDK selection takes precedence over the project version.
+								const sdkOverride = cli.argv.$_?.some(arg => /^(?:--sdk(?:=|$)|-s)/.test(arg));
+								tiapp['sdk-version'] ||= cli.sdk.name;
+								if ((cli.argv.legacy || !sdkOverride) && !ti.validateCorrectSDK(logger, config, cli, 'clean')) {
 									throw new cli.GracefulShutdown();
 								}
 
@@ -265,7 +268,7 @@ export async function run(logger, config, cli) {
 				let dir = path.join(buildDir, platform);
 				if (appc.fs.exists(dir)) {
 					logger.debug(`Deleting ${dir.cyan}`);
-					fs.removeSync(dir);
+					await removeBuildPath(dir);
 				} else {
 					logger.debug(`Directory does not exist ${dir.cyan}`);
 				}
@@ -295,7 +298,7 @@ export async function run(logger, config, cli) {
 				const file = path.join(buildDir, name);
 				await cli.emit(`clean.${name}.pre`);
 				logger.debug(`Deleting ${file.cyan}`);
-				fs.removeSync(file);
+				await removeBuildPath(file);
 				await cli.emit(`clean.${name}.post`);
 			}
 
@@ -306,6 +309,23 @@ export async function run(logger, config, cli) {
 	}
 
 	logger.info(`Project cleaned successfully in ${appc.time.prettyDiff(cli.startTime, Date.now())}\n`);
+}
+
+async function removeBuildPath(file) {
+	const maxRetries = 5;
+	for (let retry = 0; ; retry++) {
+		try {
+			fs.removeSync(file);
+			return;
+		} catch (err) {
+			if (err.code !== 'ENOTEMPTY' || retry === maxRetries) {
+				throw err;
+			}
+			// Repeat the whole traversal to remove files created during cleanup.
+			// Node 22's rmSync retries only rmdir after traversing the children.
+			await setTimeout(200 * (retry + 1));
+		}
+	}
 }
 
 /**
