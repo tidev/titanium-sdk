@@ -229,6 +229,47 @@ describe('hot reload server', function () {
 		await waitFor(() => client.patches.length >= 5 && client.patches[client.patches.length - 1].index === null);
 	});
 
+	it('warns and sends no patch for a file that needs a build', async function () {
+		const warnings = [];
+		server.logger = { ...noopLogger, warn: message => warnings.push(message) };
+		const client = await open(TOKEN, '');
+		await waitFor(() => client.patches.length === 1);
+
+		await fs.outputFile(path.join(projectDir, 'Resources', 'logo.png'), 'image');
+		await waitFor(() => warnings.some(message => message.includes('Resources/logo.png')));
+		await fs.outputFile(path.join(projectDir, 'tiapp.xml'), '<ti:app/>');
+		await waitFor(() => warnings.some(message => message.includes('tiapp.xml')));
+		expect(warnings.some(message => message.includes('Build the app again'))).to.equal(true);
+
+		// The next patch holds the JS file only, and the manifest does not count the other files.
+		await fs.writeFile(path.join(projectDir, 'Resources', 'app.js'), 'two');
+		await waitFor(() => client.patches.length === 2);
+		expect(client.patches[1].contents).to.deep.equal({ 'app.js': 'two' });
+		expect(client.patches[1].removed).to.deep.equal([]);
+	});
+
+	it('does not run the Alloy compiler for an image under "app"', async function () {
+		const warnings = [];
+		const compiled = [];
+		server.logger = { ...noopLogger, warn: message => warnings.push(message) };
+		server.compileAlloy = file => compiled.push(file);
+
+		const image = path.join(projectDir, 'app', 'assets', 'images', 'logo.png');
+		const strings = path.join(projectDir, 'app', 'i18n', 'en', 'strings.xml');
+		const controller = path.join(projectDir, 'app', 'controllers', 'index.js');
+		await fs.outputFile(image, 'image');
+		await fs.outputFile(strings, '<resources/>');
+		await fs.outputFile(controller, 'code');
+		server.onAlloyChange(image);
+		server.onAlloyChange(strings);
+		server.onAlloyChange(controller);
+
+		expect(compiled).to.deep.equal([ controller ]);
+		await waitFor(() => warnings.length === 2);
+		expect(warnings[0]).to.include('app/assets/images/logo.png').and.to.include('app/i18n/en/strings.xml');
+		expect(warnings[1]).to.include('Build the app again');
+	});
+
 	it('reports a removed file', async function () {
 		const client = await open(TOKEN, '');
 		await waitFor(() => client.patches.length === 1);

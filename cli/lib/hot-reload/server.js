@@ -37,6 +37,19 @@ const ALLOY_FULL_COMPILE_FILES = [ 'app/styles/app.tss', 'app/config.json', 'app
 // File types that the require index of the app lists.
 const INDEX_FILE_REGEXP = /\.(js|cjs|json)$/i;
 
+// File types that the app can load from the override directory. The app reads all other files,
+// for example images, from the app package only.
+const RELOAD_FILE_REGEXP = INDEX_FILE_REGEXP;
+
+// Alloy source files that the compiler turns into JS or JSON files.
+const ALLOY_SOURCE_REGEXP = /\.(js|cjs|json|xml|tss)$/i;
+
+// Alloy directories that the compiler copies to the "i18n" and "platform" directories of the project.
+const ALLOY_REBUILD_DIR_REGEXP = /^app\/(themes\/[^/]+\/)?(i18n|platform)\//;
+
+// Project directories that only a build puts into the app.
+const REBUILD_DIRS = [ 'i18n', 'platform', 'modules' ];
+
 // Changes that arrive within this window go to the app as one patch.
 const DEBOUNCE_MS = 150;
 
@@ -132,6 +145,8 @@ export class HotReloadServer {
 		this.hashCache = new Map(); // absolute path -> { mtimeMs, size, hash }
 		this.baseline = new Map(); // runtime path -> hash, the state that the build put into the app
 		this.current = new Map(); // runtime path -> { file, hash, size }
+		this.rebuildFiles = new Map(); // project path -> signature, the files that hot reload cannot update
+		this.changedAlloyRebuildFiles = new Set(); // changed files under "app" that hot reload cannot update
 		this.manifest = '';
 		this.clients = new Set();
 		this.watchers = [];
@@ -147,7 +162,9 @@ export class HotReloadServer {
 	 * @returns {Promise<void>}
 	 */
 	async start() {
-		this.current = this.scan();
+		const resources = this.scan();
+		this.rebuildFiles = this.scanRebuildFiles(resources);
+		this.current = this.reloadable(resources);
 		this.baseline = new Map();
 		for (const [ key, entry ] of this.current) {
 			this.baseline.set(key, entry.hash);
@@ -165,8 +182,13 @@ export class HotReloadServer {
 		this.server.on('error', err => this.logger.error(`[HotReload] ${err.message}`));
 
 		this.watch(this.resourcesDir, () => this.scheduleFlush());
+		for (const dir of REBUILD_DIRS) {
+			this.watch(path.join(this.projectDir, dir), () => this.scheduleFlush());
+		}
+		// Watch the directory and not the file, because an editor can replace the file when it saves.
+		this.watch(this.projectDir, file => file && path.basename(file) === 'tiapp.xml' && this.scheduleFlush(), false);
 		if (this.isAlloy) {
-			this.watch(this.alloyDir, file => this.compileAlloy(file));
+			this.watch(this.alloyDir, file => this.onAlloyChange(file));
 		}
 		this.logger.info(`[HotReload] Server listens on ${this.host}:${this.port}`);
 	}
@@ -187,11 +209,11 @@ export class HotReloadServer {
 		this.server && this.server.close();
 	}
 
-	watch(dir, onChange) {
+	watch(dir, onChange, recursive = true) {
 		if (!fs.existsSync(dir)) {
 			return;
 		}
-		const watcher = fs.watch(dir, { recursive: true }, (_event, file) => {
+		const watcher = fs.watch(dir, { recursive }, (_event, file) => {
 			const name = file ? path.basename(file.toString()) : '';
 			if (name.startsWith('.') || name.endsWith('~')) {
 				return;
@@ -252,6 +274,99 @@ export class HotReloadServer {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * @param {Map<string, object>} resources the result of scan()
+	 * @returns {Map<string, object>} the files that the app can load from the override directory
+	 */
+	reloadable(resources) {
+		const result = new Map();
+		for (const [ key, entry ] of resources) {
+			if (RELOAD_FILE_REGEXP.test(key)) {
+				result.set(key, entry);
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Lists the files that only a build can put into the app: the resources that are not JS or JSON,
+	 * the "tiapp.xml" file, and the files in the "i18n", "platform" and "modules" directories.
+	 * @param {Map<string, object>} resources the result of scan()
+	 * @returns {Map<string, string>} project path -> signature of the content
+	 */
+	scanRebuildFiles(resources) {
+		const result = new Map();
+		for (const [ key, entry ] of resources) {
+			if (!RELOAD_FILE_REGEXP.test(key)) {
+				result.set(`Resources/${key}`, entry.hash);
+			}
+		}
+		const add = (file, relative, statOnly) => {
+			if (!statOnly) {
+				const info = this.hashFile(file);
+				info && result.set(relative, info.hash);
+				return;
+			}
+			try {
+				// A module can hold large binary files, so do not read them.
+				const stat = fs.statSync(file);
+				result.set(relative, `${stat.mtimeMs}:${stat.size}`);
+			} catch {
+				// The file went away between the directory listing and the stat.
+			}
+		};
+		const walk = (dir, relative, statOnly) => {
+			let entries;
+			try {
+				entries = fs.readdirSync(dir, { withFileTypes: true });
+			} catch {
+				return;
+			}
+			for (const entry of entries) {
+				if (entry.name.startsWith('.')) {
+					continue;
+				}
+				if (entry.isDirectory()) {
+					walk(path.join(dir, entry.name), `${relative}/${entry.name}`, statOnly);
+				} else if (entry.isFile()) {
+					add(path.join(dir, entry.name), `${relative}/${entry.name}`, statOnly);
+				}
+			}
+		};
+		add(path.join(this.projectDir, 'tiapp.xml'), 'tiapp.xml', false);
+		for (const dir of REBUILD_DIRS) {
+			walk(path.join(this.projectDir, dir), dir, dir === 'modules');
+		}
+		return result;
+	}
+
+	/**
+	 * Tells the user when a file changed that hot reload cannot update. The app does not restart for it.
+	 * @param {Map<string, object>} resources the result of scan()
+	 */
+	reportRebuildFiles(resources) {
+		const previous = this.rebuildFiles;
+		const next = this.scanRebuildFiles(resources);
+		const changed = [];
+		for (const [ key, signature ] of next) {
+			if (previous.get(key) !== signature) {
+				changed.push(key);
+			}
+		}
+		for (const key of previous.keys()) {
+			if (!next.has(key)) {
+				changed.push(key);
+			}
+		}
+		this.rebuildFiles = next;
+		changed.push(...this.changedAlloyRebuildFiles);
+		this.changedAlloyRebuildFiles.clear();
+		if (changed.length) {
+			this.logger.warn(`[HotReload] Changed: ${changed.join(', ')}`);
+			this.logger.warn('[HotReload] Hot reload cannot apply this change. Build the app again to see it.');
+		}
 	}
 
 	hashFile(file) {
@@ -318,7 +433,9 @@ export class HotReloadServer {
 			return;
 		}
 		const previous = this.current;
-		const next = this.scan();
+		const resources = this.scan();
+		this.reportRebuildFiles(resources);
+		const next = this.reloadable(resources);
 		const changed = [];
 		const removed = [];
 		for (const [ key, entry ] of next) {
@@ -485,6 +602,30 @@ export class HotReloadServer {
 		// The reset deletes the index override of the app, so send the index only when one is necessary.
 		const frame = this.buildPatch(changed, removed, true, action, this.computeIndex(this.current) || undefined);
 		frame && client.socket.write(frame);
+	}
+
+	/**
+	 * Handles a change under "app". A source file starts the Alloy compiler. Another file, for example
+	 * an image, needs a build, so the compiler does not run and the user gets the warning.
+	 * @param {string|null} file the changed file under "app"
+	 */
+	onAlloyChange(file) {
+		if (file) {
+			try {
+				if (fs.statSync(file).isDirectory()) {
+					return;
+				}
+			} catch {
+				// The file is removed. Its name still tells what to do.
+			}
+			const relative = path.relative(this.projectDir, file).replace(/\\/g, '/');
+			if (ALLOY_REBUILD_DIR_REGEXP.test(relative) || !ALLOY_SOURCE_REGEXP.test(relative)) {
+				this.changedAlloyRebuildFiles.add(relative);
+				this.scheduleFlush();
+				return;
+			}
+		}
+		this.compileAlloy(file);
 	}
 
 	/**

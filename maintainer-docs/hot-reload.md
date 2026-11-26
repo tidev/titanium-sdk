@@ -44,7 +44,10 @@ The server starts in the `build.post.compile` hook, before the app starts. It li
 
 - It records a hash of each file in `Resources` as the baseline. A file in a platform directory replaces the file of the same name.
 - It watches `Resources`. It collects the changes of 150 ms into one patch.
+- It sends only JS and JSON files. The app reads all other files from the app package.
+- It also watches `tiapp.xml`, `i18n`, `platform`, and `modules`. If one of these files or a resource of another type changes, the server logs a warning. The warning tells the user to build the app again, and the app does not restart.
 - For an Alloy project, it also watches `app` and runs `alloy compile`. The compiler writes to `Resources`, and the server sends the result.
+- It does not run the compiler for a file under `app` that needs a build, for example an image or an `i18n` file. It logs the same warning.
 - It applies the JS transform of the build to each changed JS file. If a file has a syntax error, the server sends no patch.
 - It sends a new require index when a JS or JSON file is new or removed. `require()` finds a file only if the index lists it.
 
@@ -109,8 +112,7 @@ npx mocha cli/tests/test-hot-reload-server.js
 - Variable port. The port is always 8325, so a second build at the same time cannot start its server. Add an option or use a free port.
 - iOS device support. The server listens on `127.0.0.1` only. A device needs the LAN address of the host machine and the local network permission.
 - macOS target. The iOS build accepts the flag for `simulator` only.
-- Other file types. Only JS and JSON files change in the app on both platforms. On Android, `TiFileHelper` and the media classes open images, fonts, and media from the APK directly. On iOS, only `AssetsModule` reads the override directory. The server sends these files and restarts the app, but the app shows the old file.
-- Files outside `Resources` and `app`. A change to `tiapp.xml`, `i18n`, `platform`, or a module needs a new build. The server does not tell the user.
+- Other file types. Only JS and JSON files change in the app on both platforms. On Android, `TiFileHelper` and the media classes open images, fonts, and media from the APK directly. On iOS, only `AssetsModule` reads the override directory. The server sends no patch for these files and tells the user to build the app again.
 - Webpack projects. The server does not watch the Webpack output.
 - `adb reverse` after a reconnect. The hook sets the port forward one time after the build. A device that connects again loses it.
 - State after a restart. The app starts again from `app.js`. A reload of one module or one window does not exist.
