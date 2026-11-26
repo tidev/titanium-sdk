@@ -515,6 +515,11 @@
   [self performSelector:@selector(textFieldDidChange:) onThread:[NSThread currentThread] withObject:nil waitUntilDone:NO];
 }
 
+- (UIMenu *)textField:(UITextField *)textField editMenuForCharactersInRange:(NSRange)range suggestedActions:(NSArray<UIMenuElement *> *)suggestedActions
+{
+  return [self editMenuForRange:range suggestedActions:suggestedActions];
+}
+
 #pragma mark Keyboard Delegates
 
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField; // return NO to disallow editing.

@@ -27,16 +27,19 @@
   NSInteger maxLength;
 
   TiUIView<TiScrolling> *parentScrollView;
+  NSArray<NSString *> *customActions;
 }
 
 @property (readonly, getter=isFocused) BOOL focused;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didFocusWithText:(NSString *)value;
 - (void)textWidget:(UIView<UITextInputTraits> *)tw didBlurWithText:(NSString *)value;
 - (void)setValue_:(id)text;
+- (void)setCustomActions_:(id)value;
 - (void)setSelectionFrom:(NSInteger)start to:(NSInteger)end;
 #pragma mark - Titanium Internal Use Only
 - (void)updateKeyboardStatus;
 - (NSDictionary *)selectedRange;
+- (UIMenu *)editMenuForRange:(NSRange)range suggestedActions:(NSArray<UIMenuElement *> *)suggestedActions;
 @end
 
 #endif
