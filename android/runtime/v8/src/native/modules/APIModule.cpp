@@ -191,6 +191,10 @@ static void debugLog(int logLevel, const char* message)
 
 void APIModule::logInternal(int logLevel, const char *messageTag, const char *message)
 {
+	// Production builds do not log (DBG is false for deploy type "production").
+	if (!V8Runtime::DBG) {
+		return;
+	}
 
 	if (V8Runtime::debuggerEnabled) {
 		debugLog(logLevel, message);
@@ -200,9 +204,6 @@ void APIModule::logInternal(int logLevel, const char *messageTag, const char *me
 	if (logLevel == LOG_LEVEL_TRACE) {
 		__android_log_write(ANDROID_LOG_VERBOSE, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_INFO) {
-		if (!V8Runtime::DBG) {
-			return;
-		}
 		__android_log_write(ANDROID_LOG_DEBUG, messageTag, message);
 	} else if (logLevel < LOG_LEVEL_WARN) {
 		__android_log_write(ANDROID_LOG_INFO, messageTag, message);
