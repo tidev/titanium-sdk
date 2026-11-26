@@ -295,14 +295,17 @@
   newContentSize.width *= scale;
   newContentSize.height = scale * MAX(newContentSize.height, minimumContentHeight);
 
-  [scrollView setContentSize:newContentSize];
-  CGRect wrapperBounds;
-  wrapperBounds.origin = CGPointZero;
-  wrapperBounds.size = newContentSize;
-  [wrapperView setFrame:wrapperBounds];
+  // With side insets applied (see horizontalSafeAreaInsetsForContent), the scrollable area keeps the full
+  // view width and UIKit's left/right insets are cancelled, so the horizontal offset stays at 0 like on any
+  // device without side insets. The content itself is placed between the side insets.
+  [self updateHorizontalContentInsets];
+  CGSize scrollableSize = newContentSize;
+  scrollableSize.width += contentSafeAreaInsets.left + contentSafeAreaInsets.right;
+  [scrollView setContentSize:scrollableSize];
+  [wrapperView setFrame:CGRectMake(contentSafeAreaInsets.left, 0, newContentSize.width, newContentSize.height)];
   [self scrollViewDidZoom:scrollView];
 
-  // The content now fits between the side insets, so the only valid horizontal offset is the leading edge.
+  // Move back to the leading edge when the side insets change (e.g. folding or rotating).
   if (!UIEdgeInsetsEqualToEdgeInsets(previousSafeAreaInsets, contentSafeAreaInsets) && ![scrollView isDragging]) {
     CGPoint offset = [scrollView contentOffset];
     offset.x = -[scrollView adjustedContentInset].left;
@@ -316,13 +319,16 @@
 
 #ifndef TI_USE_AUTOLAYOUT
 // With UIScrollViewContentInsetAdjustmentAlways, UIKit adds the left/right safe-area insets to the scrollable
-// width. If the content is laid out at the full view width, the scroll view then scrolls sideways by
-// (left + right) inset, e.g. in landscape or on a foldable's outer screen. When the content is meant to fit
-// the view width, lay it out within the safe area instead: it stays clear of the side insets and has no
-// horizontal scroll range. Content that is wider than the view (e.g. carousels) is not affected.
+// width, so a scroll view whose content fits the view width scrolls sideways by (left + right) inset, and its
+// content sits under the side insets (e.g. in landscape or on a foldable's outer screen). Returns the side
+// insets to lay such content out within. Top/bottom insets are left to UIKit. Content wider than the safe
+// width (e.g. carousels) and zoomable scroll views are not affected.
 - (UIEdgeInsets)horizontalSafeAreaInsetsForContent
 {
   if (scrollView == nil || [scrollView contentInsetAdjustmentBehavior] != UIScrollViewContentInsetAdjustmentAlways) {
+    return UIEdgeInsetsZero;
+  }
+  if ([scrollView maximumZoomScale] > 1 || [scrollView minimumZoomScale] < 1) {
     return UIEdgeInsetsZero;
   }
   UIEdgeInsets safeAreaInsets = [scrollView safeAreaInsets];
@@ -357,6 +363,21 @@
   CGSize size = [self bounds].size;
   size.width = MAX(0, size.width - contentSafeAreaInsets.left - contentSafeAreaInsets.right);
   return CGRectMake(0, 0, size.width, size.height);
+}
+
+// Cancels the left/right insets UIKit adds while content is placed between the side insets, so there is no
+// horizontal scroll range. Top/bottom insets are untouched. No-op when the insets are already set.
+- (void)updateHorizontalContentInsets
+{
+  UIEdgeInsets insets = [scrollView contentInset];
+  CGFloat left = -contentSafeAreaInsets.left;
+  CGFloat right = -contentSafeAreaInsets.right;
+  if (insets.left == left && insets.right == right) {
+    return;
+  }
+  insets.left = left;
+  insets.right = right;
+  [scrollView setContentInset:insets];
 }
 #endif
 
@@ -609,7 +630,7 @@
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView_
 {
 #ifndef TI_USE_AUTOLAYOUT
-  // Center within the area the content is laid out in, which excludes any side insets (see handleContentSize).
+  // Center within the area the content is laid out in, which starts after any left inset (see handleContentSize).
   CGSize boundsSize = [self contentLayoutBounds].size;
   CGRect frameToCenter = wrapperView.frame;
   if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
@@ -618,6 +639,7 @@
     } else {
       frameToCenter.origin.x = 0;
     }
+    frameToCenter.origin.x += contentSafeAreaInsets.left;
   }
   if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
     if (frameToCenter.size.height < boundsSize.height) {
