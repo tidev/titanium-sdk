@@ -54,6 +54,7 @@ public final class TiDeviceOrientationMonitor
 	private boolean isUsingSensorManager;
 	private boolean isUsingOrientationEventListener;
 	private boolean isSystemRotationLockIgnored;
+	private boolean isSystemRotationLockEnabled;
 	private TiDeviceOrientation lastReadOrientation = TiDeviceOrientation.UNKNOWN;
 
 	public TiDeviceOrientationMonitor()
@@ -149,6 +150,10 @@ public final class TiDeviceOrientationMonitor
 			return true;
 		}
 
+		// Read the system's current rotation lock setting.
+		// Note: The screen event handler will keep this up to date while running.
+		readSystemRotationLockSetting();
+
 		// First, attempt to use the accelerometer and gyroscope sensors.
 		this.isUsingSensorManager = startSensor(Sensor.TYPE_ROTATION_VECTOR);
 
@@ -222,32 +227,50 @@ public final class TiDeviceOrientationMonitor
 
 	private boolean isRotationLockEnabled()
 	{
+		// Note: The rotation lock setting is cached so that sensor events and screen events
+		//       use the same orientation source until the setting is observed to change.
+		return (!this.isSystemRotationLockIgnored && this.isSystemRotationLockEnabled);
+	}
+
+	private void readSystemRotationLockSetting()
+	{
 		boolean isLockEnabled = false;
-		if (!this.isSystemRotationLockIgnored) {
-			try {
-				ContentResolver contentResolver = this.context.getContentResolver();
-				if (contentResolver != null) {
-					int value = Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
-					isLockEnabled = (value == 0);
-				}
-			} catch (Exception ex) {
+		try {
+			ContentResolver contentResolver = this.context.getContentResolver();
+			if (contentResolver != null) {
+				int value = Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION, 1);
+				isLockEnabled = (value == 0);
 			}
+		} catch (Exception ex) {
 		}
-		return isLockEnabled;
+		this.isSystemRotationLockEnabled = isLockEnabled;
 	}
 
 	private void updateToLastReadDeviceOrientation()
 	{
+		TiDeviceOrientation orientation = null;
 		if (this.isUsingSensorManager && (this.sensorEventHandler != null)) {
-			updateTo(this.sensorEventHandler.getLastReadOrientation());
+			orientation = this.sensorEventHandler.getLastReadOrientation();
 		} else if (this.isUsingOrientationEventListener && (this.orientationEventHandler != null)) {
-			updateTo(this.orientationEventHandler.getLastReadOrientation());
+			orientation = this.orientationEventHandler.getLastReadOrientation();
 		}
+
+		// Do not continue if the sensor has not provided an orientation yet.
+		// Note: This happens after a stop()/start() until the first sensor event is received.
+		//       Keep the last known orientation instead of reporting an unknown one.
+		if ((orientation == null) || (orientation == TiDeviceOrientation.UNKNOWN)) {
+			return;
+		}
+		updateTo(orientation);
 	}
 
 	private void updateToLastReadScreenOrientation()
 	{
-		updateTo(this.screenEventHandler.getLastReadOrientation());
+		TiDeviceOrientation orientation = this.screenEventHandler.getLastReadOrientation();
+		if ((orientation == null) || (orientation == TiDeviceOrientation.UNKNOWN)) {
+			return;
+		}
+		updateTo(orientation);
 	}
 
 	private void updateTo(TiDeviceOrientation orientation)
@@ -282,9 +305,11 @@ public final class TiDeviceOrientationMonitor
 	 */
 	private static class SensorEventHandler implements SensorEventListener
 	{
+		/** Cosine of the max tilt from flat (20 degrees) at which the device is considered face-up/down. */
+		private static final float FLAT_THRESHOLD = (float) Math.cos(Math.toRadians(20.0));
+
 		private TiDeviceOrientationMonitor monitor;
 		private float[] rotationMatrixArray;
-		private float[] orientationArray;
 		private float[] accelerationVectorArray;
 		private float[] magneticVectorArray;
 		private boolean hasAccelerationData;
@@ -301,7 +326,6 @@ public final class TiDeviceOrientationMonitor
 			// Initialize member variables.
 			this.monitor = monitor;
 			this.rotationMatrixArray = new float[9];
-			this.orientationArray = new float[3];
 			this.accelerationVectorArray = new float[3];
 			this.magneticVectorArray = new float[3];
 			this.lastReadOrientation = TiDeviceOrientation.UNKNOWN;
@@ -377,36 +401,37 @@ public final class TiDeviceOrientationMonitor
 				return;
 			}
 
-			// Calculate the device's orientation/attitude in degrees.
-			this.monitor.sensorManager.getOrientation(this.rotationMatrixArray, this.orientationArray);
-			double pitch = Math.toDegrees((double) this.orientationArray[1]); // -90 to 90
-			double roll = Math.toDegrees((double) this.orientationArray[2]);  // -180 to 180
+			// Fetch the direction of "up" (opposite of gravity) in device coordinates.
+			// This is the 3rd row of the rotation matrix. Positive Y means the device is upright.
+			// Note: Do not use SensorManager.getOrientation() pitch/roll angles here. They are undefined
+			//       (gimbal lock) when the device is held exactly upright. Float rounding then flips the
+			//       pitch between -90 and NaN, which made the orientation flap randomly on emulators.
+			float upX = this.rotationMatrixArray[6];
+			float upY = this.rotationMatrixArray[7];
+			float upZ = this.rotationMatrixArray[8];
+			if (Float.isNaN(upX) || Float.isNaN(upY) || Float.isNaN(upZ)) {
+				return;
+			}
 
-			// Determine the device's orientation from pitch and roll.
-			// Note: For face-up, Android typically expects a near flat orientation of +/-20 degrees.
+			// Determine the device's orientation from the "up" direction.
+			// Note: For face-up/down, Android typically expects a near flat orientation of +/-20 degrees.
 			TiDeviceOrientation orientation;
-			if (pitch <= -45.0) {
-				orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_0);
-			} else if (pitch >= 45.0) {
-				orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_180);
-			} else if ((roll > -135.0) && (roll < -45.0)) {
-				orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_90);
-			} else if ((roll > 45.0) && (roll < 135.0)) {
-				orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_270);
-			} else if ((roll >= -45.0) && (roll <= 45.0)) {
-				if (pitch <= -20.0) {
-					orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_0);
-				} else if (pitch >= 20.0) {
-					orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_180);
-				} else if (roll <= -20.0) {
-					orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_90);
-				} else if (roll >= 20.0) {
-					orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(Surface.ROTATION_270);
-				} else {
-					orientation = TiDeviceOrientation.FACE_UP;
-				}
+			if (Math.abs(upZ) >= FLAT_THRESHOLD) {
+				orientation = (upZ > 0) ? TiDeviceOrientation.FACE_UP : TiDeviceOrientation.FACE_DOWN;
 			} else {
-				orientation = TiDeviceOrientation.FACE_DOWN;
+				// Angle of "up" around the device's Z axis. Zero is upright. Positive is counter-clockwise.
+				double degrees = Math.toDegrees(Math.atan2(upX, upY));
+				int rotationId;
+				if ((degrees >= -45.0) && (degrees <= 45.0)) {
+					rotationId = Surface.ROTATION_0;
+				} else if ((degrees > 45.0) && (degrees < 135.0)) {
+					rotationId = Surface.ROTATION_90;
+				} else if ((degrees > -135.0) && (degrees < -45.0)) {
+					rotationId = Surface.ROTATION_270;
+				} else {
+					rotationId = Surface.ROTATION_180;
+				}
+				orientation = TiDeviceOrientation.fromAndroidSurfaceRotationId(rotationId);
 			}
 
 			// Store the orientation value.
@@ -511,6 +536,8 @@ public final class TiDeviceOrientationMonitor
 				@Override
 				public void onChange(boolean wasSelfChanged)
 				{
+					// Update the cached rotation lock setting and then switch to the matching orientation source.
+					ScreenEventHandler.this.monitor.readSystemRotationLockSetting();
 					updateLastReadOrientation();
 				}
 			};
@@ -616,7 +643,7 @@ public final class TiDeviceOrientationMonitor
 			// Update device monitor's orientation.
 			// Use screen orientation if rotation lock is enabled. Otherwise use device orientation.
 			if (this.monitor.isRotationLockEnabled()) {
-				this.monitor.updateTo(this.lastReadOrientation);
+				this.monitor.updateToLastReadScreenOrientation();
 			} else {
 				this.monitor.updateToLastReadDeviceOrientation();
 			}
