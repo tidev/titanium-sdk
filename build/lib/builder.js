@@ -33,11 +33,29 @@ function thisOS() {
 	return osName;
 }
 
-function determineBabelOptions(babelOptions) {
+/**
+ * core-js modules that must not be bundled into ti.main.js.
+ *
+ * Since core-js 3.47.0, the compat data lists the `JSON.rawJSON` proposal under `es.json.*` and
+ * marks it as missing below iOS 18.4 and Chrome 114. Both platform targets are below that, so
+ * `import 'core-js/es'` pulls in a `JSON.stringify`/`JSON.parse` wrapper. On engines without native
+ * `JSON.rawJSON` the wrapper routes every value through a JS replacer, which makes `JSON.stringify`
+ * orders of magnitude slower on JIT-less JavaScriptCore. Nothing in the SDK uses `JSON.rawJSON`.
+ * @type {string[]}
+ */
+export const EXCLUDED_COREJS_MODULES = [
+	'es.json.stringify',
+	'es.json.parse',
+	'es.json.raw-json',
+	'es.json.is-raw-json'
+];
+
+export function determineBabelOptions(babelOptions) {
 	const options = {
 		...babelOptions,
 		useBuiltIns: 'entry',
-		corejs: getCorejsVersion()
+		corejs: getCorejsVersion(),
+		exclude: EXCLUDED_COREJS_MODULES
 	};
 	// extract out options.transform used by babel-plugin-transform-titanium
 	const transform = options.transform || {};
