@@ -29,7 +29,7 @@ import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
-import { DEFAULT_PORT as HOT_RELOAD_PORT } from '../../../cli/lib/hot-reload/server.js';
+import { DEFAULT_PORT as HOT_RELOAD_PORT, parsePort as parseHotReloadPort } from '../../../cli/lib/hot-reload/server.js';
 import { injectSPMPackage } from '../lib/ios/spm.js';
 import { hashIconComposerDocument, isIconComposerDocument } from '../lib/icon-composer.js';
 import { exec, spawn } from 'node:child_process';
@@ -499,6 +499,11 @@ class iOSBuilder extends Builder {
 							'ios-version':                this.configOptioniOSVersion(130),
 							keychain:                   this.configOptionKeychain(),
 							'launch-bundle-id':           this.configOptionLaunchBundleId(),
+							'hot-reload-port': {
+								desc: `the port of the hot reload server; only used with ${'--hot-reload'.cyan}`,
+								hint: 'port',
+								default: HOT_RELOAD_PORT
+							},
 							'launch-url': {
 								// URL for the application to launch in mobile Safari, as soon as the app boots up
 								hidden: true
@@ -1983,11 +1988,16 @@ class iOSBuilder extends Builder {
 		this.hotReload = null;
 		if (cli.argv['hot-reload']) {
 			if (this.target === 'simulator') {
+				const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
+				if (!hotReloadPort) {
+					logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
+					process.exit(1);
+				}
 				this.encryptJS = false;
 				this.hotReload = {
 					// The simulator uses the network of this machine.
 					host: '127.0.0.1',
-					port: HOT_RELOAD_PORT,
+					port: hotReloadPort,
 					token: crypto.randomBytes(16).toString('hex')
 				};
 			} else {

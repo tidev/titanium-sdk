@@ -14,6 +14,12 @@ ti build -p ios -T simulator --hot-reload
 
 Keep the `ti build` process open. The server stops when the process ends.
 
+The server uses port 8325. If the port is in use, set another port with the `--hot-reload-port` option:
+
+```sh
+ti build -p android -T device --hot-reload --hot-reload-port 8400
+```
+
 The build ignores the flag in these cases:
 
 - Android: the deploy type is `production`.
@@ -25,7 +31,7 @@ The build ignores the flag in these cases:
 Hot reload has three parts: a server in the CLI, a client in the app, and an override directory that the native asset loader reads.
 
 ```
-project files --watch--> server (CLI) --TCP 8325--> client (app) --> override directory --> restart
+project files --watch--> server (CLI) --TCP--> client (app) --> override directory --> restart
 ```
 
 ### Build
@@ -40,7 +46,7 @@ The native asset loader turns on the override directory only if `_hot_reload_.js
 
 ### Server
 
-The server starts in the `build.post.compile` hook, before the app starts. It listens on `127.0.0.1:8325`.
+The server starts in the `build.post.compile` hook, before the app starts. It listens on `127.0.0.1`, on port 8325 or the port of the `--hot-reload-port` option.
 
 - It records a hash of each file in `Resources` as the baseline. A file in a platform directory replaces the file of the same name.
 - It watches `Resources`. It collects the changes of 150 ms into one patch.
@@ -78,7 +84,7 @@ The marker uses the update time of the APK on Android and the build token on iOS
 | Target | Host in the app | How it gets to the server |
 | --- | --- | --- |
 | Android emulator | `10.0.2.2` | The emulator maps this address to the host machine. |
-| Android device | `127.0.0.1` | The hook runs `adb reverse tcp:8325 tcp:8325` for each device. |
+| Android device | `127.0.0.1` | The hook runs `adb reverse` for the port on each device. |
 | iOS simulator | `127.0.0.1` | The simulator uses the network of the host machine. |
 
 ### Protocol
@@ -94,8 +100,8 @@ Each frame is a `uint32` header length (big endian), a JSON header, and an optio
 | `cli/tests/test-hot-reload-server.js` | Mocha tests for the server. |
 | `android/cli/hooks/hot-reload.js` | Starts the server for Android and runs `adb reverse` for devices. |
 | `iphone/cli/hooks/hot-reload.js` | Starts the server for iOS. |
-| `android/cli/commands/_build.js` | The `--hot-reload` flag and `writeHotReloadFiles()` for Android. |
-| `iphone/cli/commands/_build.js` | The `--hot-reload` flag and `writeHotReloadFiles()` for iOS. |
+| `android/cli/commands/_build.js` | The `--hot-reload` flag, the `--hot-reload-port` option, and `writeHotReloadFiles()` for Android. |
+| `iphone/cli/commands/_build.js` | The `--hot-reload` flag, the `--hot-reload-port` option, and `writeHotReloadFiles()` for iOS. |
 | `android/runtime/common/src/java/org/appcelerator/kroll/util/KrollAssetHelper.java` | Reads the override directory before the APK assets. |
 | `iphone/TitaniumKit/TitaniumKit/Sources/API/TiHost.m` | Finds the override directory and the override file for a resource. |
 | `iphone/TitaniumKit/TitaniumKit/Sources/API/AssetsModule.m` | Reads the override of a JS or JSON file and of the require index. |
@@ -109,7 +115,6 @@ npx mocha cli/tests/test-hot-reload-server.js
 
 ## Todos
 
-- Variable port. The port is always 8325, so a second build at the same time cannot start its server. Add an option or use a free port.
 - iOS device support. The server listens on `127.0.0.1` only. A device needs the LAN address of the host machine and the local network permission.
 - macOS target. The iOS build accepts the flag for `simulator` only.
 - Other file types. Only JS and JSON files change in the app on both platforms. On Android, `TiFileHelper` and the media classes open images, fonts, and media from the APK directly. On iOS, only `AssetsModule` reads the override directory. The server sends no patch for these files and tells the user to build the app again.

@@ -10,7 +10,7 @@ import fs from 'fs-extra';
 import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
-import { HotReloadServer, FrameParser, encodeFrame } from '../lib/hot-reload/server.js';
+import { HotReloadServer, FrameParser, encodeFrame, parsePort, DEFAULT_PORT } from '../lib/hot-reload/server.js';
 
 const PORT = 8399;
 const TOKEN = 'secret';
@@ -110,6 +110,16 @@ describe('hot reload server', function () {
 		const frames = parser.push(bytes.subarray(7));
 		expect(frames.map(frame => frame.header.t)).to.deep.equal([ 'a', 'b' ]);
 		expect(frames[0].body.toString()).to.equal('body');
+	});
+
+	it('reads the port option', function () {
+		expect(parsePort(undefined)).to.equal(DEFAULT_PORT);
+		expect(parsePort('9000')).to.equal(9000);
+		expect(parsePort(9000)).to.equal(9000);
+		expect(parsePort('abc')).to.equal(null);
+		expect(parsePort('0')).to.equal(null);
+		expect(parsePort('70000')).to.equal(null);
+		expect(parsePort(true)).to.equal(null);
 	});
 
 	it('maps the platform directory to runtime paths', function () {

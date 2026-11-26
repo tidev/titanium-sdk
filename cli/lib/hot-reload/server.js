@@ -57,6 +57,20 @@ const DEBOUNCE_MS = 150;
 const MAX_HEADER_LENGTH = 1024 * 1024;
 
 /**
+ * Reads the value of the "--hot-reload-port" option.
+ * @param {string|number} [value] the value from the command line
+ * @returns {number|null} the port, the default port when no value is set, or null when the value is not a port
+ */
+export function parsePort(value) {
+	if (value === undefined || value === null || value === '') {
+		return DEFAULT_PORT;
+	}
+	// The CLI passes `true` when the option has no value.
+	const port = typeof value === 'boolean' ? NaN : Number(value);
+	return Number.isInteger(port) && port >= 1 && port <= 65535 ? port : null;
+}
+
+/**
  * Encodes one frame.
  * @param {object} header JSON header. The function sets `size` when a body exists.
  * @param {Buffer} [body] raw bytes that follow the header

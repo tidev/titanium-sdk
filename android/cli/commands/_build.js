@@ -41,7 +41,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadPackageJson } from '../../../cli/lib/pkginfo.js';
 import { randomBytes } from 'node:crypto';
-import { DEFAULT_PORT as HOT_RELOAD_PORT } from '../../../cli/lib/hot-reload/server.js';
+import { DEFAULT_PORT as HOT_RELOAD_PORT, parsePort as parseHotReloadPort } from '../../../cli/lib/hot-reload/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -363,6 +363,11 @@ class AndroidBuilder extends Builder {
 						},
 						'debug-host': {
 							hidden: true
+						},
+						'hot-reload-port': {
+							desc: `the port of the hot reload server; only used with ${'--hot-reload'.cyan}`,
+							hint: 'port',
+							default: HOT_RELOAD_PORT
 						},
 						'deploy-type': {
 							abbr: 'D',
@@ -938,11 +943,16 @@ class AndroidBuilder extends Builder {
 		// Hot reload replaces single asset files at runtime, so the JS files cannot be encrypted.
 		this.hotReload = null;
 		if (cli.argv['hot-reload'] && this.deployType !== 'production') {
+			const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
+			if (!hotReloadPort) {
+				logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
+				process.exit(1);
+			}
 			this.encryptJS = false;
 			this.hotReload = {
 				// The emulator reaches the host at 10.0.2.2. A device uses "adb reverse", see hooks/hot-reload.js.
 				host: this.target === 'emulator' ? '10.0.2.2' : '127.0.0.1',
-				port: HOT_RELOAD_PORT,
+				port: hotReloadPort,
 				token: randomBytes(16).toString('hex')
 			};
 		}
