@@ -6,7 +6,7 @@
 A public report tells everyone about the vulnerability, including people who would use it,
 before there is a fix available.
 
-Email **[security@tidev.io](mailto:security@tidev.io)** instead.
+Email **[security@titaniumsdk.com](mailto:security@titaniumsdk.com)** instead.
 
 Helpful things to include, as far as you have them:
 

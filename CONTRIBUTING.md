@@ -61,7 +61,7 @@ Leaving sections of the form blank tends to get an issue closed or moved to Disc
 not because we're strict but because there is nothing to act on.
 
 **Security issues are different.** Do not open a public issue. See
-[SECURITY.md](SECURITY.md), or email [security@tidev.io](mailto:security@tidev.io)
+[SECURITY.md](SECURITY.md), or email [security@titaniumsdk.com](mailto:security@titaniumsdk.com)
 directly.
 
 ## Signing the CLA

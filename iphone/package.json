@@ -12,7 +12,7 @@
 		"ipad"
 	],
 	"version": "__VERSION__",
-	"author": "TiDev, Inc. <npm@tidev.io>",
+	"author": "TiDev, Inc. <npm@titaniumsdk.com>",
 	"minIosVersion": "16.0",
 	"minWatchosVersion": "8.0",
 	"vendorDependencies": {
