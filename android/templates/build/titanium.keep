@@ -1,0 +1,63 @@
+# Titanium SDK R8/ProGuard keep rules.
+#
+# This file is copied into the generated app project's "src/main/keepRules"
+# folder when code optimization is enabled. AGP applies every "*.keep" file in
+# that folder on top of its built-in default Android keep rules. An app can add
+# its own rules via a "platform/android/proguard.cfg" file in its project.
+#
+# The native V8/Kroll runtime resolves Java classes, methods and fields by name
+# via JNI and reflection (see "android/runtime/v8/src/native/JNIUtil.cpp" and
+# the kroll-apt generated C++ bindings), so they must not be renamed or removed.
+
+# Keep generic type info and inner class info needed by reflection, and keep
+# source file/line info so obfuscated crash stack traces can be retraced with
+# the build's R8 "mapping.txt" file.
+-keepattributes Signature,InnerClasses,EnclosingMethod,SourceFile,LineNumberTable
+
+# Titanium SDK core classes, including the kroll runtime which the native
+# runtime heavily resolves by name via JNI. The "R" classes of the SDK are
+# excluded. The SDK's Java code references them directly and never by name.
+-keep class !org.appcelerator.**.R,!org.appcelerator.**.R$*,org.appcelerator.** { *; }
+-keep interface org.appcelerator.** { *; }
+
+# The kroll module/proxy binding classes under "ti.modules" and in native module
+# packages are kept via the generated "bindings.keep" file in this folder. By
+# default it only keeps the ones used by the app's JavaScript code so R8 can
+# remove unused Titanium APIs. If the "android.optimization.stripUnusedApis"
+# tiapp property is set to false, it keeps all of them.
+
+# Native modules can implement C++ backed modules resolved by name through
+# their compiled bindings.
+-keep class * implements org.appcelerator.kroll.KrollExternalModule { *; }
+
+# Native modules bundling CommonJS code ("commonjs: true" in their manifest) provide
+# a "<moduleid>.CommonJsSourceProvider" class which the generated Application class
+# loads by name and the runtime instantiates via reflection. R8 recognizes the
+# Class.forName() call but still strips the constructor and methods, which breaks
+# the module's JS with an InstantiationException at runtime. So keep them whole.
+-keep class * implements org.appcelerator.kroll.common.KrollSourceCodeProvider { *; }
+
+# Titanium looks up resource IDs by name at runtime via reflection on the "R"
+# class of the app. (See "TiRHelper.java" and i18n string lookups.) That class
+# is kept via the generated "resources.keep" file in this folder. The "R"
+# classes of libraries and native modules are not kept. A native module that
+# reads its own "R" class by name must keep it in its "consumer-rules.pro" file.
+# For some resource types, such as "dimen" and "styleable", that file only keeps
+# the resources of the app, the Titanium SDK and the app's native modules.
+
+-dontwarn org.appcelerator.**
+-dontwarn ti.modules.**
+
+# slf4j-api is pulled in transitively without an Android logger binding.
+# Its binding classes are looked up defensively at runtime, so the missing
+# implementation is expected and safe to ignore.
+-dontwarn org.slf4j.**
+
+# Titanium modules bundle libraries such as OkHttp/Okio as plain JAR files,
+# which cannot carry their own R8 consumer rules like AARs do. These libraries
+# reference compile-only annotations (JSR-305) and optional security providers
+# that do not exist on Android, so ignore those missing references here.
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
