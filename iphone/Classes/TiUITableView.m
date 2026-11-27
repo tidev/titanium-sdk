@@ -27,7 +27,9 @@
 - (void)handleListenerAddedWithEvent:(NSString *)event;
 @end
 
-@interface TiUITableView ()
+@interface TiUITableView () {
+  UIEdgeInsets rowSafeAreaInsets;
+}
 @property (nonatomic, copy, readwrite) NSString *searchString;
 @property (nonatomic, copy, readwrite) NSString *searchedString;
 
@@ -2725,8 +2727,27 @@
 
   if (tableview.style == UITableViewStyleInsetGrouped) {
     rowWidth -= tableview.layoutMargins.left + tableview.layoutMargins.right;
+  } else if (tableview.insetsContentViewsToSafeArea) {
+    // UIKit draws row content inside the left and right safe area (the notch
+    // in landscape, a vertical bar), so rows are measured at that width.
+    rowWidth -= tableview.safeAreaInsets.left + tableview.safeAreaInsets.right;
   }
-  return rowWidth;
+  return MAX(0, rowWidth);
+}
+
+- (void)safeAreaInsetsDidChange
+{
+  [super safeAreaInsetsDidChange];
+  // Row heights depend on computeRowWidth, so measure them again when the
+  // left or right safe area changes.
+  UIEdgeInsets insets = self.safeAreaInsets;
+  if (insets.left == rowSafeAreaInsets.left && insets.right == rowSafeAreaInsets.right) {
+    return;
+  }
+  rowSafeAreaInsets = insets;
+  if (tableview != nil && tableview.insetsContentViewsToSafeArea) {
+    [tableview reloadData];
+  }
 }
 
 #ifdef TI_USE_AUTOLAYOUT
