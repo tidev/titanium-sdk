@@ -58,6 +58,8 @@ public class ListItemProxy extends TiViewProxy
 	private boolean placeholder = false;
 	private boolean hasAddedItemEvents = false;
 	private boolean selected = false;
+	private boolean preventRecycling = false;
+	private ListViewHolder nonRecyclableHolder = null;
 	private String cachedSearchableTextLower = null;
 
 	public ListItemProxy()
@@ -580,6 +582,7 @@ public class ListItemProxy extends TiViewProxy
 	public void setHolder(ListViewHolder holder)
 	{
 		this.holder = holder;
+		updateRecyclable();
 	}
 
 	/**
@@ -888,6 +891,11 @@ public class ListItemProxy extends TiViewProxy
 		if (name.equals(TiC.PROPERTY_CAN_MOVE)) {
 			invalidate();
 		}
+
+		if (name.equals("preventRecycling")) {
+			preventRecycling = TiConvert.toBoolean(value, false);
+			updateRecyclable();
+		}
 	}
 
 	private void loadTemplate()
@@ -920,6 +928,7 @@ public class ListItemProxy extends TiViewProxy
 	public void releaseViews()
 	{
 		this.holder = null;
+		updateRecyclable();
 
 		super.releaseViews();
 	}
@@ -968,5 +977,25 @@ public class ListItemProxy extends TiViewProxy
 			// Prevent TiUIView from overriding `touchFeedback` effect.
 			return false;
 		}
+	}
+
+	/**
+	 * Apply `preventRecycling` to the current holder.
+	 * `setIsRecyclable()` is reference-counted, so only call it when the target holder changes
+	 * and restore the previous holder.
+	 */
+	private void updateRecyclable()
+	{
+		final ListViewHolder target = this.preventRecycling ? this.holder : null;
+		if (this.nonRecyclableHolder == target) {
+			return;
+		}
+		if (this.nonRecyclableHolder != null) {
+			this.nonRecyclableHolder.setIsRecyclable(true);
+		}
+		if (target != null) {
+			target.setIsRecyclable(false);
+		}
+		this.nonRecyclableHolder = target;
 	}
 }

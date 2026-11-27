@@ -7,20 +7,23 @@
  * WARNING: This is generated code. Do not modify. Your changes *will* be lost.
  */
 
-#import <Foundation/Foundation.h>
 #import "ApplicationRouting.h"
+#import <Foundation/Foundation.h>
 
-extern NSData* filterDataInRange(NSData* thedata, NSRange range);
+extern NSData *filterDataInRange(NSData *thedata, NSRange range);
 
 @implementation ApplicationRouting
 
-+ (NSData*) resolveAppAsset:(NSString*)path;
++ (NSData *)resolveAppAsset:(NSString *)path;
 {
-	<%- bytes %>
+  <% -bytes %>
 
-	NSNumber *index = [map objectForKey:path];
-	if (index == nil) { return nil; }
-	return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);
+  NSNumber *index
+      = [map objectForKey:path];
+  if (index == nil) {
+    return nil;
+  }
+  return filterDataInRange([NSData dataWithBytesNoCopy:data length:sizeof(data) freeWhenDone:NO], ranges[index.integerValue]);
 }
 
 @end
