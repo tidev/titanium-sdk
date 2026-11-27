@@ -72,7 +72,7 @@ properties:
     constants: Titanium.Media.AUDIO_FORMAT_*
     default: <Titanium.Media.AUDIO_FORMAT_LINEAR_PCM>
     platforms: [android, iphone, ipad, macos]
-    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+    since: {android: "14.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: format
     summary: Audio format to be used for the recording.
@@ -90,7 +90,7 @@ properties:
     constants: Titanium.Media.AUDIO_FILEFORMAT_*
     default: <Titanium.Media.AUDIO_FILEFORMAT_CAF>
     platforms: [android, iphone, ipad, macos]
-    since: {android: "14.0.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
+    since: {android: "14.1.0", iphone: "3.2.4", ipad: "3.2.4", macos: "9.2.0" }
 
   - name: paused
     summary: Indicates if the audio recorder is paused.
