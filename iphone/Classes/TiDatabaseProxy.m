@@ -42,7 +42,7 @@
 - (void)_configure
 {
   WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shutdown:) name:kTiShutdownNotification object:[[self executionContext] host]];
   [super _configure];
 }
 

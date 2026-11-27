@@ -1391,6 +1391,15 @@ properties:
         Defaults to the normal background color of this view (Android), black (iOS).
     type: [String, Titanium.UI.Color]
 
+  - name: borderDashPattern
+    summary: Dash pattern of the view's border, as alternating dash and gap lengths.
+    description: |
+        Lengths use the same unit as [borderWidth](Titanium.UI.View.borderWidth). For example, `[4, 2]` draws
+        dashes of 4 units separated by gaps of 2 units, and `[2, 4]` together with a `borderWidth` of `2`
+        draws square dots. Set it to `null` or an empty array for a solid border.
+    type: Array<Number>
+    since: "14.0.0"
+
   - name: borderRadius
     summary: Radius for the rounded corners of the view's border.
     description: |

@@ -139,7 +139,8 @@ public class TitaniumModule extends KrollModule
 			}
 
 			long start = System.currentTimeMillis();
-			callback.call(getKrollObject(), args);
+			// The return value of a timer callback is never used: do not convert it to Java.
+			callback.callWithoutResult(getKrollObject(), args);
 
 			// If this timer is repeating schedule it for another round.
 			// Otherwise remove the timer from the active list and quit.
@@ -237,7 +238,7 @@ public class TitaniumModule extends KrollModule
 	@Kroll.topLevel
 	public void alert(Object message)
 	{
-		String msg = (message == null ? null : message.toString());
+		String msg = TiConvert.toString(message);
 
 		if (TiApplication.isUIThread()) {
 			TiUIHelper.doOkDialog("", msg, null);

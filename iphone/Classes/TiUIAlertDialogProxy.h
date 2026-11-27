@@ -6,6 +6,9 @@
  */
 #import <TitaniumKit/TiViewProxy.h>
 
+@class TiApp;
+@class TiWindowProxy;
+
 @interface TiUIAlertDialogProxy : TiViewProxy {
   @private
   UIAlertController *alertController;
@@ -14,6 +17,8 @@
   int destructiveIndex;
   int preferredIndex;
   int style;
+  TiWindowProxy *owningWindowProxy;
+  TiApp *presentingApp;
 }
 
 - (void)show:(id)unused;

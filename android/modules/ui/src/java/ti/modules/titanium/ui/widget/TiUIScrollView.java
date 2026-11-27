@@ -587,16 +587,22 @@ public class TiUIScrollView extends TiUIView
 
 			// Google's scroll view won't call child's measure() method if content height is less than
 			// the scroll view's height. If it wasn't called, then do so now. (See: TIMOB-8243)
+			// Note: Android also skips the child's onMeasure() when its measure spec is unchanged and it
+			// is not flagged for layout, in which case its cached measurement is still valid. Only force
+			// a re-measure when the content is shorter than the viewport. Forcing an EXACTLY viewport
+			// height on content that is taller would clamp Ti.UI.SIZE children to the viewport.
 			if (!layout.wasMeasured() && (getChildCount() > 0)) {
 				final View child = getChildAt(0);
 				int height = getMeasuredHeight();
-				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-				int childWidthMeasureSpec =
-					getChildMeasureSpec(widthMeasureSpec, getPaddingLeft() + getPaddingRight(), lp.width);
 				height -= getPaddingTop();
 				height -= getPaddingBottom();
-				int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+				if (child.getMeasuredHeight() < height) {
+					final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+					int childWidthMeasureSpec =
+						getChildMeasureSpec(widthMeasureSpec, getPaddingLeft() + getPaddingRight(), lp.width);
+					int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+					child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+				}
 			}
 		}
 	}
@@ -735,18 +741,24 @@ public class TiUIScrollView extends TiUIView
 			// Update the size of this view and its children.
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-			// Google's scroll view won't call child's measure() method if content height is less than
-			// the scroll view's height. If it wasn't called, then do so now. (See: TIMOB-8243)
+			// Google's scroll view won't call child's measure() method if content width is less than
+			// the scroll view's width. If it wasn't called, then do so now. (See: TIMOB-8243)
+			// Note: Android also skips the child's onMeasure() when its measure spec is unchanged and it
+			// is not flagged for layout, in which case its cached measurement is still valid. Only force
+			// a re-measure when the content is narrower than the viewport. Forcing an EXACTLY viewport
+			// width on content that is wider would clamp Ti.UI.SIZE children to the viewport.
 			if (!layout.wasMeasured() && (getChildCount() > 0)) {
 				final View child = getChildAt(0);
 				int width = getMeasuredWidth();
-				final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
-				int childHeightMeasureSpec =
-					getChildMeasureSpec(heightMeasureSpec, getPaddingTop() + getPaddingBottom(), lp.height);
 				width -= getPaddingLeft();
 				width -= getPaddingRight();
-				int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
-				child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+				if (child.getMeasuredWidth() < width) {
+					final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+					int childHeightMeasureSpec =
+						getChildMeasureSpec(heightMeasureSpec, getPaddingTop() + getPaddingBottom(), lp.height);
+					int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
+					child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+				}
 			}
 		}
 	}

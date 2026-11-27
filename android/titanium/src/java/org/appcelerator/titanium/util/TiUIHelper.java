@@ -57,8 +57,11 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Outline;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -815,6 +818,14 @@ public class TiUIHelper
 		return null;
 	}
 
+	private static Path createRoundRectPath(Rect rect, float radius)
+	{
+		Path path = new Path();
+		RectF rectF = new RectF(rect);
+		path.addRoundRect(rectF, radius, radius, Path.Direction.CW);
+		return path;
+	}
+
 	public static KrollDict viewToImage(KrollDict proxyDict, View view)
 	{
 		KrollDict image = new KrollDict();
@@ -860,6 +871,26 @@ public class TiUIHelper
 
 			Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
 			Canvas canvas = new Canvas(bitmap);
+
+			// Apply ViewOutlineProvider clipping to the software canvas.
+			// ViewOutlineProvider + setClipToOutline(true) only works in the
+			// hardware-accelerated pipeline; it is silently ignored when drawing
+			// to a software Canvas (see toImage() callers).
+			if (view.getClipToOutline() && view.getOutlineProvider() != null) {
+				Outline outline = new Outline();
+				view.getOutlineProvider().getOutline(view, outline);
+				if (!outline.isEmpty() && outline.canClip()) {
+					float radius = outline.getRadius();
+					Rect rect = new Rect();
+					outline.getRect(rect);
+					if (radius > 0) {
+						canvas.clipPath(createRoundRectPath(rect, radius));
+					} else {
+						canvas.clipRect(rect);
+					}
+				}
+			}
+
 			view.draw(canvas);
 
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();

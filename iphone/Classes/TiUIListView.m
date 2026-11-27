@@ -59,6 +59,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   BOOL pullActive;
   BOOL snapping;
   CGPoint tapPoint;
+  UILongPressGestureRecognizer *_itemLongPressRecognizer;
   BOOL editing;
   BOOL pruneSections;
 
@@ -148,6 +149,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   RELEASE_TO_NIL(filteredIndices);
   RELEASE_TO_NIL(_measureProxies);
   RELEASE_TO_NIL(_searchedString);
+  RELEASE_TO_NIL(_itemLongPressRecognizer);
 #ifdef USE_TI_UIREFRESHCONTROL
   RELEASE_TO_NIL(_refreshControlProxy);
 #endif
@@ -246,6 +248,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     tapGestureRecognizer.delegate = self;
     [_tableView addGestureRecognizer:tapGestureRecognizer];
     [tapGestureRecognizer release];
+
+    // Fires the `itemlongpress` event. Only allowed to begin while a listener exists (see gestureRecognizerShouldBegin:).
+    _itemLongPressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleItemLongPress:)];
+    _itemLongPressRecognizer.delegate = self;
+    [_tableView addGestureRecognizer:_itemLongPressRecognizer];
 
     [self configureHeaders];
     _defaultSeparatorInsets = [_tableView separatorInset];
@@ -2350,7 +2357,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[[TiApp app] controller] retain];
+      searchControllerPresenter = [[[self.proxy owningInstance] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;
@@ -2440,7 +2447,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       controller = [proxy windowHoldingController];
     } else {
-      controller = [[TiApp app] controller];
+      controller = [[self.proxy owningInstance] controller];
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
@@ -2463,7 +2470,11 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (void)fireClickForItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView accessoryButtonTapped:(BOOL)accessoryButtonTapped
 {
-  NSString *eventName = @"itemclick";
+  [self fireItemEvent:@"itemclick" forItemAtIndexPath:indexPath tableView:tableView point:tapPoint accessoryButtonTapped:accessoryButtonTapped];
+}
+
+- (void)fireItemEvent:(NSString *)eventName forItemAtIndexPath:(NSIndexPath *)indexPath tableView:(UITableView *)tableView point:(CGPoint)point accessoryButtonTapped:(BOOL)accessoryButtonTapped
+{
   if (![self.proxy _hasListeners:eventName]) {
     return;
   }
@@ -2488,7 +2499,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
   }
   TiUIListItem *cell = (TiUIListItem *)[tableView cellForRowAtIndexPath:indexPath];
 
-  CGPoint convertedPoint = [tableView convertPoint:tapPoint toView:cell.contentView];
+  CGPoint convertedPoint = [tableView convertPoint:point toView:cell.contentView];
   // if searchController is active, tableView.contentOffset.y = -44
   // else tableView.contentOffset.y = 0
   if ([searchController isActive]) {
@@ -2620,13 +2631,37 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
+  if (gestureRecognizer == _itemLongPressRecognizer) {
+    // Only recognize (and cancel the row touch) when somebody listens for `itemlongpress`.
+    return [self.proxy _hasListeners:@"itemlongpress"];
+  }
   tapPoint = [gestureRecognizer locationInView:gestureRecognizer.view];
   return NO;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+  // Do not block `longpress` listeners of template child views or the table's own drag/reorder gestures.
+  return gestureRecognizer == _itemLongPressRecognizer;
 }
 
 - (void)handleTap:(UITapGestureRecognizer *)tapGestureRecognizer
 {
   // Never called
+}
+
+- (void)handleItemLongPress:(UILongPressGestureRecognizer *)recognizer
+{
+  if (recognizer.state != UIGestureRecognizerStateBegan) {
+    return;
+  }
+  UITableView *tableView = (UITableView *)recognizer.view;
+  CGPoint point = [recognizer locationInView:tableView];
+  NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:point];
+  if (indexPath == nil) {
+    return;
+  }
+  [self fireItemEvent:@"itemlongpress" forItemAtIndexPath:indexPath tableView:tableView point:point accessoryButtonTapped:NO];
 }
 
 #pragma mark - DimmingView Manage
@@ -2671,7 +2706,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -2681,7 +2716,7 @@ static TiViewProxy *FindViewProxyWithBindIdContainingPoint(UIView *view, CGPoint
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];

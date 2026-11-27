@@ -34,7 +34,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   TiThreadPerformOnMainThread(
       ^{
-        [[TiApp app] rebootApp];
+        [[self owningInstance] rebootApp];
       },
       NO);
 }
@@ -42,7 +42,7 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)_resumeRestart:(id)unused
 {
   UIApplication *app = [UIApplication sharedApplication];
-  TiApp *appDelegate = [TiApp app];
+  TiApp *appDelegate = [self owningInstance];
 #ifndef TI_USE_AUTOLAYOUT
   [TiLayoutQueue resetQueue];
 #endif
@@ -250,6 +250,12 @@ extern NSString *const TI_APPLICATION_GUID;
 - (void)setProximityDetection:(NSNumber *)value
 {
   BOOL yn = [TiUtils boolValue:value];
+  // Cache the requested value so the getter round-trips on the iOS Simulator,
+  // which has no proximity sensor and therefore always reports
+  // proximityMonitoringEnabled == NO regardless of what was just set.
+  // Real devices also toggle UIDevice.proximityMonitoringEnabled, so on
+  // hardware the cached value and the device state stay in sync.
+  _proximityDetectionValue = yn;
   [UIDevice currentDevice].proximityMonitoringEnabled = yn;
   WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   if (yn) {
@@ -264,7 +270,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (NSNumber *)proximityDetection
 {
-  return NUMBOOL([UIDevice currentDevice].proximityMonitoringEnabled);
+  return NUMBOOL(_proximityDetectionValue);
 }
 
 - (void)setDisableNetworkActivityIndicator:(NSNumber *)value
@@ -377,7 +383,7 @@ extern NSString *const TI_APPLICATION_GUID;
 {
   WARN_IF_BACKGROUND_THREAD_OBJ; // NSNotificationCenter is not thread-safe!
   NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-  [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:nil];
+  [nc addObserver:self selector:@selector(willShutdown:) name:kTiWillShutdownNotification object:[self _host]];
   [nc addObserver:self selector:@selector(willShutdownContext:) name:kTiContextShutdownNotification object:nil];
   [nc addObserver:self selector:@selector(errored:) name:kTiErrorNotification object:nil];
 
@@ -390,7 +396,7 @@ extern NSString *const TI_APPLICATION_GUID;
     BOOL isProduction = [TiSharedConfig.defaultConfig.applicationDeployType isEqualToString:@"production"];
 
     if (!isProduction) {
-      JSGlobalContextSetInspectable([[(KrollBridge *)TiApp.app.krollBridge krollContext] context], YES);
+      JSGlobalContextSetInspectable([[(KrollBridge *)[self owningInstance].krollBridge krollContext] context], YES);
     }
   }
 #endif
@@ -504,7 +510,7 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (NSDictionary *)arguments
 {
-  return [[TiApp app] launchOptions];
+  return [[self owningInstance] launchOptions];
 }
 
 - (id)getArguments:(id)args
@@ -580,12 +586,12 @@ extern NSString *const TI_APPLICATION_GUID;
 
 - (id)sessionId
 {
-  return [[TiApp app] sessionId];
+  return [[self owningInstance] sessionId];
 }
 
 - (NSNumber *)keyboardVisible
 {
-  return NUMBOOL([[[TiApp app] controller] keyboardVisible]);
+  return NUMBOOL([[[self owningInstance] controller] keyboardVisible]);
 }
 
 - (void)setForceSplashAsSnapshot:(id)args

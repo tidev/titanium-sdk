@@ -77,7 +77,7 @@
   if (nativeSourceView == nil) {
     nativeSourceView = [_sourceView view];
   }
-  UIViewController *controller = [[[TiApp app] controller] topPresentedController];
+  UIViewController *controller = [[[self owningInstance] controller] topPresentedController];
   TiPreviewingDelegate *previewingDelegate = [[TiPreviewingDelegate alloc] initWithPreviewContext:self];
 
   [controller registerForPreviewingWithDelegate:previewingDelegate

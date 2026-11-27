@@ -306,7 +306,9 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
   result = [(TiLayoutView *)[self currentRowContainerView] heightIfWidthWere:width];
   result = result == 0 ? 0 : result + 1;
 #endif
-  return (result == 0) ? [table tableRowHeight:0] : result;
+  // 0 is a real height now (an explicit height:0 collapses the row), so ask the
+  // table for its default with a negative sentinel rather than 0.
+  return (result == 0) ? [table tableRowHeight:-1] : result;
 }
 
 - (void)updateRow:(NSDictionary *)data withObject:(NSDictionary *)properties
@@ -691,6 +693,9 @@ TiProxy *DeepScanForProxyOfViewContainingPoint(UIView *targetView, CGPoint point
       [rowContainerView setFrame:rect];
       [contentView addSubview:rowContainerView];
     }
+    // Keep children inside the row bounds, otherwise a collapsed (height:0)
+    // or shrunken row still draws its content over the neighbouring rows.
+    [rowContainerView setClipsToBounds:YES];
 #ifdef TI_USE_AUTOLAYOUT
     [rowContainerView performSelector:@selector(updateWidthAndHeight)];
 #endif

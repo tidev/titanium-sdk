@@ -20,14 +20,30 @@
     [blurView setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [blurView setContentMode:[self contentModeForBlurView]];
 
-    // Let the Titanium view handle touch/click events and not the blur view itself.
-    // UIVisualEffectView can intercept touches and prevent TiUIView gesture handling.
+    // Let the Titanium view handle touch/click events by default. Interactive glass effects
+    // opt into hit-testing in setGlassEffect_: so UIKit can animate the glass response.
     [blurView setUserInteractionEnabled:NO];
 
     [self addSubview:blurView];
   }
 
   return blurView;
+}
+
+- (BOOL)touchedContentViewWithEvent:(UIEvent *)event
+{
+  // Interactive glass effects enable user interaction on the effect view, so UIKit hit-tests
+  // it instead of this view. Titanium still needs to process those touches through its
+  // normal raw touch pipeline.
+  if (blurView != nil && blurView.userInteractionEnabled) {
+    for (UITouch *touch in [event allTouches]) {
+      if ([touch.view isDescendantOfView:blurView]) {
+        return YES;
+      }
+    }
+  }
+
+  return [super touchedContentViewWithEvent:event];
 }
 
 #pragma mark Cleanup
@@ -49,7 +65,9 @@
     return;
   }
 
-  [[self blurView] setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
+  UIVisualEffectView *effectView = [self blurView];
+  [effectView setUserInteractionEnabled:NO];
+  [effectView setEffect:[UIBlurEffect effectWithStyle:[TiUtils intValue:value def:UIBlurEffectStyleLight]]];
   [[self proxy] replaceValue:value forKey:@"effect" notification:NO];
 }
 
@@ -67,7 +85,9 @@
     glassEffect.interactive = isInteractive;
     glassEffect.tintColor = tintColor.color;
 
-    [[self blurView] setEffect:glassEffect];
+    UIVisualEffectView *effectView = [self blurView];
+    [effectView setUserInteractionEnabled:isInteractive];
+    [effectView setEffect:glassEffect];
     [[self proxy] replaceValue:value forKey:@"glassEffect" notification:NO];
   }
 }

@@ -91,7 +91,9 @@
   // If there is a separator, then it's included as part of the row height as the system, so remove the pixel for it
   // from our cell size
   if ([[[proxy table] tableView] separatorStyle] == UITableViewCellSeparatorStyleSingleLine) {
-    height -= 1;
+    // Clamp so a collapsed (height:0) row does not go negative, which would
+    // otherwise trigger spurious row reloads in triggerUpdateIfHeightChanged.
+    height = MAX(height - 1, 0);
   }
 
   return CGSizeMake(width, height);
@@ -393,7 +395,7 @@
   if (TiDimensionIsDip(maxRowHeight)) {
     height = MIN(maxRowHeight.value, height);
   }
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 // Allows use of scrollsToTop property on a table.
@@ -2532,7 +2534,7 @@
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       controller = [[proxy windowHoldingController] retain];
     } else {
-      controller = [[[TiApp app] controller] retain];
+      controller = [[[self.proxy owningInstance] controller] retain];
     }
     if (!controller.navigationItem.searchController) {
       controller.navigationItem.searchController = searchController;
@@ -2586,7 +2588,7 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -2596,7 +2598,7 @@
 {
   NSDictionary *userInfo = [notification userInfo];
   CGRect keyboardEndFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-  CGRect convertedFrame = [[[TiApp app] topMostView] convertRect:keyboardEndFrame fromView:nil];
+  CGRect convertedFrame = [self.window convertRect:keyboardEndFrame fromCoordinateSpace:self.window.screen.coordinateSpace];
   CGFloat height = convertedFrame.origin.y;
 
   [self keyboardDidShowAtHeight:height];
@@ -2697,7 +2699,7 @@
   CGFloat rowWidth = tableview.bounds.size.width;
 #ifdef TI_USE_AUTOLAYOUT
   if (rowWidth == 0) {
-    rowWidth = [[[[[UIApplication sharedApplication] delegate] window] rootViewController] view].bounds.size.width;
+    rowWidth = [[[[self.proxy owningInstance] window] rootViewController] view].bounds.size.width;
   }
 #endif
 
@@ -2746,7 +2748,7 @@
   CGFloat width = [row sizeWidthForDecorations:[self computeRowWidth] forceResizing:YES];
   CGFloat height = [row rowHeight:width];
   height = [self tableRowHeight:height];
-  return height < 1 ? tableview.rowHeight : height;
+  return height < 0 ? tableview.rowHeight : height;
 }
 
 - (UIView *)tableView:(UITableView *)ourTableView viewForHeaderInSection:(NSInteger)section
@@ -2872,6 +2874,8 @@
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
 {
+  isScrollingToTop = YES;
+
   // suspend image loader while we're scrolling to improve performance
   [[ImageLoader sharedLoader] suspend];
   return YES;
@@ -2934,13 +2938,14 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-  if (scrollView.isDragging || scrollView.isDecelerating) {
+  if (scrollView.isDragging || scrollView.isDecelerating || isScrollingToTop) {
     [self fireScrollEvent:scrollView];
   }
 }
 
 - (void)scrollViewDidScrollToTop:(UIScrollView *)scrollView
 {
+  isScrollingToTop = NO;
   [self fireScrollEvent:scrollView];
 
   // resume image loader when we're done scrolling
@@ -2949,6 +2954,8 @@
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
+  isScrollingToTop = NO;
+
   // suspend image loader while we're scrolling to improve performance
   [[ImageLoader sharedLoader] suspend];
   if ([self.proxy _hasListeners:@"dragStart"]) { // TODO: Deprecate old event.
@@ -3084,7 +3091,7 @@
     if ([proxy isKindOfClass:[TiWindowProxy class]]) {
       searchControllerPresenter = [[proxy windowHoldingController] retain];
     } else {
-      searchControllerPresenter = [[[TiApp app] controller] retain];
+      searchControllerPresenter = [[[self.proxy owningInstance] controller] retain];
     }
   }
   searchControllerPresenter.definesPresentationContext = YES;

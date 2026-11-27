@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -45,10 +45,14 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Build;
+import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.location.LocationManagerCompat;
 
 /**
@@ -116,7 +120,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 	public TiLocation tiLocation;
 	public AndroidModule androidModule;
-	public int numLocationListeners = 0; // FIXME: We need a better way to track if location providers are enabled, since single shot getCurrentPosition messes with this!
+	public int numLocationListeners = 0;
 	public HashMap<String, LocationProviderProxy> simpleLocationProviders =
 		new HashMap<String, LocationProviderProxy>();
 
@@ -133,6 +137,10 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	private static final double SIMPLE_LOCATION_NETWORK_DISTANCE_RULE = 200;
 	private static final double SIMPLE_LOCATION_NETWORK_MIN_AGE_RULE = 60000;
 	private static final double SIMPLE_LOCATION_GPS_MIN_AGE_RULE = 30000;
+	// getCurrentPosition(): a cached fix younger than this is returned immediately, otherwise a single
+	// fresh fix is requested and the call fails once the timeout has elapsed without one.
+	private static final long CURRENT_POSITION_MAX_AGE_MILLIS = 30000;
+	private static final long CURRENT_POSITION_TIMEOUT_MILLIS = 30000;
 
 	private Context context;
 	private TiCompass tiCompass;
@@ -144,7 +152,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	//currentLocation is conditionally updated. lastLocation is unconditionally updated
 	//since currentLocation determines when to send out updates, and lastLocation is passive
 	private Location lastLocation;
-	private final HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallback = new HashMap<>();
 
 	private FusedLocationProvider fusedLocationProvider;
 	private Geocoder geocoder;
@@ -217,27 +224,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		}
 		lastLocation = location;
 
-		// Execute getCurrentPosition() callbacks/Promises
-		if (currentPositionCallback.size() > 0) {
-			HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallbackClone =
-				(HashMap<KrollPromise<KrollDict>, KrollFunction>) currentPositionCallback.clone();
-			currentPositionCallback.clear();
-			final KrollObject callbackThisObject = this.getKrollObject();
-			final KrollDict event = buildLocationEvent(
-								  lastLocation, tiLocation.locationManager.getProvider(lastLocation.getProvider()));
-			for (Map.Entry<KrollPromise<KrollDict>, KrollFunction> entry : currentPositionCallbackClone.entrySet()) {
-				if (entry.getValue() != null) {
-					entry.getValue().call(callbackThisObject, new Object[] { event });
-				}
-				entry.getKey().resolve(event);
-			}
-			// if only the getCurrentPosition() callbacks were the ones triggering location providers, disable them now
-			// (i.e. there are no 'location' event listeners)
-			if (numLocationListeners == 0) {
-				disableLocationProviders();
-			}
-		}
-
 		// Fire 'location' event listeners.
 		if (shouldUseUpdate(location)) {
 			if (numLocationListeners > 0) {
@@ -294,27 +280,6 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			final KrollDict event = buildLocationErrorEvent(state, message);
 			if (numLocationListeners > 0) {
 				fireEvent(TiC.EVENT_LOCATION, event);
-			}
-
-			// Execute current position callbacks.
-			if (currentPositionCallback.size() > 0) {
-				HashMap<KrollPromise<KrollDict>, KrollFunction> currentPositionCallbackClone =
-					(HashMap<KrollPromise<KrollDict>, KrollFunction>) currentPositionCallback.clone();
-				currentPositionCallback.clear();
-				final KrollObject callbackThisObject = this.getKrollObject();
-				for (Map.Entry<KrollPromise<KrollDict>, KrollFunction> entry
-					: currentPositionCallbackClone.entrySet()) {
-					if (entry.getValue() != null) {
-						entry.getValue().call(callbackThisObject, new Object[] { event });
-					}
-					entry.getKey().reject(new Throwable(message));
-				}
-
-				// If there are no 'location' event listeners and only the getCurrentPosition()
-				// single-shot calls were what enabled location providers, we should disable them now
-				if (numLocationListeners == 0) {
-					disableLocationProviders();
-				}
 			}
 		}
 	}
@@ -387,17 +352,11 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners++;
-			// if we now have a 'location' event listener and haven't enabled location providers due to getCurrentPosition()
-			// then enable them now
-			// FIXME: Why can't we just track some boolean flag for this?
-			if (currentPositionCallback.size() == 0) {
-				HashMap<String, LocationProviderProxy> locationProviders = simpleLocationProviders;
-				// FIXME: why does this differ from how we enable in getCurrentPosition()?
-				if (getManualMode()) {
-					locationProviders = androidModule.manualLocationProviders;
-				}
-				enableLocationProviders(locationProviders);
+			HashMap<String, LocationProviderProxy> locationProviders = simpleLocationProviders;
+			if (getManualMode()) {
+				locationProviders = androidModule.manualLocationProviders;
 			}
+			enableLocationProviders(locationProviders);
 
 			// fire off an initial location fix if one is available
 			if (!hasLocationPermissions()) {
@@ -427,10 +386,7 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			}
 		} else if (TiC.EVENT_LOCATION.equals(event)) {
 			numLocationListeners--;
-			// disable location providers if no getCurrentPosition() calls are pending
-			if (currentPositionCallback.size() == 0) {
-				disableLocationProviders();
-			}
+			disableLocationProviders();
 		}
 
 		super.eventListenerRemoved(event, count, proxy);
@@ -498,6 +454,14 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 			return false;
 		}
 		return androidModule.manualMode;
+	}
+
+	/**
+	 * @return <code>true</code> if Ti.Geolocation.accuracy is ACCURACY_HIGH
+	 */
+	public boolean isHighAccuracy()
+	{
+		return getProperties().optInt(TiC.PROPERTY_ACCURACY, ACCURACY_LOW) == ACCURACY_HIGH;
 	}
 
 	@Kroll.method
@@ -685,8 +649,8 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	 */
 	private void doEnableLocationProviders(HashMap<String, LocationProviderProxy> locationProviders)
 	{
-		// Enable if we have 1+ location event listeners OR an async getCurrentPosition() callback queued
-		if (numLocationListeners > 0 || currentPositionCallback.size() > 0) {
+		// Only register with the OS while there are 'location' event listeners.
+		if (numLocationListeners > 0) {
 			disableLocationProviders();
 
 			Iterator<String> iterator = locationProviders.keySet().iterator();
@@ -741,9 +705,12 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 	}
 
 	/**
-	 * Retrieves the last known location and returns it to the specified Javascript function
+	 * Retrieves the current location and returns it to the specified Javascript function.
+	 * A cached fix is returned immediately when it is recent enough; otherwise a single fresh fix
+	 * is requested from Google Play Services (or the platform LocationManager without Play Services).
+	 * The callback/Promise always completes, with an error once the timeout has elapsed.
 	 *
-	 * @param callback			Javascript function that will be invoked with the last known location
+	 * @param callback			Javascript function that will be invoked with the current location
 	 */
 	@Kroll.method
 	public KrollPromise<KrollDict> getCurrentPosition(@Kroll.argument(optional = true) final KrollFunction callback)
@@ -752,50 +719,152 @@ public class GeolocationModule extends KrollModule implements Handler.Callback, 
 		return KrollPromise.create((promise) -> {
 			if (!hasLocationPermissions()) {
 				Log.e(TAG, "Location permissions missing");
-				if (callback != null) {
-					KrollDict event = buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE,
-																	"Location permissions missing");
-					callback.call(callbackThisObject, new Object[] { event });
-				}
-				promise.reject(new Throwable("Location permissions missing"));
+				rejectCurrentPosition(promise, callback, callbackThisObject, "Location permissions missing");
 				return;
 			}
 
-			Location latestKnownLocation = tiLocation.getLastKnownLocation();
-			if (latestKnownLocation == null) {
-				latestKnownLocation = lastLocation;
+			// Fast path: a fix that is recent enough still counts as "current".
+			Location cached = lastLocation;
+			if (cached == null) {
+				cached = tiLocation.getLastKnownLocation();
 			}
-
-			// TIMOB-27572: Samsung devices require a location provider to be registered
-			// in order to obtain last known location.
-			if (latestKnownLocation == null) {
-				currentPositionCallback.put(promise, callback); // stick in map
-				 // assume if no 'location' events listeners and this is first getCurrentPosition() caller in queue
-				 // that we need to enable location providers
-				 // FIXME: this really just needs to get if we've already enabled location providers and do so if we haven't!
-				if (numLocationListeners == 0 && currentPositionCallback.size() == 1) {
-					enableLocationProviders(simpleLocationProviders);
-				}
+			if ((cached != null) && (locationAgeMillis(cached) <= CURRENT_POSITION_MAX_AGE_MILLIS)) {
+				resolveCurrentPosition(promise, callback, callbackThisObject, cached);
 				return;
 			}
 
-			if (latestKnownLocation != null) {
-				KrollDict event = buildLocationEvent(latestKnownLocation, tiLocation.locationManager.getProvider(
-																			latestKnownLocation.getProvider()));
-				if (callback != null) {
-					callback.call(callbackThisObject, new Object[] { event });
+			if (!getLocationServicesEnabled()) {
+				rejectCurrentPosition(promise, callback, callbackThisObject, "location services are disabled");
+				return;
+			}
+
+			// Ask for a single fresh fix. The consumer is invoked exactly once, with null on timeout.
+			final FusedLocationProvider.LocationConsumer consumer = (location) -> {
+				if (location != null) {
+					resolveCurrentPosition(promise, callback, callbackThisObject, location);
+				} else {
+					rejectCurrentPosition(promise, callback, callbackThisObject, "location is unavailable");
 				}
-				promise.resolve(event);
+			};
+			if (FusedLocationProvider.hasPlayServices(context)) {
+				fusedLocationProvider.getCurrentLocation(
+					CURRENT_POSITION_MAX_AGE_MILLIS, CURRENT_POSITION_TIMEOUT_MILLIS, consumer);
 			} else {
-				Log.e(TAG, "Unable to get current position, location is null");
-				if (callback != null) {
-					KrollDict event = buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE,
-																	"location is currently unavailable.");
-					callback.call(callbackThisObject, new Object[] { event });
-				}
-				promise.reject(new Throwable("Unable to get current position, location is null"));
+				requestCurrentLocationFromPlatform(CURRENT_POSITION_TIMEOUT_MILLIS, consumer);
 			}
 		});
+	}
+
+	/**
+	 * Single-shot fallback for devices without Google Play Services.
+	 */
+	@SuppressLint("MissingPermission")
+	private void requestCurrentLocationFromPlatform(long timeoutMillis,
+													final FusedLocationProvider.LocationConsumer consumer)
+	{
+		final String provider = pickSingleShotProvider();
+		if (provider == null) {
+			consumer.accept(null);
+			return;
+		}
+
+		final CancellationSignal cancellation = new CancellationSignal();
+		final AtomicBoolean delivered = new AtomicBoolean(false);
+		final Handler handler = new Handler(Looper.getMainLooper());
+		final Runnable onTimeout = () -> {
+			if (delivered.compareAndSet(false, true)) {
+				Log.w(TAG, "Timed out waiting for a location fix from [" + provider + "]");
+				cancellation.cancel();
+				consumer.accept(null);
+			}
+		};
+		handler.postDelayed(onTimeout, timeoutMillis);
+
+		try {
+			LocationManagerCompat.getCurrentLocation(
+				locationManager, provider, cancellation, ContextCompat.getMainExecutor(TiApplication.getInstance()),
+				(location) -> {
+					handler.removeCallbacks(onTimeout);
+					if (delivered.compareAndSet(false, true)) {
+						consumer.accept(location);
+					}
+				});
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to request location from [" + provider + "]: " + e.getMessage());
+			handler.removeCallbacks(onTimeout);
+			if (delivered.compareAndSet(false, true)) {
+				consumer.accept(null);
+			}
+		}
+	}
+
+	/**
+	 * Picks the platform provider to use for a single-shot request: the OS fused provider
+	 * where it exists, otherwise GPS or network depending on the accuracy property.
+	 */
+	private String pickSingleShotProvider()
+	{
+		if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) && isProviderUsable(LocationManager.FUSED_PROVIDER)) {
+			return LocationManager.FUSED_PROVIDER;
+		}
+		String[] preferred = isHighAccuracy()
+			? new String[] { LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER }
+			: new String[] { LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER };
+		for (String name : preferred) {
+			if (isProviderUsable(name)) {
+				return name;
+			}
+		}
+		return null;
+	}
+
+	private boolean isProviderUsable(String name)
+	{
+		try {
+			return tiLocation.isProvider(name) && locationManager.isProviderEnabled(name);
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private static long locationAgeMillis(Location location)
+	{
+		return (SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) / 1000000L;
+	}
+
+	private void resolveCurrentPosition(KrollPromise<KrollDict> promise, KrollFunction callback,
+										KrollObject callbackThisObject, Location location)
+	{
+		lastLocation = location;
+		KrollDict event = buildLocationEvent(location, locationProviderFor(location));
+		if (callback != null) {
+			callback.callAsync(callbackThisObject, new Object[] { event });
+		}
+		promise.resolve(event);
+	}
+
+	private void rejectCurrentPosition(KrollPromise<KrollDict> promise, KrollFunction callback,
+									   KrollObject callbackThisObject, String message)
+	{
+		Log.e(TAG, "Unable to get current position, " + message);
+		if (callback != null) {
+			KrollDict event = buildLocationErrorEvent(TiLocation.ERR_POSITION_UNAVAILABLE, message);
+			callback.callAsync(callbackThisObject, new Object[] { event });
+		}
+		promise.reject(new Throwable(message));
+	}
+
+	private LocationProvider locationProviderFor(Location location)
+	{
+		String name = location.getProvider();
+		if (name == null) {
+			return null;
+		}
+		try {
+			return tiLocation.locationManager.getProvider(name);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	/**

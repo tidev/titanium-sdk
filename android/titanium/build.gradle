@@ -291,16 +291,16 @@ dependencies {
 	implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
 	implementation 'androidx.exifinterface:exifinterface:1.4.2'
 	implementation "androidx.fragment:fragment:${project.ext.tiAndroidXFragmentLibVersion}"
-	implementation 'androidx.media:media:1.7.1'
+	implementation 'androidx.media:media:1.8.0'
 	implementation 'androidx.recyclerview:recyclerview:1.4.0'
-	implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
+	implementation 'androidx.recyclerview:recyclerview-selection:1.2.0'
 	implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
-	implementation 'androidx.transition:transition:1.7.0'
+	implementation 'androidx.transition:transition:1.7.1'
 	implementation 'androidx.vectordrawable:vectordrawable:1.2.0'
 	implementation 'androidx.vectordrawable:vectordrawable-animated:1.2.0'
 	implementation 'androidx.viewpager:viewpager:1.1.0'
 	implementation 'androidx.viewpager2:viewpager2:1.1.0'
-	implementation 'androidx.annotation:annotation:1.7.1'
+	implementation 'androidx.annotation:annotation:1.10.0'
 
 	// Google's "Material Components" themed UI library.
 	implementation "com.google.android.material:material:${project.ext.tiMaterialLibVersion}"
@@ -308,13 +308,13 @@ dependencies {
 	// The Google Play Services libraries are only used by Titanium's geolocation feature.
 	// We link to them dynamically at runtime. So, they can be safely excluded when in the app project.
 	implementation "com.google.android.gms:play-services-base:${project.ext.tiPlayServicesBaseLibVersion}"
-	implementation 'com.google.android.gms:play-services-location:21.2.0'
+	implementation 'com.google.android.gms:play-services-location:21.4.0'
 
 	// XML library providing XPath support to our Ti.XML APIs.
-	implementation 'jaxen:jaxen:1.2.0'
+	implementation 'jaxen:jaxen:2.0.6'
 
 	// WebSocket library is needed to do JavaScript debugging.
-	implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+	implementation 'org.java-websocket:Java-WebSocket:1.6.0'
 
 	// Reference all local JAR file dependencies.
 	implementation fileTree(dir: 'lib', include: ['*.jar'])
@@ -326,7 +326,7 @@ dependencies {
 	implementation "androidx.camera:camera-video:$camerax_version"
 	implementation "androidx.camera:camera-lifecycle:$camerax_version"
 	implementation "androidx.camera:camera-view:$camerax_version"
-	implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+	implementation 'androidx.constraintlayout:constraintlayout:2.2.2'
 }
 
 // This block is used when we do a "gradlew :titanium:publish", which is invoked by our "node scons package" tool.

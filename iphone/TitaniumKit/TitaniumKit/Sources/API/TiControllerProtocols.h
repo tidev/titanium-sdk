@@ -61,6 +61,10 @@
 
 @property (nonatomic, readwrite, assign) BOOL isManaged;
 
+@optional
+// The vertical bar behavior (UIVerticalBarBehavior) this window prefers. Only evaluated on iOS 27.1+.
+- (NSInteger)preferredVerticalBarBehavior;
+
 @end
 
 /**

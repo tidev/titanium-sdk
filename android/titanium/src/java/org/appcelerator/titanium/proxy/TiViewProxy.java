@@ -57,6 +57,7 @@ import android.view.ViewAnimationUtils;
 	TiC.PROPERTY_BACKGROUND_GRADIENT,
 	// border properties
 	TiC.PROPERTY_BORDER_COLOR,
+	TiC.PROPERTY_BORDER_DASH_PATTERN,
 	TiC.PROPERTY_BORDER_RADIUS,
 	TiC.PROPERTY_BORDER_WIDTH,
 	// layout / dimension (size/width/height have custom accessors)

@@ -21,7 +21,7 @@ void InsetScrollViewForKeyboard(UIScrollView *scrollView, CGFloat keyboardTop, C
 {
   VerboseLog(@"ScrollView:%@, keyboardTop:%f minimumContentHeight:%f", scrollView, keyboardTop, minimumContentHeight);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
   // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
@@ -54,7 +54,7 @@ void OffsetScrollViewForRect(UIScrollView *scrollView, CGFloat keyboardTop, CGFl
       scrollView, keyboardTop, minimumContentHeight,
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
   // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
@@ -98,7 +98,7 @@ void ModifyScrollViewForKeyboardHeightAndContentHeightWithResponderRect(UIScroll
       scrollView, keyboardTop, minimumContentHeight,
       responderRect.origin.x, responderRect.origin.y, responderRect.size.width, responderRect.size.height);
 
-  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:[[TiApp app] topMostView]];
+  CGRect scrollVisibleRect = [scrollView convertRect:[scrollView bounds] toView:nil];
   // First, find out how much we have to compensate.
 
   CGFloat obscuredHeight = scrollVisibleRect.origin.y + scrollVisibleRect.size.height - keyboardTop;
@@ -464,6 +464,12 @@ DEFINE_EXCEPTIONS
     }
   }
 
+  // Redraw the background image so a dark-mode rendition from the asset catalog is picked up
+  id backgroundImageValue = [self.proxy valueForKey:@"backgroundImage"];
+  if (backgroundImageValue != nil && backgroundImage != nil) {
+    [self setBackgroundImage_:backgroundImageValue];
+  }
+
   if (hasStoredBackgroundForSelectionHighlight) {
     [self refreshBackgroundSelectedHighlight];
   }
@@ -624,22 +630,38 @@ DEFINE_EXCEPTIONS
   [rect setRect:r];
 }
 
+// The dash pattern of the border as alternating dash and gap lengths in points, nil for a solid border.
+- (NSArray<NSNumber *> *)borderDashPattern
+{
+  id pattern = [proxy valueForUndefinedKey:@"borderDashPattern"];
+  if (![pattern isKindOfClass:[NSArray class]] || [pattern count] == 0) {
+    return nil;
+  }
+  NSMutableArray<NSNumber *> *lengths = [NSMutableArray arrayWithCapacity:[pattern count]];
+  for (id length in pattern) {
+    [lengths addObject:@([self radiusFromObject:length])];
+  }
+  return lengths;
+}
+
 - (CAShapeLayer *)borderLayer
 {
-  // If borderRadius has multiple values, create a custom borderlayer and add as sublayer on self.layer. Otherwise use self.layer.
+  // If borderRadius has multiple values or the border is dashed, create a custom borderlayer and add as sublayer on self.layer. Otherwise use self.layer.
   NSArray *array = [self cornerArrayFromRadius:[proxy valueForUndefinedKey:@"borderRadius"]];
-  if ((!array || array.count <= 1) && _borderLayer != self.layer) {
+  BOOL needsBorderLayer = array.count > 1 || [self borderDashPattern] != nil;
+  if (!needsBorderLayer && _borderLayer != self.layer) {
     self.layer.mask = nil;
     self.layer.borderColor = _borderLayer.strokeColor;
     self.layer.borderWidth = _borderLayer.lineWidth / 2;
     [_borderLayer removeFromSuperlayer];
     RELEASE_TO_NIL(_borderLayer);
     _borderLayer = (CAShapeLayer *)self.layer;
-  } else if ((array.count > 1) && (!_borderLayer || _borderLayer == self.layer)) {
+  } else if (needsBorderLayer && (!_borderLayer || _borderLayer == self.layer)) {
     _borderLayer = [[CAShapeLayer alloc] init];
     _borderLayer.fillColor = UIColor.clearColor.CGColor;
     _borderLayer.strokeColor = self.layer.borderColor;
     _borderLayer.lineWidth = self.layer.borderWidth * 2;
+    _borderLayer.lineDashPattern = [self borderDashPattern];
     self.layer.borderColor = nil;
     self.layer.borderWidth = 0;
     [self.layer addSublayer:_borderLayer];
@@ -670,7 +692,7 @@ DEFINE_EXCEPTIONS
     layer.borderColor = color.CGColor;
   } else {
     if (shouldRefreshWidth) {
-      layer.lineWidth = MAX(layer.lineWidth * 2, 1 * 2);
+      layer.lineWidth = MAX(layer.lineWidth, 1 * 2);
     }
     layer.strokeColor = color.CGColor;
   }
@@ -689,6 +711,19 @@ DEFINE_EXCEPTIONS
     layer.borderWidth = MAX(borderWidth, 0);
   } else {
     layer.lineWidth = MAX(borderWidth * 2, 0);
+  }
+  [self updateClipping];
+}
+
+- (void)setBorderDashPattern_:(id)pattern
+{
+  CAShapeLayer *layer = [self borderLayer];
+  if (layer != self.layer) {
+    layer.lineDashPattern = [self borderDashPattern];
+    // The layer may have just been created outside of a layout pass (e.g. a single border radius
+    // so far), so give it its path and frame right away instead of waiting for checkBounds.
+    layer.path = [self bezierPathOfView].CGPath;
+    layer.frame = self.bounds;
   }
   [self updateClipping];
 }
@@ -741,6 +776,18 @@ DEFINE_EXCEPTIONS
 //   background colors everywhere - and this starts getting really complicated for some views
 //   (on the off chance somebody wants to swap tesselation AND has a background color they want to replace it with).
 
+// Images loaded via [UIImage imageNamed:] from the asset catalog can carry light/dark
+// renditions. UIImageView resolves them automatically, but we render into a CALayer via
+// CGImage, so we have to resolve the rendition against this view's trait collection ourselves.
+- (UIImage *)resolveDynamicImage:(UIImage *)image
+{
+  if (image == nil || image.imageAsset == nil) {
+    return image;
+  }
+  UIImage *resolved = [image.imageAsset imageWithTraitCollection:self.traitCollection];
+  return resolved != nil ? resolved : image;
+}
+
 - (void)renderRepeatedBackground:(id)image
 {
   if (![NSThread isMainThread]) {
@@ -752,7 +799,7 @@ DEFINE_EXCEPTIONS
     return;
   }
 
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
   if (bgImage == nil) {
     [self backgroundImageLayer].contents = nil;
     return;
@@ -799,7 +846,7 @@ DEFINE_EXCEPTIONS
 
 - (void)setBackgroundImage_:(id)image
 {
-  UIImage *bgImage = [TiUtils loadBackgroundImage:image forProxy:proxy];
+  UIImage *bgImage = [self resolveDynamicImage:[TiUtils loadBackgroundImage:image forProxy:proxy]];
 
   if (bgImage == nil) {
     [bgdImageLayer removeFromSuperlayer];
@@ -1111,7 +1158,7 @@ DEFINE_EXCEPTIONS
     if (_shadowLayer.shadowOpacity > 0) {
       // If shadow is visible, disble clipping
       self.clipsToBounds = NO;
-    } else if (self.layer.borderWidth > 0 || self.layer.cornerRadius > 0 || [proxy valueForUndefinedKey:@"borderRadius"]) {
+    } else if (self.layer.borderWidth > 0 || (_borderLayer != nil && _borderLayer != self.layer && _borderLayer.lineWidth > 0) || self.layer.cornerRadius > 0 || [proxy valueForUndefinedKey:@"borderRadius"]) {
       // If borderWidth > 0, or borderRadius > 0 enable clipping
       self.clipsToBounds = YES;
     } else if ([[self proxy] isKindOfClass:[TiViewProxy class]]) {

@@ -730,6 +730,21 @@ describe('Titanium.UI.View', function () {
 		win.open();
 	});
 
+	it('animate callback may return a value with a reference cycle', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({ backgroundColor: 'orange', width: 100, height: 100 });
+		const cyclic = { name: 'cyclic' };
+		cyclic.self = cyclic;
+		win.add(view);
+		win.addEventListener('open', () => {
+			view.animate({ duration: 100, opacity: 0.5 }, () => {
+				setTimeout(() => finish(), 20);
+				return cyclic;
+			});
+		});
+		win.open();
+	});
+
 	it.android('animate and stopAnimation', function (finish) {
 		win = Ti.UI.createWindow({ backgroundColor: 'white' });
 		const view = Ti.UI.createView({
@@ -782,6 +797,78 @@ describe('Titanium.UI.View', function () {
 			setTimeout(function () {
 				view.animate();
 			}, 500);
+		});
+		win.open();
+	});
+
+	it('animate (rotation)', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			width: 100, height: 100,
+			left: 100, top: 100
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				rotation: 90,
+				duration: 500
+			});
+
+			animation.addEventListener('complete', () => {
+				try {
+					// Rotating must not move the view's layout position.
+					should(view.rect.x).be.eql(100);
+					should(view.rect.y).be.eql(100);
+					// The animated value is written back to the view's property.
+					should(view.rotation).be.eql(90);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			view.animate(animation);
+		});
+		win.open();
+	});
+
+	it('animate (rotation) with a reused animation', function (finish) {
+		win = Ti.UI.createWindow({ backgroundColor: 'white' });
+		const view = Ti.UI.createView({
+			backgroundColor: 'orange',
+			width: 100, height: 100,
+			left: 100, top: 100
+		});
+		win.add(view);
+		win.addEventListener('open', () => {
+			const animation = Ti.UI.createAnimation({
+				rotation: 90,
+				duration: 250
+			});
+			let runs = 0;
+
+			animation.addEventListener('complete', () => {
+				runs++;
+				try {
+					// The shorthand must not leave a generated matrix in the animation's "transform".
+					should.not.exist(animation.transform);
+					if (runs === 1) {
+						should(view.rotation).be.eql(90);
+						// Update the same animation object and run it again.
+						animation.rotation = 180;
+						view.animate(animation);
+						return;
+					}
+					// The updated value wins over the first run.
+					should(view.rotation).be.eql(180);
+				} catch (err) {
+					return finish(err);
+				}
+				finish();
+			});
+
+			view.animate(animation);
 		});
 		win.open();
 	});

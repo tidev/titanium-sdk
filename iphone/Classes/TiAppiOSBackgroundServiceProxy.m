@@ -50,13 +50,13 @@
 - (void)stop:(id)args
 {
   [self endBackground];
-  [[TiApp app] stopBackgroundService:self];
+  [[self owningInstance] stopBackgroundService:self];
 }
 
 - (void)unregister:(id)args
 {
   [self endBackground];
-  [[TiApp app] unregisterBackgroundService:self];
+  [[self owningInstance] unregisterBackgroundService:self];
 }
 
 @end
