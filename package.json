@@ -16,7 +16,7 @@
     "ipad",
     "ios"
   ],
-  "author": "TiDev, Inc. <npm@tidev.io>",
+  "author": "TiDev, Inc. <npm@titaniumsdk.com>",
   "scripts": {
     "android": "node ./build/scons cleanbuild android",
     "build": "node ./build/scons build",
