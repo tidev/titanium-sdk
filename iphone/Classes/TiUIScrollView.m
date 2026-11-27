@@ -251,7 +251,10 @@
   if (!needsHandleContentSize) {
     return;
   }
-  CGSize newContentSize = [self bounds].size;
+  UIEdgeInsets previousSafeAreaInsets = contentSafeAreaInsets;
+  contentSafeAreaInsets = [self horizontalSafeAreaInsetsForContent];
+  CGSize layoutSize = [self contentLayoutBounds].size;
+  CGSize newContentSize = layoutSize;
   CGFloat scale = [scrollView zoomScale];
 
   switch (contentWidth.type) {
@@ -263,7 +266,7 @@
   case TiDimensionTypeAutoSize:
   case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
   {
-    newContentSize.width = MAX(newContentSize.width, [(TiViewProxy *)[self proxy] autoWidthForSize:[self bounds].size]);
+    newContentSize.width = MAX(newContentSize.width, [(TiViewProxy *)[self proxy] autoWidthForSize:layoutSize]);
     break;
   }
   case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
@@ -281,7 +284,7 @@
   case TiDimensionTypeAutoSize:
   case TiDimensionTypeAuto: // TODO: This may break the layout spec for content "auto"
   {
-    minimumContentHeight = [(TiViewProxy *)[self proxy] autoHeightForSize:[self bounds].size];
+    minimumContentHeight = [(TiViewProxy *)[self proxy] autoHeightForSize:layoutSize];
     break;
   }
   case TiDimensionTypeAutoFill: // Assume that "fill" means "fill scrollview bounds"; not in spec
@@ -292,16 +295,91 @@
   newContentSize.width *= scale;
   newContentSize.height = scale * MAX(newContentSize.height, minimumContentHeight);
 
-  [scrollView setContentSize:newContentSize];
-  CGRect wrapperBounds;
-  wrapperBounds.origin = CGPointZero;
-  wrapperBounds.size = newContentSize;
-  [wrapperView setFrame:wrapperBounds];
+  // With side insets applied (see horizontalSafeAreaInsetsForContent), the scrollable area keeps the full
+  // view width and UIKit's left/right insets are cancelled, so the horizontal offset stays at 0 like on any
+  // device without side insets. The content itself is placed between the side insets.
+  [self updateHorizontalContentInsets];
+  CGSize scrollableSize = newContentSize;
+  scrollableSize.width += contentSafeAreaInsets.left + contentSafeAreaInsets.right;
+  [scrollView setContentSize:scrollableSize];
+  [wrapperView setFrame:CGRectMake(contentSafeAreaInsets.left, 0, newContentSize.width, newContentSize.height)];
   [self scrollViewDidZoom:scrollView];
+
+  // Move back to the leading edge when the side insets change (e.g. folding or rotating).
+  if (!UIEdgeInsetsEqualToEdgeInsets(previousSafeAreaInsets, contentSafeAreaInsets) && ![scrollView isDragging]) {
+    CGPoint offset = [scrollView contentOffset];
+    offset.x = -[scrollView adjustedContentInset].left;
+    [scrollView setContentOffset:offset];
+  }
+
   needsHandleContentSize = NO;
   [(TiUIScrollViewProxy *)[self proxy] layoutChildrenAfterContentSize:NO];
 #endif
 }
+
+#ifndef TI_USE_AUTOLAYOUT
+// With UIScrollViewContentInsetAdjustmentAlways, UIKit adds the left/right safe-area insets to the scrollable
+// width, so a scroll view whose content fits the view width scrolls sideways by (left + right) inset, and its
+// content sits under the side insets (e.g. in landscape or on a foldable's outer screen). Returns the side
+// insets to lay such content out within. Top/bottom insets are left to UIKit. Content wider than the safe
+// width (e.g. carousels) and zoomable scroll views are not affected.
+- (UIEdgeInsets)horizontalSafeAreaInsetsForContent
+{
+  if (scrollView == nil || [scrollView contentInsetAdjustmentBehavior] != UIScrollViewContentInsetAdjustmentAlways) {
+    return UIEdgeInsetsZero;
+  }
+  if ([scrollView maximumZoomScale] > 1 || [scrollView minimumZoomScale] < 1) {
+    return UIEdgeInsetsZero;
+  }
+  UIEdgeInsets safeAreaInsets = [scrollView safeAreaInsets];
+  if (safeAreaInsets.left <= 0 && safeAreaInsets.right <= 0) {
+    return UIEdgeInsetsZero;
+  }
+
+  UIEdgeInsets insets = UIEdgeInsetsMake(0, MAX(0, safeAreaInsets.left), 0, MAX(0, safeAreaInsets.right));
+  CGSize visibleSize = [self bounds].size;
+  visibleSize.width = MAX(0, visibleSize.width - insets.left - insets.right);
+
+  // Only content that fits between the side insets; anything wider keeps today's behavior.
+  BOOL contentFitsWidth = YES;
+  switch (contentWidth.type) {
+  case TiDimensionTypeDip:
+    contentFitsWidth = contentWidth.value <= visibleSize.width;
+    break;
+  case TiDimensionTypeUndefined:
+  case TiDimensionTypeAutoSize:
+  case TiDimensionTypeAuto:
+    contentFitsWidth = [(TiViewProxy *)[self proxy] autoWidthForSize:visibleSize] <= visibleSize.width;
+    break;
+  default:
+    break;
+  }
+  return contentFitsWidth ? insets : UIEdgeInsetsZero;
+}
+
+// The area children are laid out in: the view bounds minus the side insets applied in handleContentSize.
+- (CGRect)contentLayoutBounds
+{
+  CGSize size = [self bounds].size;
+  size.width = MAX(0, size.width - contentSafeAreaInsets.left - contentSafeAreaInsets.right);
+  return CGRectMake(0, 0, size.width, size.height);
+}
+
+// Cancels the left/right insets UIKit adds while content is placed between the side insets, so there is no
+// horizontal scroll range. Top/bottom insets are untouched. No-op when the insets are already set.
+- (void)updateHorizontalContentInsets
+{
+  UIEdgeInsets insets = [scrollView contentInset];
+  CGFloat left = -contentSafeAreaInsets.left;
+  CGFloat right = -contentSafeAreaInsets.right;
+  if (insets.left == left && insets.right == right) {
+    return;
+  }
+  insets.left = left;
+  insets.right = right;
+  [scrollView setContentInset:insets];
+}
+#endif
 
 - (void)frameSizeChanged:(CGRect)frame bounds:(CGRect)visibleBounds
 {
@@ -497,6 +575,8 @@
   } else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]) {
     [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]] withObject:nil];
   }
+  // Zoomable scroll views are laid out without side safe-area insets (see horizontalSafeAreaInsetsForContent).
+  [self setNeedsHandleContentSize];
 }
 
 - (void)setMinZoomScale_:(id)args
@@ -506,6 +586,8 @@
   if ([[self scrollView] zoomScale] < val) {
     [self setZoomScale_:args withObject:nil];
   }
+  // Zoomable scroll views are laid out without side safe-area insets (see horizontalSafeAreaInsetsForContent).
+  [self setNeedsHandleContentSize];
 }
 
 - (void)setCanCancelEvents_:(id)args
@@ -538,10 +620,22 @@
   [(id<UIScrollViewDelegate>)[self proxy] scrollViewDidEndZooming:scrollView withView:(UIView *)view atScale:scale];
 }
 
+- (void)scrollViewDidChangeAdjustedContentInset:(UIScrollView *)scrollView_
+{
+#ifndef TI_USE_AUTOLAYOUT
+  // Called when the safe area changes (rotation, folding, window resize), and for keyboard insets.
+  // Only re-layout when the side insets the content depends on have changed.
+  if (!UIEdgeInsetsEqualToEdgeInsets([self horizontalSafeAreaInsetsForContent], contentSafeAreaInsets)) {
+    [self setNeedsHandleContentSize];
+  }
+#endif
+}
+
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView_
 {
 #ifndef TI_USE_AUTOLAYOUT
-  CGSize boundsSize = scrollView.bounds.size;
+  // Center within the area the content is laid out in, which starts after any left inset (see handleContentSize).
+  CGSize boundsSize = [self contentLayoutBounds].size;
   CGRect frameToCenter = wrapperView.frame;
   if (TiDimensionIsAuto(contentWidth) || TiDimensionIsAutoSize(contentWidth) || TiDimensionIsUndefined(contentWidth)) {
     if (frameToCenter.size.width < boundsSize.width) {
@@ -549,6 +643,7 @@
     } else {
       frameToCenter.origin.x = 0;
     }
+    frameToCenter.origin.x += contentSafeAreaInsets.left;
   }
   if (TiDimensionIsAuto(contentHeight) || TiDimensionIsAutoSize(contentHeight) || TiDimensionIsUndefined(contentHeight)) {
     if (frameToCenter.size.height < boundsSize.height) {
