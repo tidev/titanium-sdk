@@ -575,6 +575,8 @@
   } else if ([[self scrollView] zoomScale] < [[self scrollView] minimumZoomScale]) {
     [self setZoomScale_:[NSNumber numberWithFloat:[[self scrollView] minimumZoomScale]] withObject:nil];
   }
+  // Zoomable scroll views are laid out without side safe-area insets (see horizontalSafeAreaInsetsForContent).
+  [self setNeedsHandleContentSize];
 }
 
 - (void)setMinZoomScale_:(id)args
@@ -584,6 +586,8 @@
   if ([[self scrollView] zoomScale] < val) {
     [self setZoomScale_:args withObject:nil];
   }
+  // Zoomable scroll views are laid out without side safe-area insets (see horizontalSafeAreaInsetsForContent).
+  [self setNeedsHandleContentSize];
 }
 
 - (void)setCanCancelEvents_:(id)args
