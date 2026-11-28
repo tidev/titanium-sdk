@@ -40,11 +40,14 @@ import util from 'node:util';
 import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { loadPackageJson } from '../../../cli/lib/pkginfo.js';
+import { randomBytes } from 'node:crypto';
+import { DEFAULT_PORT as HOT_RELOAD_PORT, parsePort as parseHotReloadPort } from '../../../cli/lib/hot-reload/server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
 const afs = appc.fs;
 const version = appc.version;
+const HOT_RELOAD_BOOTSTRAP = 'ti.hotreload.bootstrap'; // require() path of the hot reload client in the app
 const V8_STRING_VERSION_REGEXP = /(\d+)\.(\d+)\.\d+\.\d+/;
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 
@@ -226,6 +229,10 @@ class AndroidBuilder extends Builder {
 			cli.createHook('build.android.config', this, function (callback) {
 				const conf = {
 					flags: {
+						'hot-reload': {
+							desc: 'push changed JS, JSON, and Alloy source files to the running app and restart it; not for production builds',
+							default: false
+						},
 						launch: {
 							desc: 'disable launching the app after installing',
 							default: true,
@@ -356,6 +363,11 @@ class AndroidBuilder extends Builder {
 						},
 						'debug-host': {
 							hidden: true
+						},
+						'hot-reload-port': {
+							desc: `the port of the hot reload server; only used with ${'--hot-reload'.cyan}`,
+							hint: 'port',
+							default: HOT_RELOAD_PORT
 						},
 						'deploy-type': {
 							abbr: 'D',
@@ -926,6 +938,29 @@ class AndroidBuilder extends Builder {
 				this.allowDebugging = true;
 				this.allowProfiling = true;
 				this.proguard = false;
+		}
+
+		// Hot reload replaces single asset files at runtime, so the JS files cannot be encrypted.
+		this.hotReload = null;
+		if (cli.argv['hot-reload']) {
+			if (this.deployType === 'production') {
+				logger.warn('The --hot-reload flag does not work for production builds, ignoring it');
+			} else if (this.buildOnly) {
+				logger.warn('The --hot-reload flag needs a build that starts the app, ignoring it because of --build-only');
+			} else {
+				const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
+				if (!hotReloadPort) {
+					logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
+					process.exit(1);
+				}
+				this.encryptJS = false;
+				this.hotReload = {
+					// The emulator reaches the host at 10.0.2.2. A device uses "adb reverse", see hooks/hot-reload.js.
+					host: this.target === 'emulator' ? '10.0.2.2' : '127.0.0.1',
+					port: hotReloadPort,
+					token: randomBytes(16).toString('hex')
+				};
+			}
 		}
 
 		// Select the JavaScript asset encryption module. The open source 'ti.crypt'
@@ -2698,6 +2733,25 @@ class AndroidBuilder extends Builder {
 	}
 
 	/**
+	 * Writes the hot reload client and its configuration into the app, if "--hot-reload" is set.
+	 * The native asset loader turns on the override directory when it finds the configuration file.
+	 * @returns {Promise<void>}
+	 */
+	async writeHotReloadFiles() {
+		if (!this.hotReload) {
+			return;
+		}
+		await fs.ensureDir(this.buildAppMainAssetsResourcesDir);
+		const configFile = path.join(this.buildAppMainAssetsResourcesDir, '_hot_reload_.json');
+		await fs.writeFile(configFile, JSON.stringify(this.hotReload));
+		this.unmarkBuildDirFile(configFile);
+
+		const clientFile = path.join(this.buildAppMainAssetsResourcesDir, `${HOT_RELOAD_BOOTSTRAP}.js`);
+		await fs.copyFile(fileURLToPath(new URL('../../../cli/lib/hot-reload/client.js', import.meta.url)), clientFile);
+		this.unmarkBuildDirFile(clientFile);
+	}
+
+	/**
 	 * This may modify this.jsFilesToEncrypt
 	 * @param {Map<string, object>} jsFilesMap map from filename to file info
 	 * @returns {Promise<void>}
@@ -2741,6 +2795,8 @@ class AndroidBuilder extends Builder {
 			}
 		});
 		await task.run();
+		// The hot reload server transforms a changed file with the same options as this build.
+		this.hotReloadAnalyzeOptions = task.defaultAnalyzeOptions;
 		if (this.useWebpack) {
 			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
@@ -2775,6 +2831,9 @@ class AndroidBuilder extends Builder {
 		}
 
 		// then write the bootstrap json
+		if (this.hotReload) {
+			jsBootstrapFiles.push(HOT_RELOAD_BOOTSTRAP);
+		}
 		return this.writeBootstrapJson(jsBootstrapFiles);
 	}
 
@@ -2829,6 +2888,10 @@ class AndroidBuilder extends Builder {
 	async copyResources() {
 		// First walk all the input dirs and gather/categorize the files into buckets
 		const gatheredResults = await this.gatherResources();
+		// JS files that the build copies without a transform, for example the scripts of an HTML file.
+		this.hotReloadRawJsFiles = new Set([ ...gatheredResults.resourcesToCopy.keys() ]
+			.filter(file => /\.c?js$/i.test(file))
+			.map(file => file.replace(/\\/g, '/')));
 		this.jsFilesToEncrypt = []; // set listing of files to encrypt to empty array (may be modified by tasks below)
 
 		// ok we now have them organized into broad categories
@@ -2840,6 +2903,7 @@ class AndroidBuilder extends Builder {
 			this.processSplashesFiles(gatheredResults.launchImages),
 			this.writeAppProps(), // writes _app_props_.json for Ti.Properties
 			this.writeEnvironmentVariables(), // writes _env_.json for process.env
+			this.writeHotReloadFiles(), // writes the hot reload client and its configuration
 			this.copyPlatformDirs(), // copies platform/android dirs from project/modules
 			this.copyUnmodifiedResources(gatheredResults.resourcesToCopy), // copies any other files that don't require special handling (like JS/CSS do)
 		]);

@@ -29,6 +29,7 @@ import { CopyResourcesTask } from '../../../cli/lib/tasks/copy-resources-task.js
 import { ProcessJsTask } from '../../../cli/lib/tasks/process-js-task.js';
 import { Color } from '../../../common/lib/color.js';
 import { ProcessCSSTask } from '../../../cli/lib/tasks/process-css-task.js';
+import { DEFAULT_PORT as HOT_RELOAD_PORT, parsePort as parseHotReloadPort } from '../../../cli/lib/hot-reload/server.js';
 import { injectSPMPackage } from '../lib/ios/spm.js';
 import { hashIconComposerDocument, isIconComposerDocument } from '../lib/icon-composer.js';
 import { exec, spawn } from 'node:child_process';
@@ -47,6 +48,7 @@ const require = createRequire(import.meta.url);
 const platformsRegExp = new RegExp('^(' + ti.allPlatformNames.join('|') + ')$'); // eslint-disable-line security/detect-non-literal-regexp
 const pemCertRegExp = /(^-----BEGIN CERTIFICATE-----)|(-----END CERTIFICATE-----.*$)|\n/g;
 const SPM_LOG_PREFIX = '[SPM]';
+const HOT_RELOAD_BOOTSTRAP = 'ti.hotreload.bootstrap'; // require() path of the hot reload client in the app
 
 // Icon Composer documents (.icon) are only understood by the asset catalog compiler
 // shipped with Xcode 26 and newer
@@ -454,6 +456,10 @@ class iOSBuilder extends Builder {
 							'hide-error-controller': {
 								hidden: true
 							},
+							'hot-reload': {
+								desc: `for ${'simulator'.cyan} builds, push changed JS, JSON, and Alloy source files to the running app and restart it`,
+								default: false
+							},
 							'launch-watch-app': {
 								desc: `for ${'simulator'.cyan} builds, after installing an app with a watch extention, launch the watch app and the main app`
 							},
@@ -493,6 +499,11 @@ class iOSBuilder extends Builder {
 							'ios-version':                this.configOptioniOSVersion(130),
 							keychain:                   this.configOptionKeychain(),
 							'launch-bundle-id':           this.configOptionLaunchBundleId(),
+							'hot-reload-port': {
+								desc: `the port of the hot reload server; only used with ${'--hot-reload'.cyan}`,
+								hint: 'port',
+								default: HOT_RELOAD_PORT
+							},
 							'launch-url': {
 								// URL for the application to launch in mobile Safari, as soon as the app boots up
 								hidden: true
@@ -1971,6 +1982,29 @@ class iOSBuilder extends Builder {
 		}
 		if (cli.argv['hide-error-controller']) {
 			this.showErrorController = false;
+		}
+
+		// Hot reload replaces single JS files at runtime, so the JS files cannot be encrypted.
+		this.hotReload = null;
+		if (cli.argv['hot-reload']) {
+			if (this.target !== 'simulator') {
+				logger.warn('The --hot-reload flag works for simulator builds only, ignoring it');
+			} else if (cli.argv['build-only']) {
+				logger.warn('The --hot-reload flag needs a build that starts the app, ignoring it because of --build-only');
+			} else {
+				const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
+				if (!hotReloadPort) {
+					logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
+					process.exit(1);
+				}
+				this.encryptJS = false;
+				this.hotReload = {
+					// The simulator uses the network of this machine.
+					host: '127.0.0.1',
+					port: hotReloadPort,
+					token: crypto.randomBytes(16).toString('hex')
+				};
+			}
 		}
 
 		// this may have already been called in an option validate() callback
@@ -5582,6 +5616,10 @@ class iOSBuilder extends Builder {
 
 	async copyResources() {
 		const gatheredResults = await this.gatherResources();
+		// JS files that the build copies without a transform, for example the scripts of an HTML file.
+		this.hotReloadRawJsFiles = new Set([ ...gatheredResults.resourcesToCopy.keys() ]
+			.filter(file => /\.c?js$/i.test(file))
+			.map(file => file.replace(/\\/g, '/')));
 
 		// ok we now have them organized into broad categories
 		// we can schedule tasks to happen in parallel:
@@ -5590,6 +5628,7 @@ class iOSBuilder extends Builder {
 			this.processJSFiles(gatheredResults.jsFiles),
 			this.writeAppProps(), // writes _app_props_.json for Ti.Properties
 			this.writeEnvironmentVariables(), // writes _env_.json for process.env
+			this.writeHotReloadFiles(), // writes the hot reload client and its configuration
 			(async () => {
 				// processing assets alters the list of resources to copy...
 				await this.processAssets(gatheredResults.imageAssets, gatheredResults.launchImages, gatheredResults.launchLogos, gatheredResults.appIcons, gatheredResults.resourcesToCopy);
@@ -5744,6 +5783,8 @@ class iOSBuilder extends Builder {
 			}
 		});
 		await task.run();
+		// The hot reload server transforms a changed file with the same options as this build.
+		this.hotReloadAnalyzeOptions = task.defaultAnalyzeOptions;
 		if (this.useWebpack) {
 			// Merge Ti symbols from Webpack with the ones from legacy JS processing
 			Object.keys(task.data.tiSymbols).forEach(file => {
@@ -5756,7 +5797,32 @@ class iOSBuilder extends Builder {
 		}
 
 		// then write the bootstrap json
+		if (this.hotReload) {
+			jsBootstrapFiles.push(HOT_RELOAD_BOOTSTRAP);
+		}
 		return this.writeBootstrapJson(jsBootstrapFiles);
+	}
+
+	/**
+	 * Writes the hot reload client and its configuration into the app, if "--hot-reload" is set.
+	 * The native asset loader turns on the override directory when it finds the configuration file.
+	 * @returns {Promise<void>}
+	 */
+	async writeHotReloadFiles() {
+		const configFile = path.join(this.xcodeAppDir, '_hot_reload_.json');
+		const clientFile = path.join(this.xcodeAppDir, `${HOT_RELOAD_BOOTSTRAP}.js`);
+		if (!this.hotReload) {
+			// removeFiles() keeps all files in the app directory, so delete the files of an earlier build
+			// with the flag here. The app must not read the override directory without the flag.
+			await Promise.all([ fs.remove(configFile), fs.remove(clientFile) ]);
+			return;
+		}
+		await fs.ensureDir(this.xcodeAppDir);
+		await fs.writeFile(configFile, JSON.stringify(this.hotReload));
+		this.unmarkBuildDirFile(configFile);
+
+		await fs.copyFile(fileURLToPath(new URL('../../../cli/lib/hot-reload/client.js', import.meta.url)), clientFile);
+		this.unmarkBuildDirFile(clientFile);
 	}
 
 	/**

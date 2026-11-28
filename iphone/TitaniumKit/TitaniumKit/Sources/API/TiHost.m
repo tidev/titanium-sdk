@@ -44,6 +44,63 @@
   return [[url path] stringByReplacingOccurrencesOfString:[TiHost resourcePath] withString:@""];
 }
 
++ (NSString *)hotReloadResourcesDirectory
+{
+  static NSString *directory = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    NSString *configPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"_hot_reload_.json"];
+    NSData *configData = [NSData dataWithContentsOfFile:configPath];
+    if (configData == nil) {
+      return;
+    }
+    NSDictionary *config = [NSJSONSerialization JSONObjectWithData:configData options:0 error:nil];
+    NSString *token = [config isKindOfClass:[NSDictionary class]] ? config[@"token"] : nil;
+    if (![token isKindOfClass:[NSString class]]) {
+      return;
+    }
+    NSCharacterSet *unsafeCharacters = [[NSCharacterSet alphanumericCharacterSet] invertedSet];
+    token = [[token componentsSeparatedByCharactersInSet:unsafeCharacters] componentsJoinedByString:@""];
+
+    // Must match the directory in the hot reload client (cli/lib/hot-reload/client.js).
+    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+    NSString *rootDir = [[cacheDir stringByAppendingPathComponent:@"hot-reload"] stringByStandardizingPath];
+
+    // The files belong to one build of the app, and iOS keeps the cache directory when the app is
+    // installed again. Each build has its own token, so delete the files of another build.
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *installFile = [rootDir stringByAppendingPathComponent:[@"install-" stringByAppendingString:token]];
+    if (![fileManager fileExistsAtPath:installFile]) {
+      [fileManager removeItemAtPath:rootDir error:nil];
+      if (![fileManager createDirectoryAtPath:rootDir withIntermediateDirectories:YES attributes:nil error:nil]
+          || ![fileManager createFileAtPath:installFile contents:nil attributes:nil]) {
+        NSLog(@"[ERROR] Failed to set up the hot reload directory: %@", rootDir);
+        return;
+      }
+    }
+    directory = [[rootDir stringByAppendingPathComponent:@"files/Resources"] retain];
+    NSLog(@"[INFO] Hot reload is on: %@", directory);
+  });
+  return directory;
+}
+
++ (NSString *)hotReloadPathForResource:(NSString *)relativePath
+{
+  NSString *directory = [TiHost hotReloadResourcesDirectory];
+  if (directory == nil || relativePath.length == 0) {
+    return nil;
+  }
+  NSString *path = [[directory stringByAppendingPathComponent:relativePath] stringByStandardizingPath];
+  if (![path hasPrefix:[directory stringByAppendingString:@"/"]]) {
+    return nil;
+  }
+  BOOL isDirectory = NO;
+  if ([[NSFileManager defaultManager] fileExistsAtPath:path isDirectory:&isDirectory] && !isDirectory) {
+    return path;
+  }
+  return nil;
+}
+
 + (NSURL *)resolveFilePathForAppUrl:(NSURL *)appUrl
 {
   if (![[appUrl scheme] isEqualToString:@"app"]) { // Whoops! We don't need to translate!

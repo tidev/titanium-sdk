@@ -28,6 +28,18 @@ typedef NS_ENUM(NSInteger, FileStatus) {
  */
 - (NSString *)readAsset:(NSString *)path
 {
+  if ([path isEqualToString:@"/_index_.json"]) {
+    // The hot reload client stores an updated index next to its resources when a file is new or removed.
+    // Without it, require() finds only the files that the app had at build time.
+    NSString *hotReloadDirectory = [TiHost hotReloadResourcesDirectory];
+    if (hotReloadDirectory != nil) {
+      NSString *indexPath = [[hotReloadDirectory stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"index.json"];
+      NSData *indexData = [NSData dataWithContentsOfFile:indexPath];
+      if (indexData != nil) {
+        return [[[NSString alloc] initWithData:indexData encoding:NSUTF8StringEncoding] autorelease];
+      }
+    }
+  }
   NSData *data;
   if ([path hasPrefix:@"/"]) {
     // drop leading '/' to actually make relative to resources dir
@@ -63,7 +75,13 @@ typedef NS_ENUM(NSInteger, FileStatus) {
   FileStatus status = FileStatusUnknown;
   // This assumes it's a JS or JSON file already!
   if (url.isFileURL) { // if it's a resource, check index.json listing for status
-    status = [AssetsModule fileStatus:[TiHost resourceRelativePath:url]];
+    NSString *relativePath = [TiHost resourceRelativePath:url];
+    // A file from the hot reload client replaces the file of the same path in the app.
+    NSString *hotReloadPath = [TiHost hotReloadPathForResource:relativePath];
+    if (hotReloadPath != nil) {
+      return [NSData dataWithContentsOfFile:hotReloadPath];
+    }
+    status = [AssetsModule fileStatus:relativePath];
   }
   NSData *data;
   switch (status) {

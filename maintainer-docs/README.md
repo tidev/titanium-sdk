@@ -8,5 +8,7 @@ The documentation is as follows:
 
 * [CI Setup](./ci-setup.md)
   * Describes the usage of GitHub actions for the CI setup
+* [Hot Reload](./hot-reload.md)
+  * Describes the architecture of the `--hot-reload` build flag and its open todos
 * [Releasing the SDK](./releasing-the-sdk.md)
   * Describes the process of creating a release

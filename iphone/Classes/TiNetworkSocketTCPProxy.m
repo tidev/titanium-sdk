@@ -64,7 +64,13 @@ static NSString *ARG_KEY = @"arg";
   internalState = SOCKET_CLOSED;
   // Socket cleanup, if necessary
   if ([socketThread isExecuting]) {
-    [self performSelector:@selector(cleanupSocket) onThread:socketThread withObject:nil waitUntilDone:YES];
+    @try {
+      [self performSelector:@selector(cleanupSocket) onThread:socketThread withObject:nil waitUntilDone:YES];
+    } @catch (NSException *exception) {
+      // The socket thread ended between the check and the call, for example when close() ran just before
+      // the context shutdown. The thread cannot do the cleanup anymore, so do it here.
+      [self cleanupSocket];
+    }
   }
 
   RELEASE_TO_NIL(operationInfo);
