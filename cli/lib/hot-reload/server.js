@@ -16,7 +16,6 @@
  *               `index` is the new content of the require index. null deletes the override of the index.
  *               The app keeps its index when the field is absent.
  *   app -> cli  { t: 'ack', id, ok, error }
- *   app -> cli  { t: 'log', level, msg }
  */
 
 import { spawn } from 'node:child_process';
@@ -570,18 +569,8 @@ export class HotReloadServer {
 			return;
 		}
 
-		switch (message.t) {
-			case 'ack':
-				if (!message.ok) {
-					this.logger.error(`[HotReload] App failed to apply patch ${message.id}: ${message.error}`);
-				}
-				break;
-			case 'log':
-				this.logger[message.level === 'error' ? 'error' : 'info'](`[HotReload] ${message.msg}`);
-				break;
-			case 'ping':
-				client.socket.write(encodeFrame({ t: 'pong' }));
-				break;
+		if (message.t === 'ack' && !message.ok) {
+			this.logger.error(`[HotReload] App failed to apply patch ${message.id}: ${message.error}`);
 		}
 	}
 

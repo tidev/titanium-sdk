@@ -121,6 +121,5 @@ npx mocha cli/tests/test-hot-reload-server.js
 - Webpack projects. The server does not watch the Webpack output.
 - `adb reverse` after a reconnect. The hook sets the port forward one time after the build. A device that connects again loses it.
 - State after a restart. The app starts again from `app.js`. A reload of one module or one window does not exist.
-- Unused messages. The server handles `log` and `ping`, but the client sends neither. Send app errors to the CLI or remove the handlers.
 - Tests. Only the server has tests. The client and the native loaders have none.
 - User documentation. The flag is not in the CLI documentation or the changelog.
