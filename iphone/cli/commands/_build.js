@@ -1814,7 +1814,7 @@ class iOSBuilder extends Builder {
 								targetName
 							} provisioning profile UUID in tiapp.xml.`);
 							logger.log();
-							logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+							logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 							logger.log('    <ios>'.grey);
 							logger.log('        <extensions>'.grey);
 							logger.log(('            <extension projectPath="' + ext.origProjectPath + '">').grey);
@@ -2289,7 +2289,7 @@ class iOSBuilder extends Builder {
 							logger.log('  ' + id.cyan);
 						});
 						logger.log();
-						logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+						logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 						logger.log('    <ios>'.grey);
 						logger.log('        <team-id>TEAM ID</team-id>'.magenta);
 						logger.log('    </ios>'.grey);
@@ -2344,7 +2344,7 @@ class iOSBuilder extends Builder {
 							version.format(device.productVersion, 2, 2).cyan
 						} in the tiapp.xml:`);
 						logger.log();
-						logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+						logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 						logger.log('    <ios>'.grey);
 						logger.log(('        <min-ios-ver>' + version.format(device.productVersion, 2, 2) + '</min-ios-ver>').magenta);
 						logger.log('    </ios>'.grey);
@@ -4853,7 +4853,7 @@ class iOSBuilder extends Builder {
 			this.logger.error('The <iphone> section of the tiapp.xml has been removed in Titanium SDK 7.0.0 and later.');
 			this.logger.log('Please use the <ios> section of the tiapp.xml to specify iOS-specific values instead:');
 			this.logger.log();
-			this.logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+			this.logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 			this.logger.log('    <ios>'.grey);
 			this.logger.log('        <plist>'.grey);
 			this.logger.log('            <dict>'.grey);

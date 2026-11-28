@@ -21,10 +21,16 @@ import org.appcelerator.titanium.util.TiUIHelper;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Outline;
+import android.graphics.Path;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.OnHierarchyChangeListener;
+import android.view.ViewOutlineProvider;
+import android.view.ViewParent;
 import android.view.WindowInsets;
 
 /**
@@ -58,6 +64,12 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 
 	private TreeSet<View> viewSorter;
 	private boolean needsSort;
+
+	// Used to clip a child to its outline on a software canvas.
+	private Outline childOutline;
+	private Rect childOutlineRect;
+	private Path childOutlinePath;
+	private static boolean didWarnSoftwareClip;
 	protected LayoutArrangement arrangement;
 
 	// Used by horizontal arrangement calculations
@@ -372,6 +384,65 @@ public class TiCompositeLayout extends ViewGroup implements OnHierarchyChangeLis
 		}
 		setNeedsSort(true);
 		requestLayout();
+	}
+
+	/**
+	 * Android ignores View.setClipToOutline() on a software canvas, for example below a view
+	 * that uses LAYER_TYPE_SOFTWARE. Clip the canvas to the outline of the child in this case,
+	 * so that a borderRadius drawn by a ViewOutlineProvider keeps its round corners.
+	 */
+	@Override
+	protected boolean drawChild(Canvas canvas, View child, long drawingTime)
+	{
+		final ViewOutlineProvider provider = child.getOutlineProvider();
+		if (canvas.isHardwareAccelerated() || !child.getClipToOutline() || provider == null) {
+			return super.drawChild(canvas, child, drawingTime);
+		}
+		if (childOutline == null) {
+			childOutline = new Outline();
+			childOutlineRect = new Rect();
+			childOutlinePath = new Path();
+		}
+		childOutline.setEmpty();
+		provider.getOutline(child, childOutline);
+		// getRect() returns false for each outline that is not a rectangle or a round rectangle.
+		if (!childOutline.getRect(childOutlineRect)) {
+			return super.drawChild(canvas, child, drawingTime);
+		}
+
+		// Log the warning one time, and only if a software layer is the cause.
+		if (!didWarnSoftwareClip && hasSoftwareLayer()) {
+			didWarnSoftwareClip = true;
+			Log.w(TAG, "A view with a border uses LAYER_TYPE_SOFTWARE, so the borderRadius of its child views"
+				+ " is clipped in software. Set `keepHardwareMode: true` on that view to keep hardware"
+				+ " acceleration.");
+		}
+
+		final float radius = childOutline.getRadius();
+		childOutlinePath.rewind();
+		childOutlinePath.addRoundRect(childOutlineRect.left, childOutlineRect.top, childOutlineRect.right,
+			childOutlineRect.bottom, radius, radius, Path.Direction.CW);
+		childOutlinePath.transform(child.getMatrix());
+		childOutlinePath.offset(child.getLeft(), child.getTop());
+
+		final int saveCount = canvas.save();
+		canvas.clipPath(childOutlinePath);
+		final boolean result = super.drawChild(canvas, child, drawingTime);
+		canvas.restoreToCount(saveCount);
+		return result;
+	}
+
+	/**
+	 * @return true if this layout or one of its ancestors uses LAYER_TYPE_SOFTWARE.
+	 */
+	private boolean hasSoftwareLayer()
+	{
+		for (ViewParent parent = this; parent instanceof View; parent = parent.getParent()) {
+			if (((View) parent).getLayerType() == View.LAYER_TYPE_SOFTWARE) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void onChildViewAdded(View parent, View child)

@@ -1128,7 +1128,7 @@ class AndroidBuilder extends Builder {
 				'<uses-sdk>'.cyan
 			} tag:`);
 			logger.warn();
-			logger.warn('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+			logger.warn('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 			logger.warn('    <android>'.grey);
 			logger.warn('        <manifest>'.grey);
 			logger.warn(('            <uses-sdk android:minSdkVersion="' + this.minSupportedApiLevel + '" android:targetSdkVersion="' + this.minTargetApiLevel + '" android:maxSdkVersion="' + this.maxSupportedApiLevel + '"/>').magenta);
@@ -1173,7 +1173,7 @@ class AndroidBuilder extends Builder {
 				)
 			);
 			logger.log();
-			logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+			logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 			logger.log('    <android>'.grey);
 			logger.log('        <manifest>'.grey);
 			logger.log(('            <uses-sdk '
@@ -1210,7 +1210,7 @@ class AndroidBuilder extends Builder {
 					)
 				);
 				logger.log();
-				logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+				logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 				logger.log('    <android>'.grey);
 				logger.log('        <manifest>'.grey);
 				logger.log(('            <uses-sdk '
@@ -1406,7 +1406,7 @@ class AndroidBuilder extends Builder {
 
 					logger.log('You need to add at least one of the device\'s supported ABIs to the tiapp.xml');
 					logger.log();
-					logger.log('<ti:app xmlns:ti="http://ti.tidev.io">'.grey);
+					logger.log('<ti:app xmlns:ti="http://ti.titaniumsdk.com">'.grey);
 					logger.log('    <!-- snip -->'.grey);
 					logger.log('    <android>'.grey);
 					logger.log(('        <abi>' + this.abis.concat(device.abi).join(',') + '</abi>').magenta);
