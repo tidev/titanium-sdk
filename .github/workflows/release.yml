@@ -103,13 +103,13 @@ jobs:
           java-version: '21'
 
   ios:
-    runs-on: macos-26
+    runs-on: xcode-27
     name: iOS
     needs: [validate]
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       USE_CCACHE: 1
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -122,11 +122,11 @@ jobs:
           node-version: '26'
 
   package:
-    runs-on: macos-26
+    runs-on: xcode-27
     name: Package
     env:
       SDK_BUILD_CACHE_DIR: ${{ github.workspace }}/.native-modules
-      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
       vtag: ${{ needs.validate.outputs.vtag }}
     needs: [validate, android, ios]
     steps:

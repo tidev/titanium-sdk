@@ -37,16 +37,32 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 
 	public Object call(KrollObject krollObject, Object[] args)
 	{
+		return call(krollObject, args, true);
+	}
+
+	@Override
+	public void callWithoutResult(KrollObject krollObject, Object[] args)
+	{
+		call(krollObject, args, false);
+	}
+
+	private Object call(KrollObject krollObject, Object[] args, boolean returnResult)
+	{
 		if (KrollRuntime.getInstance().isRuntimeThread()) {
-			return callSync(krollObject, args);
+			return callSync(krollObject, args, returnResult);
 
 		} else {
-			return TiMessenger.sendBlockingRuntimeMessage(handler.obtainMessage(MSG_CALL_SYNC),
-														  new FunctionArgs(krollObject, args));
+			return TiMessenger.sendBlockingRuntimeMessage(
+				handler.obtainMessage(MSG_CALL_SYNC, returnResult ? 1 : 0, 0), new FunctionArgs(krollObject, args));
 		}
 	}
 
 	public Object callSync(KrollObject krollObject, Object[] args)
+	{
+		return callSync(krollObject, args, true);
+	}
+
+	private Object callSync(KrollObject krollObject, Object[] args, boolean returnResult)
 	{
 		if (KrollRuntime.isDisposed()) {
 			Log.w(TAG, "Runtime disposed, cannot call function.");
@@ -56,7 +72,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 			Log.w(TAG, "Runtime restarted, cannot call function from previous runtime.");
 			return null;
 		}
-		return nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args);
+		return nativeInvoke(((V8Object) krollObject).getPointer(), getPointer(), args, returnResult);
 	}
 
 	public void callAsync(KrollObject krollObject, HashMap args)
@@ -69,7 +85,8 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 		TiMessenger.postOnRuntime(new Runnable() {
 			public void run()
 			{
-				call(krollObject, args);
+				// The result of an asynchronous call is never used, so do not convert it.
+				call(krollObject, args, false);
 			}
 		});
 	}
@@ -81,7 +98,7 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 			case MSG_CALL_SYNC: {
 				AsyncResult asyncResult = ((AsyncResult) message.obj);
 				FunctionArgs functionArgs = (FunctionArgs) asyncResult.getArg();
-				asyncResult.setResult(callSync(functionArgs.krollObject, functionArgs.args));
+				asyncResult.setResult(callSync(functionArgs.krollObject, functionArgs.args, message.arg1 != 0));
 
 				return true;
 			}
@@ -91,7 +108,8 @@ public class V8Function extends V8Object implements KrollFunction, Handler.Callb
 	}
 
 	// JNI method prototypes
-	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs);
+	private native Object nativeInvoke(long thisPointer, long functionPointer, Object[] functionArgs,
+									   boolean returnResult);
 
 	protected native boolean nativeRelease(long functionPointer);
 }

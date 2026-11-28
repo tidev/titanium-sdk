@@ -10,7 +10,7 @@
 		"android"
 	],
 	"version": "__VERSION__",
-	"author": "TiDev, Inc. <npm@tidev.io>",
+	"author": "TiDev, Inc. <npm@titaniumsdk.com>",
 	"architectures": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
 	"v8": {
 		"version": "8.8.278.17",

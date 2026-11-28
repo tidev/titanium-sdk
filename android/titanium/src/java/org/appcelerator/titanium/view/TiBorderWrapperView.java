@@ -43,6 +43,8 @@ public class TiBorderWrapperView extends FrameLayout
 	private int alpha = -1;
 	private Paint paint;
 	private Rect bounds;
+	private final Path outerPath = new Path();
+	private final Path innerPath = new Path();
 	private ViewOutlineProvider viewOutlineProvider;
 	public TiBorderWrapperView(Context context)
 	{
@@ -93,14 +95,14 @@ public class TiBorderWrapperView extends FrameLayout
 			paint.setAlpha(alpha);
 		}
 
-		Path outerPath = new Path();
+		outerPath.rewind();
+		innerPath.rewind();
 		if (dashIntervals != null && padding > 0) {
 			// Dashed border: stroke a path centered within the border width instead of filling a ring.
 			float inset = padding / 2f;
 			RectF strokeRect =
 				new RectF(bounds.left + inset, bounds.top + inset, bounds.right - inset, bounds.bottom - inset);
-			Path strokePath = new Path();
-			Path innerPath = new Path();
+			final Path strokePath = outerPath;
 			if (hasRadius()) {
 				float[] strokeRadius = new float[this.radius.length];
 				float[] innerRadius = new float[this.radius.length];
@@ -127,7 +129,7 @@ public class TiBorderWrapperView extends FrameLayout
 				innerRadius[i] = this.radius[i] - padding;
 			}
 			outerPath.addRoundRect(innerRect, innerRadius, Direction.CCW);
-			Path innerPath = new Path(outerPath);
+			innerPath.set(outerPath);
 
 			// Draw border.
 			outerPath.addRoundRect(outerRect, this.radius, Direction.CW);
