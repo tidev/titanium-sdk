@@ -230,7 +230,7 @@ class AndroidBuilder extends Builder {
 				const conf = {
 					flags: {
 						'hot-reload': {
-							desc: 'push changed files to the running app and restart it',
+							desc: 'push changed JS, JSON, and Alloy source files to the running app and restart it; not for production builds',
 							default: false
 						},
 						launch: {
@@ -942,19 +942,25 @@ class AndroidBuilder extends Builder {
 
 		// Hot reload replaces single asset files at runtime, so the JS files cannot be encrypted.
 		this.hotReload = null;
-		if (cli.argv['hot-reload'] && this.deployType !== 'production') {
-			const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
-			if (!hotReloadPort) {
-				logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
-				process.exit(1);
+		if (cli.argv['hot-reload']) {
+			if (this.deployType === 'production') {
+				logger.warn('The --hot-reload flag does not work for production builds, ignoring it');
+			} else if (this.buildOnly) {
+				logger.warn('The --hot-reload flag needs a build that starts the app, ignoring it because of --build-only');
+			} else {
+				const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
+				if (!hotReloadPort) {
+					logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
+					process.exit(1);
+				}
+				this.encryptJS = false;
+				this.hotReload = {
+					// The emulator reaches the host at 10.0.2.2. A device uses "adb reverse", see hooks/hot-reload.js.
+					host: this.target === 'emulator' ? '10.0.2.2' : '127.0.0.1',
+					port: hotReloadPort,
+					token: randomBytes(16).toString('hex')
+				};
 			}
-			this.encryptJS = false;
-			this.hotReload = {
-				// The emulator reaches the host at 10.0.2.2. A device uses "adb reverse", see hooks/hot-reload.js.
-				host: this.target === 'emulator' ? '10.0.2.2' : '127.0.0.1',
-				port: hotReloadPort,
-				token: randomBytes(16).toString('hex')
-			};
 		}
 
 		// Select the JavaScript asset encryption module. The open source 'ti.crypt'

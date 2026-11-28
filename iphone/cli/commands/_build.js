@@ -457,7 +457,7 @@ class iOSBuilder extends Builder {
 								hidden: true
 							},
 							'hot-reload': {
-								desc: `for ${'simulator'.cyan} builds, push changed files to the running app and restart it`,
+								desc: `for ${'simulator'.cyan} builds, push changed JS, JSON, and Alloy source files to the running app and restart it`,
 								default: false
 							},
 							'launch-watch-app': {
@@ -1987,7 +1987,11 @@ class iOSBuilder extends Builder {
 		// Hot reload replaces single JS files at runtime, so the JS files cannot be encrypted.
 		this.hotReload = null;
 		if (cli.argv['hot-reload']) {
-			if (this.target === 'simulator') {
+			if (this.target !== 'simulator') {
+				logger.warn('The --hot-reload flag works for simulator builds only, ignoring it');
+			} else if (cli.argv['build-only']) {
+				logger.warn('The --hot-reload flag needs a build that starts the app, ignoring it because of --build-only');
+			} else {
 				const hotReloadPort = parseHotReloadPort(cli.argv['hot-reload-port']);
 				if (!hotReloadPort) {
 					logger.error(`Invalid --hot-reload-port "${cli.argv['hot-reload-port']}", the value must be a number from 1 to 65535\n`);
@@ -2000,8 +2004,6 @@ class iOSBuilder extends Builder {
 					port: hotReloadPort,
 					token: crypto.randomBytes(16).toString('hex')
 				};
-			} else {
-				logger.warn('The --hot-reload flag works for simulator builds only, ignoring it');
 			}
 		}
 
